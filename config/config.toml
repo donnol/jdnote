@@ -1,0 +1,14 @@
+# This is a TOML document.
+
+title = "jdnote project"
+
+[owner]
+name = "jdlau"
+
+[database]
+scheme = "postgres"
+host = "127.0.0.1"
+port = 5432
+user = "jd"
+password = "jd"
+name = "cicada"
