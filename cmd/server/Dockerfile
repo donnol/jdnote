@@ -1,12 +1,12 @@
 # 构建
-FROM golang AS builder
+FROM golang:1.12rc1 AS builder
 
-ARG PROJECT_PATH=github.com/donnol/jdnote
+ARG PROJECT_PATH=Projects/jdnote
 
-RUN mkdir -p /go/src/$PROJECT_PATH
-WORKDIR /go/src/$PROJECT_PATH
-COPY ../../ .
-WORKDIR /go/src/$PROJECT_PATH/cmd/server
+RUN mkdir -p /$PROJECT_PATH
+WORKDIR /$PROJECT_PATH
+COPY . .
+WORKDIR /$PROJECT_PATH/cmd/server
 
 RUN CGO_ENABLED=0 go build -o /server .
 
