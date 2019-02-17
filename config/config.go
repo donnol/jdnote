@@ -16,7 +16,18 @@ type Config struct {
 }
 
 func init() {
-	DefaultConfig = MakeConfigFromFile("../../config/config.toml")
+	// FIXME: 怎么使用这个配置文件比较方便呢？
+	// DefaultConfig = MakeConfigFromFile("../../config/config.toml")
+	DefaultConfig = Config{
+		DB: DB{
+			Scheme:   "postgres",
+			Host:     "127.0.0.1",
+			Port:     5432,
+			User:     "jd",
+			Password: "jd",
+			Name:     "cicada",
+		},
+	}
 }
 
 // DB 数据库配置
