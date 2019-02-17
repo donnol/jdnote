@@ -1,13 +1,13 @@
 package user
 
 import (
-	"github.com/donnol/jdnote/store/db"
+	pg "github.com/donnol/jdnote/store/db/postgresql"
 	"github.com/jmoiron/sqlx"
 )
 
 // User 用户
 type User struct {
-	db.DB
+	pg.DB
 	ID   int    `json:"id" form:"id"`     // 记录ID
 	Name string `json:"name" form:"name"` // 用户名
 }

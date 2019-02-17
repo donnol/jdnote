@@ -1,11 +1,11 @@
-package db
+package pg
 
 import (
 	"log"
 
+	"github.com/donnol/jdnote/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
-	"github.com/donnol/jdnote/config"
 )
 
 // DefaultDB 默认db
