@@ -10,6 +10,7 @@ require (
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mdempsky/gocode v0.0.0-20181226182234-be056ad32a5e // indirect
 	github.com/ugorji/go/codec v0.0.0-20181209151446-772ced7fd4c2 // indirect
+	golang.org/x/crypto v0.0.0-20190211182817-74369b46fc67
 	golang.org/x/tools v0.0.0-20190123021125-9279ec27fd88 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
