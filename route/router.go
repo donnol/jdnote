@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -25,8 +26,24 @@ func NewRouter() *Router {
 	}
 }
 
+// Param 通用参数
+type Param struct {
+	UserID       int         `json:"userID"`       // 用户ID
+	RequestParam interface{} `json:"requestParam"` // 请求参数
+}
+
+// Result 通用结果
+type Result struct {
+	Code int         `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
+	Msg  string      `json:"msg"`  // 信息，一般是出错时的描述信息
+	Data interface{} `json:"data"` // 正常返回时的数据
+
+	// 给登陆接口使用
+	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
+}
+
 // Register 注册
-func (r *Router) Register(method, path string, param interface{}, f func(interface{}) (interface{}, error)) {
+func (r *Router) Register(method, path string, param interface{}, f func(Param) (Result, error)) {
 	switch method {
 	case http.MethodPost:
 		r.Engine.POST(path, defaultHandlerFunc(http.MethodPost, param, f))
@@ -41,7 +58,7 @@ func (r *Router) Register(method, path string, param interface{}, f func(interfa
 	}
 }
 
-var defaultHandlerFunc = func(method string, param interface{}, f func(interface{}) (interface{}, error)) gin.HandlerFunc {
+var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (Result, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 		switch method {
@@ -59,10 +76,29 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(interface
 			return
 		}
 
-		r, err := f(param)
+		// TODO:获取用户信息
+		var userID int
+
+		p := Param{UserID: userID, RequestParam: param}
+		r, err := f(p)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
+		}
+
+		// 设置header
+		// 格式
+		c.Header("Content-Type", "application/json; charset=utf-8")
+		// 跨域
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		// cookie
+		if r.CookieAfterLogin != 0 {
+			// TODO:
+			var session string
+			var maxAge = 3600 * 24
+			cookie := fmt.Sprintf("jd_session=%s; HttpOnly; max-age=%d", session, maxAge)
+			c.Header("Set-Cookie", cookie)
 		}
 
 		c.JSON(http.StatusOK, r)

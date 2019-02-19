@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 
-	"github.com/donnol/jdnote/service/user"
 	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/service/user"
 )
 
 func init() {
@@ -12,16 +12,32 @@ func init() {
 	route.DefaultRouter.Register(http.MethodPost, "/add", &user.User{}, add)
 }
 
-func login(param interface{}) (interface{}, error) {
-	p := param.(*user.User)
+func login(param route.Param) (r route.Result, err error) {
+	// 参数
+	p := param.RequestParam.(*user.User)
+
+	// 权限
+	_ = param.UserID
+
+	// 业务
 	u := user.New()
-	r := u.GetByName(p.Name)
-	return r, nil
+	data := u.GetByName(p.Name)
+	r.Data = data
+
+	return
 }
 
-func add(param interface{}) (interface{}, error) {
-	p := param.(*user.User)
+func add(param route.Param) (r route.Result, err error) {
+	// 参数
+	p := param.RequestParam.(*user.User)
+
+	// 权限
+	_ = param.UserID
+
+	// 业务
 	u := user.New()
-	r := u.GetByName(p.Name)
-	return r, nil
+	data := u.GetByName(p.Name)
+	r.Data = data
+
+	return
 }
