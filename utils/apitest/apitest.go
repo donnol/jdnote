@@ -20,6 +20,10 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"sync/atomic"
+	"time"
+
+	"github.com/donnol/jdnote/utils/worker"
 )
 
 // Predefined error
@@ -141,6 +145,37 @@ func (at *AT) MonkeyRun() *AT {
 	at.param = param
 
 	return at.run()
+}
+
+// PressureRun 压力运行，n: 运行次数，c: 并发数
+func (at *AT) PressureRun(n, c int) *AT {
+	w := worker.New(c)
+	w.Start()
+
+	// 记录开始时间
+	before := time.Now()
+
+	var total int64
+	for i := 0; i < n; i++ {
+		w.Push(worker.MakeJob(func() error {
+			// 运行
+			at.run()
+
+			// 统计数量
+			atomic.AddInt64(&total, 1)
+
+			return nil
+		}, 0, nil))
+	}
+
+	w.Stop()
+
+	// 记录结束时间，并计算耗时
+	after := time.Now()
+	used := after.Unix() - before.Unix()
+	fmt.Printf("\n=== Pressure Report ===\nNumber: %d\nConcurrency: %d\nCompleted: %d\nUsed time: %ds\nRPS: %v\n=== END ===\n\n", n, c, total, used, total/used)
+
+	return at
 }
 
 // Debug 开启调试模式
