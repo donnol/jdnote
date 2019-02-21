@@ -2,6 +2,7 @@ module github.com/donnol/jdnote
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/golang/protobuf v1.2.0 // indirect
