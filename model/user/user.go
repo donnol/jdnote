@@ -7,7 +7,7 @@ import (
 
 // User 用户
 type User struct {
-	pg.DB
+	pg.DB `json:"-" db:"-"`
 
 	ID       int    `json:"id" form:"id"`       // 记录ID
 	Name     string `json:"name" form:"name"`   // 用户名
@@ -17,12 +17,11 @@ type User struct {
 }
 
 // GetByName 以名字获取用户
-func (u *User) GetByName(name string) User {
-	var r User
-	if err := u.DB.New().Get(&r, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
-		panic(err)
+func (u *User) GetByName(name string) error {
+	if err := u.DB.New().Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+		return err
 	}
-	return r
+	return nil
 }
 
 // Add 添加

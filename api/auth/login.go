@@ -21,8 +21,10 @@ func login(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	u := user.New()
-	data := u.GetByName(p.Name)
-	r.Data = data
+	if err := u.GetByName(p.Name); err != nil {
+		return r, err
+	}
+	r.Data = u
 
 	return
 }
@@ -36,8 +38,10 @@ func add(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	u := user.New()
-	data := u.GetByName(p.Name)
-	r.Data = data
+	if err := u.GetByName(p.Name); err != nil {
+		return r, err
+	}
+	r.Data = u
 
 	return
 }
