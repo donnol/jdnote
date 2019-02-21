@@ -6,7 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/donnol/jdnote/utils/jwt"
+	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
+)
+
+var (
+	sessionKey = "jd_session"
 )
 
 // DefaultRouter 默认路由
@@ -76,8 +82,17 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (R
 			return
 		}
 
-		// TODO:获取用户信息
+		// 获取用户信息
 		var userID int
+		token := &jwt.Token{}
+		cookie, err := c.Cookie(sessionKey)
+		if err == nil {
+			userID, err = token.Verify(cookie)
+			if err != nil {
+				utillog.Warnf("token verify failed, err: %+v\n", err)
+				userID = 0
+			}
+		}
 
 		p := Param{UserID: userID, RequestParam: param}
 		r, err := f(p)
@@ -94,10 +109,15 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (R
 		c.Header("Access-Control-Allow-Credentials", "true")
 		// cookie
 		if r.CookieAfterLogin != 0 {
-			// TODO:
 			var session string
-			var maxAge = 3600 * 24
-			cookie := fmt.Sprintf("jd_session=%s; HttpOnly; max-age=%d", session, maxAge)
+			token := &jwt.Token{}
+			session, err = token.Sign(r.CookieAfterLogin)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			var maxAge = 3600 * 24 * 7
+			cookie := fmt.Sprintf("%s=%s; HttpOnly; max-age=%d", sessionKey, session, maxAge)
 			c.Header("Set-Cookie", cookie)
 		}
 
