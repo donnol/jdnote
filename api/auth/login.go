@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	route.DefaultRouter.Register(http.MethodGet, "/login", &user.User{}, login)
+	route.DefaultRouter.Register(http.MethodPost, "/login", &user.User{}, login)
 	route.DefaultRouter.Register(http.MethodPost, "/add", &user.User{}, add)
 }
 
@@ -21,10 +21,10 @@ func login(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	u := user.New()
-	if err := u.GetByName(p.Name); err != nil {
+	if err := u.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
 		return r, err
 	}
-	r.Data = u
+	r.CookieAfterLogin = u.ID
 
 	return
 }

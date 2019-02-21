@@ -9,11 +9,11 @@ import (
 type User struct {
 	pg.DB `json:"-" db:"-"`
 
-	ID       int    `json:"id" form:"id"`       // 记录ID
-	Name     string `json:"name" form:"name"`   // 用户名
-	Phone    string `json:"phone" form:"phone"` // 手机号码
-	Email    string `json:"email" form:"email"` // 邮箱
-	Password string `json:"-" form:"password"`  // 密码
+	ID       int    `json:"id" form:"id"`             // 记录ID
+	Name     string `json:"name" form:"name"`         // 用户名
+	Phone    string `json:"phone" form:"phone"`       // 手机号码
+	Email    string `json:"email" form:"email"`       // 邮箱
+	Password string `json:"password" form:"password"` // 密码
 }
 
 // GetByName 以名字获取用户
@@ -21,6 +21,21 @@ func (u *User) GetByName(name string) error {
 	if err := u.DB.New().Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// VerifyByNameAndPassword 以名字和密码校验用户
+func (u *User) VerifyByNameAndPassword(name, password string) error {
+	if err := u.DB.New().Get(u, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+		return err
+	}
+
+	// 校验用户和密码
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -28,11 +43,7 @@ func (u *User) GetByName(name string) error {
 func (u *User) Add() error {
 	var id int
 
-	// 加密密码
-	hashedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(u.Password),
-		bcrypt.DefaultCost,
-	)
+	hashedPassword, err := u.hashPassword(u.Password)
 	if err != nil {
 		return err
 	}
@@ -49,4 +60,17 @@ func (u *User) Add() error {
 	u.ID = id
 
 	return nil
+}
+
+func (u *User) hashPassword(password string) ([]byte, error) {
+	// 加密密码
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return hashedPassword, nil
 }
