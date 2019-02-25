@@ -8,8 +8,16 @@ import (
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
 )
 
-// DefaultDB 默认db
-var DefaultDB DB
+// defaultDB 默认db
+var defaultDB DB
+
+// 单元测试
+var (
+	// 是否开启
+	IsUnitTest bool
+	// 测试用事务-测试完成后调用Rollback将事务回滚，可以在测试里添加TestMain，然后在里面defer关闭
+	unitTestTx *sqlx.Tx
+)
 
 // DB 数据库连接
 type DB struct {
@@ -18,12 +26,17 @@ type DB struct {
 
 // New 新建
 func (db *DB) New() *sqlx.DB {
-	return DefaultDB.DB
+	// TODO:单元测试时，使用一个全局事务，但是事务类型是sqlx.Tx，又不是sqlx.DB
+	if IsUnitTest {
+		return defaultDB.DB
+	}
+
+	return defaultDB.DB
 }
 
 // WithTx 事务
 func (db *DB) WithTx(f func(tx *sqlx.Tx) error) error {
-	tx, err := DefaultDB.DB.Beginx()
+	tx, err := defaultDB.DB.Beginx()
 	if err != nil {
 		return err
 	}
@@ -38,7 +51,18 @@ func (db *DB) WithTx(f func(tx *sqlx.Tx) error) error {
 	err = f(tx)
 	if err == nil {
 		success = true
-		return tx.Commit() // 成功则提交
+
+		// 单元测试时，一律回滚事务
+		if IsUnitTest {
+			err = tx.Rollback()
+		} else {
+			err = tx.Commit() // 成功则提交
+		}
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	return err
@@ -53,5 +77,5 @@ func init() {
 		panic(err)
 	}
 
-	DefaultDB.DB = db
+	defaultDB.DB = db
 }
