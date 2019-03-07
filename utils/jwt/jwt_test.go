@@ -3,10 +3,14 @@ package jwt
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestToken(t *testing.T) {
-	token := &Token{}
+	rand.Seed(time.Now().Unix())
+
+	secret := []byte("Xadfdfoere2324212afasf34wraf090uadfafdIEJF039038")
+	token := New(secret)
 	id := rand.Int()
 	r, err := token.Sign(id)
 	if err != nil {

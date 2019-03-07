@@ -4,12 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-)
-
-// 密钥
-var (
-	secret = []byte("Xadfdfoere2324212afasf34wraf090uadfafdIEJF039039")
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 var (
@@ -25,6 +20,14 @@ var (
 
 // Token 令牌
 type Token struct {
+	secret []byte
+}
+
+// New 新建
+func New(secret []byte) *Token {
+	return &Token{
+		secret: secret,
+	}
 }
 
 // CustomClaims 自定义
@@ -45,7 +48,7 @@ func (t *Token) Sign(userID int) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(secret)
+	ss, err := token.SignedString(t.secret)
 	if err != nil {
 		return ss, err
 	}
@@ -56,7 +59,7 @@ func (t *Token) Sign(userID int) (string, error) {
 // Verify 校验
 func (t *Token) Verify(tokenString string) (int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return secret, nil
+		return t.secret, nil
 	})
 	if err != nil {
 		return 0, err

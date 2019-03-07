@@ -12,3 +12,6 @@ port = 5432
 user = "jd"
 password = "jd"
 name = "cicada"
+
+[jwt]
+secret = "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039"

@@ -12,7 +12,11 @@ var DefaultConfig Config
 
 // Config 配置
 type Config struct {
+	// 数据库配置
 	DB DB `toml:"database"`
+
+	// jwt配置
+	JWT JWT `toml:"jwt"`
 }
 
 func init() {
@@ -28,6 +32,11 @@ type DB struct {
 	Password string // 密码
 	Name     string // 数据库名
 	SSLmode  bool   // ssl模式
+}
+
+// JWT jwt配置
+type JWT struct {
+	Secret string
 }
 
 // MakeConfigFromFile 新建DB配置

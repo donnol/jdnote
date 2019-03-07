@@ -9,4 +9,7 @@ var normal = Config{
 		Password: "jd",
 		Name:     "cicada",
 	},
+	JWT: JWT{
+		Secret: "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039",
+	},
 }

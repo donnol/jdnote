@@ -6,13 +6,17 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
 )
 
+// cookie相关
 var (
 	sessionKey = "jd_session"
+
+	jwtToken = jwt.New([]byte(config.DefaultConfig.JWT.Secret))
 )
 
 // DefaultRouter 默认路由
@@ -84,10 +88,9 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (R
 
 		// 获取用户信息
 		var userID int
-		token := &jwt.Token{}
 		cookie, err := c.Cookie(sessionKey)
 		if err == nil {
-			userID, err = token.Verify(cookie)
+			userID, err = jwtToken.Verify(cookie)
 			if err != nil {
 				utillog.Warnf("token verify failed, err: %+v\n", err)
 				userID = 0
@@ -110,8 +113,7 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (R
 		// cookie
 		if r.CookieAfterLogin != 0 {
 			var session string
-			token := &jwt.Token{}
-			session, err = token.Sign(r.CookieAfterLogin)
+			session, err = jwtToken.Sign(r.CookieAfterLogin)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
