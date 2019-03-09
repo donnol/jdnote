@@ -8,12 +8,12 @@ import (
 )
 
 var (
-	_ Interface = &sqlx.DB{}
-	_ Interface = &sqlx.Tx{}
+	_ DB = &sqlx.DB{}
+	_ DB = &sqlx.Tx{}
 )
 
-// Interface 接口
-type Interface interface {
+// DB 接口
+type DB interface {
 	BindNamed(query string, arg interface{}) (string, []interface{}, error)
 	DriverName() string
 	Get(dest interface{}, query string, args ...interface{}) error

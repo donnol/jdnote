@@ -7,8 +7,6 @@ import (
 
 // User 用户
 type User struct {
-	pg.DB `json:"-" db:"-"`
-
 	ID       int    `json:"id" form:"id"`             // 记录ID
 	Name     string `json:"name" form:"name"`         // 用户名
 	Phone    string `json:"phone" form:"phone"`       // 手机号码
@@ -18,7 +16,7 @@ type User struct {
 
 // GetByName 以名字获取用户
 func (u *User) GetByName(name string) error {
-	if err := u.DB.New().Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+	if err := pg.New().Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		return err
 	}
 
@@ -27,7 +25,7 @@ func (u *User) GetByName(name string) error {
 
 // VerifyByNameAndPassword 以名字和密码校验用户
 func (u *User) VerifyByNameAndPassword(name, password string) error {
-	if err := u.DB.New().Get(u, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+	if err := pg.New().Get(u, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		return err
 	}
 
@@ -48,7 +46,7 @@ func (u *User) Add() error {
 		return err
 	}
 
-	if err := u.DB.New().Get(&id, `INSERT INTO t_user (name, phone, email, password)
+	if err := pg.New().Get(&id, `INSERT INTO t_user (name, phone, email, password)
 		VALUES($1, $2, $3, $4) RETURNING id`,
 		u.Name,
 		u.Phone,
