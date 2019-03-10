@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/donnol/jdnote/model/user"
 )
 
@@ -18,6 +20,9 @@ func New() *User {
 
 // Check 检查
 func (u *User) Check() error {
+	if u.Password == "" {
+		return fmt.Errorf("Empty Password")
+	}
 
 	return nil
 }

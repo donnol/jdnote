@@ -59,9 +59,11 @@ func TestAdd(t *testing.T) {
 	t.Run("Post", func(t *testing.T) {
 		if err := at.New().SetPort(":8810").
 			SetParam(&struct {
-				Name string
+				Name     string
+				Password string
 			}{
-				Name: "jd",
+				Name:     "jd",
+				Password: "13420693396",
 			}).
 			Debug().
 			Run().
@@ -73,7 +75,7 @@ func TestAdd(t *testing.T) {
 					var u userao.User
 					json.Unmarshal(b, &u)
 					return at.Equal(
-						u.ID, 11,
+						u.ID != 0, true,
 						u.Name, "jd",
 					).Err()
 				},

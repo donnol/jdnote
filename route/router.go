@@ -86,6 +86,14 @@ var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (R
 			return
 		}
 
+		// 检查参数
+		if v, ok := param.(Checker); ok {
+			if err := v.Check(); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+		}
+
 		// 获取用户信息
 		var userID int
 		cookie, err := c.Cookie(sessionKey)
