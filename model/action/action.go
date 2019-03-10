@@ -6,7 +6,7 @@ import (
 
 // Action 操作
 type Action struct {
-	pg.DB `json:"-" sql:"-"`
+	pg.DB `json:"-" db:"-"`
 
 	ID     int    `json:"id"`     // 记录ID
 	Action string `json:"action"` // 操作
