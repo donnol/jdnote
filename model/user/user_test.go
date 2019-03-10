@@ -1,15 +1,24 @@
 package user
 
-import "testing"
+import (
+	"testing"
+
+	pg "github.com/donnol/jdnote/store/db/postgresql"
+)
 
 func TestGetByName(t *testing.T) {
-	u := &User{}
-	user := u.GetByName("jd")
-	t.Log(user)
+	u := &User{
+		DB: pg.New(),
+	}
+	if err := u.GetByName("jd"); err != nil {
+		t.Fatal(err)
+	}
+	t.Log(u)
 }
 
 func TestAdd(t *testing.T) {
 	u := &User{
+		DB:       pg.New(),
 		Name:     "jd",
 		Phone:    "13420693396",
 		Email:    "jdlau@126.com",

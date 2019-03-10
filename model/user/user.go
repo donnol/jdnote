@@ -7,6 +7,8 @@ import (
 
 // User 用户
 type User struct {
+	pg.DB `json:"-" sql:"-"`
+
 	ID       int    `json:"id" form:"id"`             // 记录ID
 	Name     string `json:"name" form:"name"`         // 用户名
 	Phone    string `json:"phone" form:"phone"`       // 手机号码
@@ -16,7 +18,7 @@ type User struct {
 
 // GetByName 以名字获取用户
 func (u *User) GetByName(name string) error {
-	if err := pg.New().Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+	if err := u.DB.Get(u, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		return err
 	}
 
@@ -25,7 +27,7 @@ func (u *User) GetByName(name string) error {
 
 // VerifyByNameAndPassword 以名字和密码校验用户
 func (u *User) VerifyByNameAndPassword(name, password string) error {
-	if err := pg.New().Get(u, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+	if err := u.DB.Get(u, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		return err
 	}
 
@@ -45,18 +47,13 @@ func (u *User) Add() error {
 	}
 
 	var id int
-	if err := pg.WithTx(func(tx pg.DB) error {
-		if err := tx.Get(&id, `INSERT INTO t_user (name, phone, email, password)
-		VALUES($1, $2, $3, $4) RETURNING id`,
-			u.Name,
-			u.Phone,
-			u.Email,
-			hashedPassword,
-		); err != nil {
-			return err
-		}
-		return nil
-	}); err != nil {
+	if err := u.DB.Get(&id, `INSERT INTO t_user (name, phone, email, password)
+	VALUES($1, $2, $3, $4) RETURNING id`,
+		u.Name,
+		u.Phone,
+		u.Email,
+		hashedPassword,
+	); err != nil {
 		return err
 	}
 	u.ID = id
