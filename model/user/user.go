@@ -39,20 +39,24 @@ func (u *User) VerifyByNameAndPassword(name, password string) error {
 
 // Add 添加
 func (u *User) Add() error {
-	var id int
-
 	hashedPassword, err := u.hashPassword(u.Password)
 	if err != nil {
 		return err
 	}
 
-	if err := pg.New().Get(&id, `INSERT INTO t_user (name, phone, email, password)
+	var id int
+	if err := pg.WithTx(func(tx pg.DB) error {
+		if err := tx.Get(&id, `INSERT INTO t_user (name, phone, email, password)
 		VALUES($1, $2, $3, $4) RETURNING id`,
-		u.Name,
-		u.Phone,
-		u.Email,
-		hashedPassword,
-	); err != nil {
+			u.Name,
+			u.Phone,
+			u.Email,
+			hashedPassword,
+		); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
 		return err
 	}
 	u.ID = id

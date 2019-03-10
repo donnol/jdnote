@@ -20,11 +20,10 @@ func login(param route.Param) (r route.Result, err error) {
 	_ = param.UserID
 
 	// 业务
-	u := user.New()
-	if err := u.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
+	if err := p.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
 		return r, err
 	}
-	r.CookieAfterLogin = u.ID
+	r.CookieAfterLogin = p.ID
 
 	return
 }
@@ -37,11 +36,10 @@ func add(param route.Param) (r route.Result, err error) {
 	_ = param.UserID
 
 	// 业务
-	u := user.New()
-	if err := u.GetByName(p.Name); err != nil {
+	if err := p.Add(); err != nil {
 		return r, err
 	}
-	r.Data = u
+	r.Data = p
 
 	return
 }

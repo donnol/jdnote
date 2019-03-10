@@ -15,3 +15,9 @@ func New() *User {
 		User: user.User{},
 	}
 }
+
+// Check 检查
+func (u *User) Check() error {
+
+	return nil
+}

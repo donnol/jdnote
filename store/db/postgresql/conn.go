@@ -7,9 +7,8 @@ import (
 )
 
 // defaultDB 默认db
-var defaultDB *sqlx.DB
+var defaultDB = func() *sqlx.DB {
 
-func init() {
 	db, err := sqlx.Open(config.DefaultConfig.DB.Scheme, config.DefaultConfig.DB.String())
 	if err != nil {
 		panic(err)
@@ -18,5 +17,5 @@ func init() {
 		panic(err)
 	}
 
-	defaultDB = db
-}
+	return db
+}()

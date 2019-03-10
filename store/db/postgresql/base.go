@@ -1,11 +1,24 @@
 package pg
 
 import (
+	"os"
+
 	"github.com/jmoiron/sqlx"
 )
 
-// TODO:这个值可以从环境变量获取
-var isUnitTest bool
+const (
+	// 单元测试环境变量
+	unitTestEnv = "UNIT_TEST_ENV"
+)
+
+// 这个值可以从环境变量获取
+var isUnitTest = func() bool {
+	env, ok := os.LookupEnv(unitTestEnv)
+	if !ok || env == "" {
+		return false
+	}
+	return true
+}()
 
 // 用于单元测试的全局事务
 var globalTx = func() *sqlx.Tx {
@@ -54,8 +67,12 @@ func WithTx(f func(tx DB) error) error {
 	if err == nil {
 		success = true
 
-		// 如果是单元测试，直接返回，在单元测试结束时回滚
+		// 如果是单元测试，直接回滚并返回
 		if isUnitTest {
+			err = tx.Rollback()
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 
@@ -63,7 +80,6 @@ func WithTx(f func(tx DB) error) error {
 		if err != nil {
 			return err
 		}
-
 		return nil
 	}
 
