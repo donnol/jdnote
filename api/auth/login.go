@@ -4,17 +4,17 @@ import (
 	"net/http"
 
 	"github.com/donnol/jdnote/route"
-	"github.com/donnol/jdnote/service/user"
+	userao "github.com/donnol/jdnote/service/user"
 )
 
 func init() {
-	route.DefaultRouter.Register(http.MethodPost, "/login", &user.User{}, login)
-	route.DefaultRouter.Register(http.MethodPost, "/add", &user.User{}, add)
+	route.DefaultRouter.Register(http.MethodPost, "/login", &userao.User{}, login)
+	route.DefaultRouter.Register(http.MethodPost, "/add", &userao.User{}, add)
 }
 
 func login(param route.Param) (r route.Result, err error) {
 	// 参数
-	p := param.RequestParam.(*user.User)
+	p := param.RequestParam.(*userao.User)
 
 	// 权限
 	_ = param.UserID
@@ -30,7 +30,7 @@ func login(param route.Param) (r route.Result, err error) {
 
 func add(param route.Param) (r route.Result, err error) {
 	// 参数
-	p := param.RequestParam.(*user.User)
+	p := param.RequestParam.(*userao.User)
 
 	// 权限
 	_ = param.UserID
