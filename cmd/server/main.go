@@ -9,7 +9,8 @@ import (
 func main() {
 	utillog.Debugf("jdnote server start.")
 
-	if err := route.DefaultRouter.Run(":8810"); err != nil {
+	port := 8810
+	if err := route.StartServer(port); err != nil {
 		panic(err)
 	}
 }

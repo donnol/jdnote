@@ -2,14 +2,23 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
+	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/model/user"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
 	"github.com/donnol/jdnote/utils/apitest"
 )
+
+func TestMain(m *testing.M) {
+	api.TestMain()
+
+	os.Exit(m.Run())
+}
 
 func TestLogin(t *testing.T) {
 	var at = apitest.NewAT(
@@ -22,7 +31,7 @@ func TestLogin(t *testing.T) {
 	var r route.Result
 
 	t.Run("Login", func(t *testing.T) {
-		if err := at.New().SetPort(":8810").
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&userao.User{
 				User: user.User{
 					Name:     "jd",
@@ -57,7 +66,7 @@ func TestAdd(t *testing.T) {
 	var r route.Result
 
 	t.Run("Post", func(t *testing.T) {
-		if err := at.New().SetPort(":8810").
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&struct {
 				Name     string
 				Password string
