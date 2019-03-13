@@ -34,6 +34,7 @@ func (ur *UserRole) Add() error {
 		`, ur.UserID, ur.RoleID); err != nil {
 		return err
 	}
+	ur.ID = id
 
 	return nil
 }
