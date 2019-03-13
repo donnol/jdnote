@@ -71,6 +71,12 @@ func (r *Router) Register(method, path string, param interface{}, f func(Param) 
 var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (Result, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
+
+		// 如果有实现New方法，则调用
+		if v, ok := param.(Newer); ok {
+			param = v.New()
+		}
+
 		switch method {
 		case http.MethodPost:
 			fallthrough

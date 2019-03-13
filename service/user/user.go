@@ -15,9 +15,11 @@ type User struct {
 }
 
 // New 新建
-func New() *User {
+func (u *User) New() interface{} {
 	return &User{
-		User: user.User{},
+		User: user.User{
+			DB: pg.New(),
+		},
 	}
 }
 
