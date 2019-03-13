@@ -4,6 +4,9 @@ import (
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
+// DefaultRoleID 默认角色ID
+var DefaultRoleID = 1
+
 // Role 角色
 type Role struct {
 	pg.DB `json:"-" db:"-"`
