@@ -16,10 +16,11 @@ type User struct {
 
 // New 新建
 func (u *User) New() interface{} {
+	um := user.User{}
+	um.DB = pg.New()
+
 	return &User{
-		User: user.User{
-			DB: pg.New(),
-		},
+		User: um,
 	}
 }
 
@@ -41,13 +42,14 @@ func (u *User) Add() error {
 		if err := um.Add(); err != nil {
 			return err
 		}
+		u.ID = um.ID
 
 		// 添加角色
 		ur := &userrole.UserRole{
-			DB:     tx,
 			UserID: um.ID,
 			RoleID: role.DefaultRoleID,
 		}
+		ur.DB = tx
 		if err := ur.Add(); err != nil {
 			return err
 		}

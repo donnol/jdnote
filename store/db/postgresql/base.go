@@ -33,6 +33,11 @@ var globalTx = func() *sqlx.Tx {
 	return nil
 }()
 
+// Base 基础
+type Base struct {
+	DB `json:"-" db:"-"`
+}
+
 // New 新建
 func New() DB {
 	if isUnitTest {

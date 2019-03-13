@@ -6,7 +6,7 @@ import (
 
 // RoleAction 角色动作
 type RoleAction struct {
-	pg.DB `json:"-" db:"-"`
+	pg.Base
 
 	ID       int `json:"id"`
 	RoleID   int `json:"roleID" db:"role_id"`

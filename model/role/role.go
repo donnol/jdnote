@@ -9,7 +9,7 @@ var DefaultRoleID = 1
 
 // Role 角色
 type Role struct {
-	pg.DB `json:"-" db:"-"`
+	pg.Base
 
 	ID   int    `json:"id"`   // 记录ID
 	Role string `json:"role"` // 角色

@@ -6,7 +6,7 @@ import (
 
 // UserRole 用户角色
 type UserRole struct {
-	pg.DB `json:"-" db:"-"`
+	pg.Base
 
 	ID     int `json:"id"`                  // 记录ID
 	UserID int `json:"userID" db:"user_id"` // 用户ID

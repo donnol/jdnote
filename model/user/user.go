@@ -7,7 +7,7 @@ import (
 
 // User 用户
 type User struct {
-	pg.DB `json:"-" db:"-"`
+	pg.Base
 
 	ID       int    `json:"id" form:"id"`             // 记录ID
 	Name     string `json:"name" form:"name"`         // 用户名
