@@ -19,50 +19,50 @@ func main() {
 func initdb() error {
 	// 角色
 	r := &role.Role{
-		DB:   pg.New(),
 		Role: "ALL",
 	}
+	r.DB = pg.New()
 	if err := r.Add(); err != nil {
 		return err
 	}
 
 	// 动作
 	a := &action.Action{
-		DB:     pg.New(),
 		Action: "ALL",
 	}
+	a.DB = pg.New()
 	if err := a.Add(); err != nil {
 		return err
 	}
 
 	// 角色动作关联
 	ra := &roleaction.RoleAction{
-		DB:       pg.New(),
 		RoleID:   r.ID,
 		ActionID: a.ID,
 	}
+	ra.DB = pg.New()
 	if err := ra.Add(); err != nil {
 		return err
 	}
 
 	// 用户
 	u := &user.User{
-		DB:       pg.New(),
 		Name:     "jd",
 		Phone:    "13420693396",
 		Email:    "jdlau@126.com",
 		Password: "13420693396",
 	}
+	u.DB = pg.New()
 	if err := u.Add(); err != nil {
 		return err
 	}
 
 	// 用户角色关联
 	ur := &userrole.UserRole{
-		DB:     pg.New(),
 		UserID: u.ID,
 		RoleID: r.ID,
 	}
+	ur.DB = pg.New()
 	if err := ur.Add(); err != nil {
 		return err
 	}
