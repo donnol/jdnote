@@ -41,11 +41,9 @@ func TestLogin(t *testing.T) {
 		defer f.Close()
 
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&userao.User{
-				User: user.User{
-					Name:     "jd",
-					Password: "13420693396",
-				},
+			SetParam(&user.User{
+				Name:     "jd",
+				Password: "13420693396",
 			}).
 			Debug().
 			Run().
