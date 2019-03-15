@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -80,9 +79,10 @@ func TestAdd(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					b, _ := json.Marshal(r.Data)
 					var u userao.User
-					json.Unmarshal(b, &u)
+					if err := r.PresentData(&u); err != nil {
+						return err
+					}
 					return at.Equal(
 						u.ID != 0, true,
 						u.Name, "jd",

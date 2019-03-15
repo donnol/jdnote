@@ -1,6 +1,7 @@
 package route
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -50,6 +51,19 @@ type Result struct {
 
 	// 给登陆接口使用
 	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
+}
+
+// PresentData 用具体结构体展现数据
+func (r *Result) PresentData(v interface{}) error {
+	b, err := json.Marshal(r.Data)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(b, v); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // HandlerFunc 处理函数
