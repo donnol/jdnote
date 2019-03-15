@@ -64,10 +64,10 @@ type AT struct {
 	err error
 }
 
-// ate means api test return error
+// ate api test错误
 type ate struct {
-	ErrorCode int    `json:"errorCode"` // 错误码
-	Msg       string `json:"msg"`       // 错误信息
+	Code int    `json:"Code"` // 错误码
+	Msg  string `json:"msg"`  // 错误信息
 }
 
 // NewAT 新建
@@ -425,10 +425,10 @@ func (at *AT) collectATE() *AT {
 		at.setErr(err)
 		return at
 	}
-	if tmpATE.ErrorCode != 0 {
+	if tmpATE.Code != 0 {
 		var exist bool
 		for _, e := range at.ates {
-			if tmpATE.ErrorCode == e.ErrorCode {
+			if tmpATE.Code == e.Code {
 				exist = true
 				break
 			}

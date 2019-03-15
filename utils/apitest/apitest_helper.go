@@ -599,7 +599,7 @@ func structToList(name string, data ...ate) (string, error) {
 	list += name + "\n\n"
 	var lines string
 	for _, d := range data {
-		lines += fmt.Sprintf("* `%d` %s\n", d.ErrorCode, d.Msg)
+		lines += fmt.Sprintf("* `%d` %s\n", d.Code, d.Msg)
 	}
 	list += lines + "\n"
 
