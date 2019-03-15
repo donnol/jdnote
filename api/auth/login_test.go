@@ -27,9 +27,19 @@ func TestLogin(t *testing.T) {
 		http.Header{},
 		[]*http.Cookie{},
 	)
-	var r route.Result
+	var r = user.User{}
 
-	t.Run("Login", func(t *testing.T) {
+	t.Run("MakeDoc", func(t *testing.T) {
+		// t.SkipNow()
+
+		file := "Login.md"
+		title := "登陆接口文档"
+		f, err := apitest.OpenFile(file, title)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&userao.User{
 				User: user.User{
@@ -45,9 +55,9 @@ func TestLogin(t *testing.T) {
 				func(at *apitest.AT) error {
 					return nil
 				},
-				r.Code, 0,
-				r.Msg, "",
+				r.ID == 0, true,
 			).
+			WriteFile(f).
 			Err(); err != nil {
 			t.Fatal(err)
 		}
