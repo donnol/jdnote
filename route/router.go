@@ -52,8 +52,11 @@ type Result struct {
 	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
 }
 
+// HandlerFunc 处理函数
+type HandlerFunc func(Param) (Result, error)
+
 // Register 注册
-func (r *Router) Register(method, path string, param interface{}, f func(Param) (Result, error)) {
+func (r *Router) Register(method, path string, param interface{}, f HandlerFunc) {
 	switch method {
 	case http.MethodPost:
 		r.Engine.POST(path, defaultHandlerFunc(http.MethodPost, param, f))
@@ -68,7 +71,7 @@ func (r *Router) Register(method, path string, param interface{}, f func(Param) 
 	}
 }
 
-var defaultHandlerFunc = func(method string, param interface{}, f func(Param) (Result, error)) gin.HandlerFunc {
+var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 
