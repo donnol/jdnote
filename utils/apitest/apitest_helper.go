@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -62,6 +63,21 @@ func CookieMapToSlice(cm map[string]string) []*http.Cookie {
 	}
 
 	return cookies
+}
+
+// OpenFile 打开文件
+func OpenFile(file, title string) (*os.File, error) {
+	f, err := os.OpenFile(file, os.O_CREATE|os.O_TRUNC|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		return f, err
+	}
+	log.Printf("Open %s file for write api document\n", file)
+
+	if _, err := f.WriteString("# " + title + "\n\n"); err != nil {
+		return f, err
+	}
+
+	return f, nil
 }
 
 func structRandomValue(v interface{}) (interface{}, error) {
