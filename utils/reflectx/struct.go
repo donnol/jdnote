@@ -104,9 +104,12 @@ func collectStructComment(refType reflect.Type, s *Struct) error {
 
 		fieldType := field.Type
 		if field.Anonymous { // 匿名
-			sf.Struct, err = ResolveStruct(fieldType)
-			if err != nil {
-				return err
+			// 忽略匿名接口
+			if fieldType.Kind() != reflect.Interface {
+				sf.Struct, err = ResolveStruct(fieldType)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		// 非匿名结构体类型
