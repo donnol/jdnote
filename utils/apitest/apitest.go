@@ -70,6 +70,12 @@ type ate struct {
 	Msg  string `json:"msg"`  // 错误信息
 }
 
+// result 结果
+type result struct {
+	ate
+	data interface{}
+}
+
 // NewAT 新建
 func NewAT(
 	path,
@@ -216,8 +222,20 @@ func (at *AT) Result(r interface{}) *AT {
 		return at
 	}
 
-	// 解析data到r
-	if err := json.Unmarshal(data, r); err != nil {
+	// 解析data到result
+	var res result
+	if err := json.Unmarshal(data, &res); err != nil {
+		at.setErr(err)
+		return at
+	}
+
+	// 解析result.data到r
+	newdata, err := json.Marshal(res.data)
+	if err != nil {
+		at.setErr(err)
+		return at
+	}
+	if err := json.Unmarshal(newdata, r); err != nil {
 		at.setErr(err)
 		return at
 	}
