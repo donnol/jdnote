@@ -27,7 +27,10 @@ func TestLogin(t *testing.T) {
 		http.Header{},
 		[]*http.Cookie{},
 	)
-	var r = user.User{}
+	var r struct {
+		route.Error
+		Data user.User
+	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
 		// t.SkipNow()
@@ -51,9 +54,12 @@ func TestLogin(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					return nil
+					return at.Equal(
+						r.Data.ID != 0, true,
+					).Err()
 				},
-				r.ID == 0, true,
+				r.Code == 0, true,
+				r.Msg == "", true,
 			).
 			WriteFile(f).
 			Err(); err != nil {
@@ -70,9 +76,22 @@ func TestAdd(t *testing.T) {
 		http.Header{},
 		[]*http.Cookie{},
 	)
-	var r route.Result
+	var r struct {
+		route.Error
+		Data userao.User
+	}
 
-	t.Run("Post", func(t *testing.T) {
+	t.Run("MakeDoc", func(t *testing.T) {
+		// t.SkipNow()
+
+		file := "Add.md"
+		title := "添加用户接口"
+		f, err := apitest.OpenFile(file, title)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&struct {
 				Name     string
@@ -87,10 +106,7 @@ func TestAdd(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					var u userao.User
-					if err := r.PresentData(&u); err != nil {
-						return err
-					}
+					var u = r.Data
 					return at.Equal(
 						u.ID != 0, true,
 						u.Name, "jd",
@@ -99,6 +115,7 @@ func TestAdd(t *testing.T) {
 				r.Code, 0,
 				r.Msg, "",
 			).
+			WriteFile(f).
 			Err(); err != nil {
 			t.Fatal(err)
 		}

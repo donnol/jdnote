@@ -1,16 +1,13 @@
-# 登陆接口文档
+# 添加用户接口
 
-## 登陆
+## 添加
 
-`POST /login`
+`POST /add`
 
 Param
 
-* id (*int*) 记录ID
-* name (*string*) 用户名
-* phone (*string*) 手机号码
-* email (*string*) 邮箱
-* password (*string*) 密码
+* Name (*string*) 
+* Password (*string*) 
 
 Return
 
@@ -28,11 +25,8 @@ Return
 
 ```json
 {
-    "id": 0,
-    "name": "jd",
-    "phone": "",
-    "email": "",
-    "password": "13420693396"
+    "Name": "jd",
+    "Password": "13420693396"
 }
 ```
 
@@ -46,11 +40,11 @@ Return
     "code": 0,
     "msg": "",
     "data": {
-        "id": 38,
+        "id": 51,
         "name": "jd",
         "phone": "",
         "email": "",
-        "password": ""
+        "password": "13420693396"
     }
 }
 ```

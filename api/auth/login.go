@@ -24,6 +24,8 @@ func login(param route.Param) (r route.Result, err error) {
 		return r, err
 	}
 	r.CookieAfterLogin = p.ID
+	p.Password = ""
+	r.Data = p
 
 	return
 }
