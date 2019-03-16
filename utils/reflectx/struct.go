@@ -210,12 +210,18 @@ func resolve(structName string) (map[string]string, map[string]string, error) {
 
 			if endNo == 2 {
 				if _, ok := structCommentMap[commentKey]; !ok {
-					structCommentMap[commentKey] = strings.TrimSpace(line)
+					// 不是func
+					if strings.Index(line, "func") != 0 {
+						structCommentMap[commentKey] = strings.TrimSpace(line)
+					}
 				}
 			}
 			if endNo > 2 {
 				if _, ok := structCommentMap[descriptionKey]; !ok {
-					structCommentMap[descriptionKey] += strings.TrimSpace(line)
+					// 不是func
+					if strings.Index(line, "func") != 0 {
+						structCommentMap[descriptionKey] += strings.TrimSpace(line)
+					}
 				}
 			}
 		}
