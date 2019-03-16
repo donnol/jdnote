@@ -43,10 +43,24 @@ type Param struct {
 	RequestParam interface{} `json:"requestParam"` // 请求参数
 }
 
+// Error 错误
+type Error struct {
+	Code int    `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
+	Msg  string `json:"msg"`  // 信息，一般是出错时的描述信息
+}
+
+// Error 实现error接口
+func (e Error) Error() string {
+	return fmt.Sprintf("Code: %d, Msg: %s", e.Code, e.Msg)
+}
+
+// 确保Error实现了error接口
+var _ error = Error{}
+
 // Result 通用结果
 type Result struct {
-	Code int         `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
-	Msg  string      `json:"msg"`  // 信息，一般是出错时的描述信息
+	Error
+
 	Data interface{} `json:"data"` // 正常返回时的数据
 
 	// 给登陆接口使用
