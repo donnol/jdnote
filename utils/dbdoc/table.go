@@ -16,8 +16,9 @@ type Table struct {
 	FieldList   []Field // 字段列表
 	IndexList   []Index // 索引列表
 
-	mapper     Mapper // 字段映射函数
-	typeMapper Mapper // 字段类型映射函数
+	tableMapper Mapper // 表名映射函数
+	mapper      Mapper // 字段映射函数
+	typeMapper  Mapper // 字段类型映射函数
 
 	doc []byte
 }
@@ -45,10 +46,11 @@ type Index struct {
 // NewTable 新建表
 func NewTable() *Table {
 	return &Table{
-		FieldList:  make([]Field, 0),
-		IndexList:  make([]Index, 0),
-		mapper:     fieldMapper,
-		typeMapper: fieldTypeMapper,
+		FieldList:   make([]Field, 0),
+		IndexList:   make([]Index, 0),
+		tableMapper: tableMapper,
+		mapper:      fieldMapper,
+		typeMapper:  fieldTypeMapper,
 	}
 }
 
@@ -66,12 +68,17 @@ func (t *Table) Resolve(v interface{}) *Table {
 
 	vstructName := vstruct.Name
 	nameList := strings.Split(vstructName, ".")
-	t.Name = t.mapper(nameList[len(nameList)-1])
+	t.Name = t.tableMapper(nameList[len(nameList)-1])
 	t.Comment = vstruct.Comment
 	t.Description = vstruct.Description
 
 	var tf Field
 	for _, sf := range vstruct.Fields {
+		// 忽略匿名结构体/接口
+		if sf.Anonymous {
+			continue
+		}
+
 		// 主键
 		if sf.Name == "ID" {
 			tf = Field{
