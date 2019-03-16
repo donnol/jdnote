@@ -8,9 +8,9 @@ import (
 type RoleAction struct {
 	pg.Base
 
-	ID       int `json:"id"`
-	RoleID   int `json:"roleID" db:"role_id"`
-	ActionID int `json:"actionID" db:"action_id"`
+	ID       int `json:"id"`                      // 记录ID
+	RoleID   int `json:"roleID" db:"role_id"`     // 角色ID
+	ActionID int `json:"actionID" db:"action_id"` // 动作ID
 }
 
 // Add 添加
