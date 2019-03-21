@@ -61,6 +61,12 @@ type AT struct {
 	// 调试
 	debug bool
 
+	// 慢请求数量
+	slowNum int
+
+	// 是否批量压力测试中
+	isPressureBatch bool
+
 	err error
 }
 
@@ -174,6 +180,26 @@ func (at *AT) PressureRun(n, c int) *AT {
 	after := time.Now()
 	used := after.Unix() - before.Unix()
 	fmt.Printf("\n=== Pressure Report ===\nNumber: %d\nConcurrency: %d\nCompleted: %d\nUsed time: %ds\nRPS: %v\n=== END ===\n\n", n, c, total, used, total/used)
+
+	return at
+}
+
+// PressureParam 压力测试参数
+type PressureParam struct {
+	N int // 运行次数
+	C int // 并发数
+}
+
+// PressureRunBatch 批量压力运行
+func (at *AT) PressureRunBatch(param []PressureParam) *AT {
+	at.isPressureBatch = true
+
+	for _, single := range param {
+		at = at.PressureRun(single.N, single.C)
+	}
+
+	fmt.Printf("slowNum is %d\n", at.slowNum)
+	at.isPressureBatch = false
 
 	return at
 }
@@ -399,11 +425,22 @@ func (at *AT) run() *AT {
 	at.req = req
 
 	// 发起请求
+	beforeDo := time.Now()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		at.setErr(err)
 		return at
 	}
+	afterDo := time.Now()
+	used := afterDo.UnixNano() - beforeDo.UnixNano()
+	if used >= 1000000000 { // 不小于1s
+		if at.isPressureBatch { // 统计数量
+			at.slowNum++
+		} else {
+			fmt.Printf("WARNING: '%s' is slow, used %d ms\n", u.String(), used/1000000)
+		}
+	}
+
 	at.resp = resp
 
 	// 收集错误码
