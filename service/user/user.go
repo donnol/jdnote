@@ -12,6 +12,10 @@ import (
 // User 用户
 type User struct {
 	user.User
+
+	// TODO: 将需要用到的model添加进来
+	UserModel     user.User
+	UserRoleModel userrole.UserRole
 }
 
 // New 新建
@@ -38,7 +42,7 @@ func (u *User) Add() error {
 	if err := pg.WithTx(func(tx pg.DB) error {
 		// 添加用户
 		um := u.User
-		um.DB = tx
+		um.DB = tx // TODO: 这里能不能不用显示赋值呢？
 		if err := um.Add(); err != nil {
 			return err
 		}
@@ -49,7 +53,7 @@ func (u *User) Add() error {
 			UserID: um.ID,
 			RoleID: role.DefaultRoleID,
 		}
-		ur.DB = tx
+		ur.DB = tx // 这里能不能不用显示赋值呢？
 		if err := ur.Add(); err != nil {
 			return err
 		}
