@@ -6,8 +6,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 
 	"github.com/donnol/jdnote/config"
+	pg "github.com/donnol/jdnote/store/db/postgresql"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
@@ -99,12 +101,49 @@ func (r *Router) Register(method, path string, param interface{}, f HandlerFunc)
 	}
 }
 
+// initParamWithDB 初始化-使用反射初始化param里的DB
+func initParamWithDB(param interface{}, db pg.DB) interface{} {
+	// 校验类型
+	refType := reflect.TypeOf(param)
+	refValue := reflect.ValueOf(param)
+	if refType.Kind() == reflect.Ptr {
+		refType = refType.Elem()
+		refValue = refValue.Elem()
+	}
+	if refType.Kind() != reflect.Struct {
+		panic("Please input struct param!")
+	}
+
+	// db类型
+	dbType := reflect.TypeOf(db)
+
+	if findDB(refType, dbType) {
+		// TODO: 设置值
+	}
+
+	return param
+}
+
+// 递归寻找类型里是否内嵌DB接口类型字段
+func findDB(refType, dbType reflect.Type) bool {
+	// TODO:
+	for i := 0; i < refType.NumField(); i++ {
+		field := refType.Field(i)
+		if field.Anonymous {
+			if field.Type.Implements(dbType) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) gin.HandlerFunc {
 	// 如果有实现New方法，则调用
 	if v, ok := param.(Newer); ok {
 		param = v.New()
 	} else {
-		// TODO: 使用反射初始化param里的DB
+		param = initParamWithDB(param, pg.New())
 	}
 
 	return func(c *gin.Context) {
