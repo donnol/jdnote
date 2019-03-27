@@ -115,22 +115,24 @@ func initParamWithDB(param interface{}, db pg.DB) interface{} {
 	}
 
 	// db类型
-	dbType := reflect.TypeOf(db)
+	dbType := reflect.TypeOf((*pg.DB)(nil)).Elem()
+	// dbValue := reflect.ValueOf(db)
 
-	if findDB(refType, dbType) {
+	if findType(refType, dbType) {
 		// TODO: 设置值
+		// refValue.Set(dbValue)
 	}
 
 	return param
 }
 
 // 递归寻找类型里是否内嵌DB接口类型字段
-func findDB(refType, dbType reflect.Type) bool {
+func findType(refType, specType reflect.Type) bool {
 	// TODO:
 	for i := 0; i < refType.NumField(); i++ {
 		field := refType.Field(i)
 		if field.Anonymous {
-			if field.Type.Implements(dbType) {
+			if field.Type.Implements(specType) {
 				return true
 			}
 		}
