@@ -116,11 +116,16 @@ func initParamWithDB(param interface{}, db pg.DB) interface{} {
 
 	// db类型
 	dbType := reflect.TypeOf((*pg.DB)(nil)).Elem()
-	// dbValue := reflect.ValueOf(db)
+	dbValue := reflect.ValueOf(db)
 
-	if findType(refType, dbType) {
-		// TODO: 设置值
-		// refValue.Set(dbValue)
+	for i := 0; i < refType.NumField(); i++ {
+		field := refType.Field(i)
+		if field.Anonymous {
+			if field.Type.Implements(dbType) {
+				v := refValue.Field(i)
+				v.Set(dbValue)
+			}
+		}
 	}
 
 	return param
@@ -145,6 +150,7 @@ var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) g
 	if v, ok := param.(Newer); ok {
 		param = v.New()
 	} else {
+		// 注入DB
 		param = initParamWithDB(param, pg.New())
 	}
 
