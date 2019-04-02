@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // Field 字段
@@ -120,7 +121,8 @@ func collectStructComment(refType reflect.Type, s *Struct) error {
 			fieldType.Kind() == reflect.Array {
 			fieldType = fieldType.Elem()
 		}
-		if fieldType.Kind() == reflect.Struct {
+		// 忽略time.Time
+		if fieldType.Kind() == reflect.Struct && fieldType != reflect.TypeOf((*time.Time)(nil)).Elem() {
 			sf.Struct, err = ResolveStruct(fieldType)
 			if err != nil {
 				return err

@@ -1,5 +1,7 @@
 package reflectx
 
+import "time"
+
 // User 用户
 // 这是一个表示用户的结构体
 type User struct {
@@ -15,6 +17,7 @@ type User struct {
 	IsManager    bool      // 是否管理层
 	IsManagerPtr *bool     // 是否管理层
 	AddressList  []Address // 地址列表
+	CreatedAt    time.Time // 创建时间
 
 	Test       Model   `json:"test"`      // 测试
 	TestSlice  []Model `json:"testSlice"` // 测试数组

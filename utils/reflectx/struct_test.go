@@ -37,7 +37,7 @@ func TestResolveStruct(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = s
-	// jsonPrint(os.Stdout, s)
+	jsonPrint(os.Stdout, s)
 }
 
 func jsonPrint(w io.Writer, in interface{}) {
