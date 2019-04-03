@@ -18,16 +18,6 @@ type User struct {
 	UserRoleModel userrole.UserRole
 }
 
-// New 新建
-func (u *User) New() interface{} {
-	um := user.User{}
-	um.DB = pg.New()
-
-	return &User{
-		User: um,
-	}
-}
-
 // Check 检查
 func (u *User) Check() error {
 	if u.Password == "" {
