@@ -12,6 +12,7 @@ func init() {
 	route.DefaultRouter.Register(http.MethodPost, "/add", &userao.User{}, add)
 }
 
+// TODO: login在这个文件的三个地方出现了，能不能将其简化为一个呢？
 func login(param route.Param) (r route.Result, err error) {
 	// 参数
 	p := param.RequestParam.(*userao.User)

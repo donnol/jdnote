@@ -33,7 +33,7 @@ func TestLogin(t *testing.T) {
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
-		// t.SkipNow()
+		t.SkipNow()
 
 		file := "Login.md"
 		title := "登陆接口文档"
@@ -82,7 +82,7 @@ func TestAdd(t *testing.T) {
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
-		// t.SkipNow()
+		t.SkipNow()
 
 		file := "Add.md"
 		title := "添加用户接口"
