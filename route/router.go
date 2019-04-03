@@ -118,31 +118,24 @@ func initParamWithDB(param interface{}, db pg.DB) interface{} {
 	dbType := reflect.TypeOf((*pg.DB)(nil)).Elem()
 	dbValue := reflect.ValueOf(db)
 
-	for i := 0; i < refType.NumField(); i++ {
-		field := refType.Field(i)
-		if field.Anonymous {
-			if field.Type.Implements(dbType) {
-				v := refValue.Field(i)
-				v.Set(dbValue)
-			}
-		}
-	}
+	// 注入DB
+	setValue(refType, dbType, refValue, dbValue)
 
 	return param
 }
 
-// 递归寻找类型里是否内嵌DB接口类型字段
-func findType(refType, specType reflect.Type) bool {
-	// TODO:
+func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
 	for i := 0; i < refType.NumField(); i++ {
 		field := refType.Field(i)
 		if field.Anonymous {
-			if field.Type.Implements(specType) {
-				return true
+			if field.Type == dbType { // 类型相同，直接赋值
+				v := refValue.Field(i)
+				v.Set(dbValue)
+			} else if field.Type.Implements(dbType) { // 内嵌类型，递归遍历
+				setValue(field.Type, dbType, refValue.Field(i), dbValue)
 			}
 		}
 	}
-	return false
 }
 
 var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) gin.HandlerFunc {

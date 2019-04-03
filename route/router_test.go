@@ -8,8 +8,18 @@ import (
 
 // User 用户
 type User struct {
+	Model
+}
+
+// Model 模型
+type Model struct {
 	pg.DB
 }
+
+var (
+	_ pg.DB = User{}
+	_ pg.DB = Model{}
+)
 
 func TestInitParamWithDB(t *testing.T) {
 	r := initParamWithDB(&User{}, pg.New())
