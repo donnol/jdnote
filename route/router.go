@@ -127,13 +127,11 @@ func initParamWithDB(param interface{}, db pg.DB) interface{} {
 func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
 	for i := 0; i < refType.NumField(); i++ {
 		field := refType.Field(i)
-		if field.Anonymous {
-			if field.Type == dbType { // 类型相同，直接赋值
-				v := refValue.Field(i)
-				v.Set(dbValue)
-			} else if field.Type.Implements(dbType) { // 内嵌类型，递归遍历
-				setValue(field.Type, dbType, refValue.Field(i), dbValue)
-			}
+		if field.Type == dbType { // 类型相同，直接赋值
+			v := refValue.Field(i)
+			v.Set(dbValue)
+		} else if field.Type.Implements(dbType) { // 内嵌类型，递归遍历
+			setValue(field.Type, dbType, refValue.Field(i), dbValue)
 		}
 	}
 }
