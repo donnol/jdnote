@@ -1,12 +1,12 @@
 package roleaction
 
 import (
-	pg "github.com/donnol/jdnote/store/db/postgresql"
+	"github.com/donnol/jdnote/model"
 )
 
 // RoleAction 角色动作
 type RoleAction struct {
-	pg.Base
+	model.Base
 
 	ID       int `json:"id"`                      // 记录ID
 	RoleID   int `json:"roleID" db:"role_id"`     // 角色ID
@@ -16,7 +16,7 @@ type RoleAction struct {
 // Add 添加
 func (ra *RoleAction) Add() error {
 	var id int
-	if err := ra.DB.Get(&id, `
+	if err := ra.Get(&id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
 		`, ra.RoleID, ra.ActionID); err != nil {
