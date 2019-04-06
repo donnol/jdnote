@@ -1,8 +1,6 @@
 package userao
 
 import (
-	"fmt"
-
 	"github.com/donnol/jdnote/model/role"
 	"github.com/donnol/jdnote/model/user"
 	userrole "github.com/donnol/jdnote/model/user_role"
@@ -13,16 +11,12 @@ import (
 type User struct {
 	user.User
 
-	// TODO: 将需要用到的model添加进来
-	UserModel     user.User
-	UserRoleModel userrole.UserRole
+	UserModel     user.User         `json:"-"`
+	UserRoleModel userrole.UserRole `json:"-"`
 }
 
 // Check 检查
 func (u *User) Check() error {
-	if u.Password == "" {
-		return fmt.Errorf("Empty Password")
-	}
 
 	return nil
 }
@@ -30,20 +24,21 @@ func (u *User) Check() error {
 // Add 添加
 func (u *User) Add() error {
 	if err := pg.WithTx(func(tx pg.DB) error {
-		// 添加用户
-		um := u.User
-		um.DB = tx // TODO: 这里能不能不用显示赋值呢？
+		// 添加用户-必须获取model的副本，这样才不会改变model的DB值
+		um := u.UserModel
+		um.SetTx(tx)
+		// 如果像这样直接调用SetTx，就会改变model里的DB值，对后面的操作会一直有影响
+		// u.UserModel.SetTx(tx)
 		if err := um.Add(); err != nil {
 			return err
 		}
 		u.ID = um.ID
 
 		// 添加角色
-		ur := &userrole.UserRole{
-			UserID: um.ID,
-			RoleID: role.DefaultRoleID,
-		}
-		ur.DB = tx // 这里能不能不用显示赋值呢？
+		ur := u.UserRoleModel
+		ur.UserID = um.ID
+		ur.RoleID = role.DefaultRoleID
+		ur.SetTx(tx)
 		if err := ur.Add(); err != nil {
 			return err
 		}

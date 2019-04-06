@@ -38,6 +38,12 @@ type Base struct {
 	DB `json:"-" db:"-"`
 }
 
+// SetTx 设置事务
+func (b *Base) SetTx(tx DB) *Base {
+	b.DB = tx
+	return b
+}
+
 // New 新建
 func New() DB {
 	if isUnitTest {

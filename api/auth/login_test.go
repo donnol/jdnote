@@ -120,4 +120,33 @@ func TestAdd(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("Tx", func(t *testing.T) {
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&struct {
+				Name     string
+				Password string
+			}{
+				Name:     "jd",
+				Password: "13420693396",
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&r).
+			EqualThen(
+				func(at *apitest.AT) error {
+					var u = r.Data
+					return at.Equal(
+						u.ID != 0, true,
+						u.Name, "jd",
+					).Err()
+				},
+				r.Code, 0,
+				r.Msg, "",
+			).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
