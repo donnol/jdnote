@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"runtime"
+	"strings"
+	"unicode"
 
 	"github.com/donnol/jdnote/config"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
@@ -86,7 +89,10 @@ func (r *Result) PresentData(v interface{}) error {
 type HandlerFunc func(Param) (Result, error)
 
 // Register 注册
-func (r *Router) Register(method, path string, param interface{}, f HandlerFunc) {
+func (r *Router) Register(param interface{}, f HandlerFunc) {
+	// 通过f的名字获取method，path
+	method, path := getMethodPathFromFunc(f)
+
 	switch method {
 	case http.MethodPost:
 		r.Engine.POST(path, defaultHandlerFunc(http.MethodPost, param, f))
@@ -99,6 +105,61 @@ func (r *Router) Register(method, path string, param interface{}, f HandlerFunc)
 	default:
 		panic("Not support method now.")
 	}
+}
+
+// getMethodPathFromFunc 通过f的名字获取method，path
+func getMethodPathFromFunc(f HandlerFunc) (method, path string) {
+	const sep = "."
+
+	// 利用反射和运行时获取函数名
+	refValue := reflect.ValueOf(f)
+	fn := runtime.FuncForPC(refValue.Pointer())
+	fullFuncName := fn.Name()
+
+	// 过滤函数名的包名部分
+	lastDotIndex := strings.LastIndex(fullFuncName, sep)
+	funcName := fullFuncName[lastDotIndex+1:]
+
+	upperFunc := func(r rune) bool {
+		return unicode.IsUpper(r)
+	}
+
+	// 找到函数名里的首个大写字母，并以此作为依据将字符串分割
+	firstUpperIndex := strings.IndexFunc(funcName, upperFunc)
+	method = funcName[:firstUpperIndex]
+	method = methodMap(method)
+
+	// 如果剩下的路径部分还有大写字母，需要分为多段路径
+	tmpPath := funcName[firstUpperIndex:]
+	for {
+		tmpPath = strings.ToLower(tmpPath[:1]) + tmpPath[1:]
+		firstUpperIndex = strings.IndexFunc(tmpPath, upperFunc)
+		if firstUpperIndex == -1 {
+			path += "/" + strings.ToLower(tmpPath)
+			return
+		}
+		path += "/" + strings.ToLower(tmpPath[:firstUpperIndex])
+
+		tmpPath = tmpPath[firstUpperIndex:]
+	}
+
+	return
+}
+
+func methodMap(m string) (r string) {
+	switch m {
+	case "get":
+		r = http.MethodGet
+	case "add":
+		r = http.MethodPost
+	case "mod":
+		r = http.MethodPut
+	case "del":
+		r = http.MethodDelete
+	default:
+		r = http.MethodPost
+	}
+	return
 }
 
 // initParamWithDB 初始化-使用反射初始化param里的DB

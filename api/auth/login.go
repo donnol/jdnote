@@ -1,19 +1,18 @@
 package auth
 
 import (
-	"net/http"
-
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
 )
 
 func init() {
-	route.DefaultRouter.Register(http.MethodPost, "/login", &userao.User{}, login)
-	route.DefaultRouter.Register(http.MethodPost, "/add", &userao.User{}, add)
+	// 用add/get/mod/del分别对应post/get/put/delete方法，路由从方法名(驼峰转换，如：getUser->get /user; getUserCurrent->get /user/current;)获取，但是参数一般都是每个接口都不同的，怎么设置好呢？
+	// 还有，如login方法这种用post的，写成addLogin好像也不太好
+	route.DefaultRouter.Register(&userao.User{}, addLogin)
+	route.DefaultRouter.Register(&userao.User{}, addUser)
 }
 
-// TODO: login在这个文件的三个地方出现了，能不能将其简化为一个呢？
-func login(param route.Param) (r route.Result, err error) {
+func addLogin(param route.Param) (r route.Result, err error) {
 	// 参数
 	p := param.RequestParam.(*userao.User)
 
@@ -31,7 +30,7 @@ func login(param route.Param) (r route.Result, err error) {
 	return
 }
 
-func add(param route.Param) (r route.Result, err error) {
+func addUser(param route.Param) (r route.Result, err error) {
 	// 参数
 	p := param.RequestParam.(*userao.User)
 

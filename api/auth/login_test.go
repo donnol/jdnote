@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestLogin(t *testing.T) {
+func TestAddLogin(t *testing.T) {
 	var at = apitest.NewAT(
 		"/login",
 		http.MethodPost,
@@ -66,11 +66,35 @@ func TestLogin(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("Normal", func(t *testing.T) {
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&user.User{
+				Name:     "jd",
+				Password: "13420693396",
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&r).
+			EqualThen(
+				func(at *apitest.AT) error {
+					return at.Equal(
+						r.Data.ID != 0, true,
+					).Err()
+				},
+				r.Code == 0, true,
+				r.Msg == "", true,
+			).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
-func TestAdd(t *testing.T) {
+func TestAddUser(t *testing.T) {
 	var at = apitest.NewAT(
-		"/add",
+		"/user",
 		http.MethodPost,
 		"添加",
 		http.Header{},
