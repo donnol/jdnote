@@ -14,6 +14,7 @@ func init() {
 
 func addLogin(param route.Param) (r route.Result, err error) {
 	// 参数
+	// TODO: 这里用到了userao.User,注册的时候也用到了，需要精简到只剩一个
 	p := param.RequestParam.(*userao.User)
 
 	// 权限
