@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
 )
@@ -8,20 +9,25 @@ import (
 func init() {
 	// 用add/get/mod/del分别对应post/get/put/delete方法，路由从方法名(驼峰转换，如：getUser->get /user; getUserCurrent->get /user/current;)获取，但是参数一般都是每个接口都不同的，怎么设置好呢？
 	// 还有，如login方法这种用post的，写成addLogin好像也不太好
-	route.DefaultRouter.Register(&userao.User{}, addLogin)
-	route.DefaultRouter.Register(&userao.User{}, addUser)
+	route.DefaultRouter.RegisterStruct(&Auth{})
 }
 
-func addLogin(param route.Param) (r route.Result, err error) {
-	// 参数
-	// TODO: 这里用到了userao.User,注册的时候也用到了，需要精简到只剩一个
-	p := param.RequestParam.(*userao.User)
+// Auth 认证
+type Auth struct {
+	api.Base
+
+	UserAo userao.User
+}
+
+// AddLogin 登录
+func (auth *Auth) AddLogin() (r route.Result, err error) {
+	// 参数 TODO: 怎么获取呢？
+	p := &userao.User{}
 
 	// 权限
-	_ = param.UserID
 
 	// 业务
-	if err := p.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
+	if err := auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
 		return r, err
 	}
 	r.CookieAfterLogin = p.ID
@@ -31,15 +37,15 @@ func addLogin(param route.Param) (r route.Result, err error) {
 	return
 }
 
-func addUser(param route.Param) (r route.Result, err error) {
+// AddUser 添加用户
+func (auth *Auth) AddUser() (r route.Result, err error) {
 	// 参数
-	p := param.RequestParam.(*userao.User)
+	p := &userao.User{}
 
 	// 权限
-	_ = param.UserID
 
 	// 业务
-	if err := p.Add(); err != nil {
+	if err := auth.UserAo.Add(); err != nil {
 		return r, err
 	}
 	r.Data = p

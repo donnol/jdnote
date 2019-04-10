@@ -107,6 +107,12 @@ func (r *Router) Register(param interface{}, f HandlerFunc) {
 	}
 }
 
+// RegisterStruct 注册结构体
+// 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
+func (r *Router) RegisterStruct(v interface{}) {
+	// TODO:
+}
+
 // getMethodPathFromFunc 通过f的名字获取method，path
 func getMethodPathFromFunc(f HandlerFunc) (method, path string) {
 	const sep = "."
