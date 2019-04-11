@@ -52,3 +52,8 @@ func (auth *Auth) AddUser() (r route.Result, err error) {
 
 	return
 }
+
+// GetUser 获取用户
+func (auth *Auth) GetUser() (r route.Result, err error) {
+	return
+}

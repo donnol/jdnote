@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -110,27 +111,44 @@ func (r *Router) Register(param interface{}, f HandlerFunc) {
 // RegisterStruct 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) RegisterStruct(v interface{}) {
-	// TODO:
+	// 反射获取Type
+	refType := reflect.TypeOf(v)
+
+	log.Println(refType.NumMethod())
+	// 找出method field
+	for i := 0; i < refType.NumMethod(); i++ {
+		field := refType.Method(i)
+
+		method, path := getMethodPath(field.Name)
+		log.Println(field.Name, method, path)
+
+		// TODO:注册路由
+	}
 }
 
 // getMethodPathFromFunc 通过f的名字获取method，path
 func getMethodPathFromFunc(f HandlerFunc) (method, path string) {
-	const sep = "."
-
 	// 利用反射和运行时获取函数名
 	refValue := reflect.ValueOf(f)
 	fn := runtime.FuncForPC(refValue.Pointer())
 	fullFuncName := fn.Name()
 
-	// 过滤函数名的包名部分
-	lastDotIndex := strings.LastIndex(fullFuncName, sep)
-	funcName := fullFuncName[lastDotIndex+1:]
+	return getMethodPath(fullFuncName)
+}
+
+// getMethodPath 获取methid, path
+func getMethodPath(fullFuncName string) (method, path string) {
+	const sep = "."
 
 	upperFunc := func(r rune) bool {
 		return unicode.IsUpper(r)
 	}
 
-	// 找到函数名里的首个大写字母，并以此作为依据将字符串分割
+	// 过滤函数名的包名部分
+	lastDotIndex := strings.LastIndex(fullFuncName, sep)
+	funcName := fullFuncName[lastDotIndex+1:]
+
+	// 找到函数名里的首个大写字母，并以此作为依据将字符串分割 TODO:如果方法是可导出的，首字母就是大写，需要过滤掉
 	firstUpperIndex := strings.IndexFunc(funcName, upperFunc)
 	method = funcName[:firstUpperIndex]
 	method = methodMap(method)
@@ -153,6 +171,7 @@ func getMethodPathFromFunc(f HandlerFunc) (method, path string) {
 }
 
 func methodMap(m string) (r string) {
+	m = strings.ToLower(m)
 	switch m {
 	case "get":
 		r = http.MethodGet
