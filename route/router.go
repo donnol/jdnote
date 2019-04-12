@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -17,6 +16,11 @@ import (
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
+)
+
+// 路径分割符
+const (
+	pathSep = "/"
 )
 
 // cookie相关
@@ -89,6 +93,9 @@ func (r *Result) PresentData(v interface{}) error {
 // HandlerFunc 处理函数
 type HandlerFunc func(Param) (Result, error)
 
+// StructHandlerFunc 结构体处理函数
+type StructHandlerFunc func() (Result, error)
+
 // Register 注册
 func (r *Router) Register(param interface{}, f HandlerFunc) {
 	// 通过f的名字获取method，path
@@ -112,18 +119,45 @@ func (r *Router) Register(param interface{}, f HandlerFunc) {
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) RegisterStruct(v interface{}) {
 	// 反射获取Type
+	var structName string
 	refType := reflect.TypeOf(v)
+	refValue := reflect.ValueOf(v)
+	if refType.Kind() == reflect.Ptr {
+		structName = refType.Elem().Name()
+	} else {
+		structName = refType.Name()
+	}
 
-	log.Println(refType.NumMethod())
 	// 找出method field
 	for i := 0; i < refType.NumMethod(); i++ {
 		field := refType.Method(i)
+		value := refValue.Method(i)
 
+		//  路径
 		method, path := getMethodPath(field.Name)
-		log.Println(field.Name, method, path)
+		path = addPathPrefix(path, structName)
 
-		// TODO:注册路由
+		// 方法
+		valueFunc := value.Interface().(func() (Result, error))
+
+		// 注册路由
+		switch method {
+		case http.MethodPost:
+			r.Engine.POST(path, structHandlerFunc(http.MethodPost, valueFunc))
+		case http.MethodPut:
+			r.Engine.PUT(path, structHandlerFunc(http.MethodPut, valueFunc))
+		case http.MethodGet:
+			r.Engine.GET(path, structHandlerFunc(http.MethodGet, valueFunc))
+		case http.MethodDelete:
+			r.Engine.DELETE(path, structHandlerFunc(http.MethodDelete, valueFunc))
+		default:
+			panic("Not support method now.")
+		}
 	}
+}
+
+func addPathPrefix(path, prefix string) string {
+	return pathSep + strings.ToLower(prefix) + path
 }
 
 // getMethodPathFromFunc 通过f的名字获取method，path
@@ -163,10 +197,10 @@ func getMethodPath(fullFuncName string) (method, path string) {
 		tmpPath = strings.ToLower(tmpPath[:1]) + tmpPath[1:]
 		firstUpperIndex = strings.IndexFunc(tmpPath, upperFunc)
 		if firstUpperIndex == -1 {
-			path += "/" + strings.ToLower(tmpPath)
+			path += pathSep + strings.ToLower(tmpPath)
 			return
 		}
-		path += "/" + strings.ToLower(tmpPath[:firstUpperIndex])
+		path += pathSep + strings.ToLower(tmpPath[:firstUpperIndex])
 
 		tmpPath = tmpPath[firstUpperIndex:]
 	}
@@ -223,6 +257,14 @@ func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
 		} else if field.Type.Implements(dbType) { // 内嵌类型，递归遍历
 			setValue(field.Type, dbType, refValue.Field(i), dbValue)
 		}
+	}
+}
+
+var structHandlerFunc = func(method string, f StructHandlerFunc) gin.HandlerFunc {
+	// TODO: 让方法实际运行起来
+
+	return func(c *gin.Context) {
+
 	}
 }
 
