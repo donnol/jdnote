@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 
 func TestAddLogin(t *testing.T) {
 	var at = apitest.NewAT(
-		"/login",
+		"/auth/login",
 		http.MethodPost,
 		"登陆",
 		http.Header{},
@@ -94,7 +94,7 @@ func TestAddLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	var at = apitest.NewAT(
-		"/user",
+		"/auth/user",
 		http.MethodPost,
 		"添加",
 		http.Header{},
@@ -153,6 +153,85 @@ func TestAddUser(t *testing.T) {
 			}{
 				Name:     "jd",
 				Password: "13420693396",
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&r).
+			EqualThen(
+				func(at *apitest.AT) error {
+					var u = r.Data
+					return at.Equal(
+						u.ID != 0, true,
+						u.Name, "jd",
+					).Err()
+				},
+				r.Code, 0,
+				r.Msg, "",
+			).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func TestGetUser(t *testing.T) {
+	var at = apitest.NewAT(
+		"/auth/user",
+		http.MethodGet,
+		"获取",
+		http.Header{},
+		[]*http.Cookie{},
+	)
+	var r struct {
+		route.Error
+		Data userao.User
+	}
+
+	t.Run("MakeDoc", func(t *testing.T) {
+		t.SkipNow()
+
+		file := "Get.md"
+		title := "获取用户接口"
+		f, err := apitest.OpenFile(file, title)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&struct {
+				Name string
+			}{
+				Name: "jd",
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&r).
+			EqualThen(
+				func(at *apitest.AT) error {
+					var u = r.Data
+					return at.Equal(
+						u.ID != 0, true,
+						u.Name, "jd",
+					).Err()
+				},
+				r.Code, 0,
+				r.Msg, "",
+			).
+			WriteFile(f).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("Normal", func(t *testing.T) {
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&struct {
+				Name string
+			}{
+				Name: "jd",
 			}).
 			Debug().
 			Run().

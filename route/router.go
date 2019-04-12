@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -51,6 +52,17 @@ func NewRouter() *Router {
 type Param struct {
 	UserID       int         `json:"userID"`       // 用户ID
 	RequestParam interface{} `json:"requestParam"` // 请求参数
+
+	body []byte // 参数
+}
+
+// Parse 解析
+func (p *Param) Parse(v interface{}) error {
+	if err := json.Unmarshal(p.body, v); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Error 错误
@@ -93,9 +105,6 @@ func (r *Result) PresentData(v interface{}) error {
 // HandlerFunc 处理函数
 type HandlerFunc func(Param) (Result, error)
 
-// StructHandlerFunc 结构体处理函数
-type StructHandlerFunc func() (Result, error)
-
 // Register 注册
 func (r *Router) Register(param interface{}, f HandlerFunc) {
 	// 通过f的名字获取method，path
@@ -118,6 +127,9 @@ func (r *Router) Register(param interface{}, f HandlerFunc) {
 // RegisterStruct 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) RegisterStruct(v interface{}) {
+	// 初始化
+	v = initParamWithDB(v, pg.New())
+
 	// 反射获取Type
 	var structName string
 	refType := reflect.TypeOf(v)
@@ -138,7 +150,7 @@ func (r *Router) RegisterStruct(v interface{}) {
 		path = addPathPrefix(path, structName)
 
 		// 方法
-		valueFunc := value.Interface().(func() (Result, error))
+		valueFunc := value.Interface().(func(Param) (Result, error))
 
 		// 注册路由
 		switch method {
@@ -260,11 +272,76 @@ func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
 	}
 }
 
-var structHandlerFunc = func(method string, f StructHandlerFunc) gin.HandlerFunc {
-	// TODO: 让方法实际运行起来
-
+var structHandlerFunc = func(method string, f HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var err error
 
+		// 获取参数
+		var body []byte
+		switch method {
+		case http.MethodPost:
+			fallthrough
+		case http.MethodPut:
+			body, err = c.GetRawData()
+		case http.MethodGet:
+			fallthrough
+		case http.MethodDelete:
+			var queryMap = make(map[string]interface{})
+			values := c.Request.URL.Query()
+			for k, v := range values {
+				if len(v) == 1 {
+					queryMap[k] = v[0]
+				} else {
+					queryMap[k] = v
+				}
+			}
+			body, err = json.Marshal(queryMap)
+		}
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		log.Printf("body: %s\n", body)
+
+		// 获取用户信息
+		var userID int
+		cookie, err := c.Cookie(sessionKey)
+		if err == nil {
+			userID, err = jwtToken.Verify(cookie)
+			if err != nil {
+				utillog.Warnf("token verify failed, err: %+v\n", err)
+				userID = 0
+			}
+		}
+
+		// 注入用户信息，并执行业务方法
+		p := Param{UserID: userID, body: body}
+		r, err := f(p)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// 设置header
+		// 格式
+		c.Header("Content-Type", "application/json; charset=utf-8")
+		// 跨域
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		// cookie
+		if r.CookieAfterLogin != 0 {
+			var session string
+			session, err = jwtToken.Sign(r.CookieAfterLogin)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			var maxAge = 3600 * 24 * 7
+			cookie := fmt.Sprintf("%s=%s; HttpOnly; max-age=%d", sessionKey, session, maxAge)
+			c.Header("Set-Cookie", cookie)
+		}
+
+		c.JSON(http.StatusOK, r)
 	}
 }
 

@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"log"
+
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
@@ -20,32 +22,36 @@ type Auth struct {
 }
 
 // AddLogin 登录
-func (auth *Auth) AddLogin() (r route.Result, err error) {
-	// 参数 TODO: 怎么获取呢？
-	p := &userao.User{}
+func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
+	// 参数
+	p := userao.User{}
+	if err = param.Parse(&p); err != nil {
+		return
+	}
 
 	// 权限
+	_ = param.UserID
 
 	// 业务
-	if err := auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
+	if err = auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
 		return r, err
 	}
-	r.CookieAfterLogin = p.ID
-	p.Password = ""
-	r.Data = p
+	r.CookieAfterLogin = auth.UserAo.User.ID
+	auth.UserAo.Password = ""
+	r.Data = auth.UserAo
 
 	return
 }
 
 // AddUser 添加用户
-func (auth *Auth) AddUser() (r route.Result, err error) {
+func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 	// 参数
 	p := &userao.User{}
 
 	// 权限
 
 	// 业务
-	if err := auth.UserAo.Add(); err != nil {
+	if err = auth.UserAo.Add(); err != nil {
 		return r, err
 	}
 	r.Data = p
@@ -54,6 +60,22 @@ func (auth *Auth) AddUser() (r route.Result, err error) {
 }
 
 // GetUser 获取用户
-func (auth *Auth) GetUser() (r route.Result, err error) {
+func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
+	// 参数
+	p := userao.User{}
+	if err = param.Parse(&p); err != nil {
+		return
+	}
+	log.Println(p)
+
+	// 权限
+	_ = param.UserID
+
+	// 业务
+	if err = auth.UserAo.GetByName(p.Name); err != nil {
+		return
+	}
+	r.Data = auth.UserAo
+
 	return
 }
