@@ -104,33 +104,19 @@ func (r *Result) PresentData(v interface{}) error {
 // HandlerFunc 处理函数
 type HandlerFunc func(Param) (Result, error)
 
-// Register 注册
-func (r *Router) Register(param interface{}, f HandlerFunc) {
-	// 通过f的名字获取method，path
-	method, path := getMethodPathFromFunc(f)
-
-	switch method {
-	case http.MethodPost:
-		r.Engine.POST(path, defaultHandlerFunc(http.MethodPost, param, f))
-	case http.MethodPut:
-		r.Engine.PUT(path, defaultHandlerFunc(http.MethodPut, param, f))
-	case http.MethodGet:
-		r.Engine.GET(path, defaultHandlerFunc(http.MethodGet, param, f))
-	case http.MethodDelete:
-		r.Engine.DELETE(path, defaultHandlerFunc(http.MethodDelete, param, f))
-	default:
-		panic("Not support method now.")
-	}
-}
-
-// RegisterStruct 注册结构体
+// Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
-func (r *Router) RegisterStruct(v interface{}) {
+func (r *Router) Register(v interface{}) {
 	// 初始化
-	var err error
-	v, err = pg.InitParamWithDB(v)
-	if err != nil {
-		panic(err)
+	// 如果有实现New方法，则调用
+	if vv, ok := v.(Newer); ok {
+		v = vv.New()
+	} else {
+		var err error
+		v, err = pg.InitParamWithDB(v)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// 反射获取Type
@@ -214,86 +200,6 @@ var structHandlerFunc = func(method string, f HandlerFunc) gin.HandlerFunc {
 
 		// 注入用户信息，并执行业务方法
 		p := Param{UserID: userID, body: body}
-		r, err := f(p)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		// 设置header
-		// 格式
-		c.Header("Content-Type", "application/json; charset=utf-8")
-		// 跨域
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		// cookie
-		if r.CookieAfterLogin != 0 {
-			var session string
-			session, err = jwtToken.Sign(r.CookieAfterLogin)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-			var maxAge = 3600 * 24 * 7
-			cookie := fmt.Sprintf("%s=%s; HttpOnly; max-age=%d", sessionKey, session, maxAge)
-			c.Header("Set-Cookie", cookie)
-		}
-
-		c.JSON(http.StatusOK, r)
-	}
-}
-
-var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) gin.HandlerFunc {
-	// 如果有实现New方法，则调用
-	if v, ok := param.(Newer); ok {
-		param = v.New()
-	} else {
-		// 注入DB
-		var err error
-		param, err = pg.InitParamWithDB(param)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	return func(c *gin.Context) {
-		var err error
-
-		switch method {
-		case http.MethodPost:
-			fallthrough
-		case http.MethodPut:
-			err = c.ShouldBindJSON(param)
-		case http.MethodGet:
-			fallthrough
-		case http.MethodDelete:
-			err = c.ShouldBindQuery(param)
-		}
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		// 检查参数
-		if v, ok := param.(Checker); ok {
-			if err := v.Check(); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-		}
-
-		// 获取用户信息
-		var userID int
-		cookie, err := c.Cookie(sessionKey)
-		if err == nil {
-			userID, err = jwtToken.Verify(cookie)
-			if err != nil {
-				utillog.Warnf("token verify failed, err: %+v\n", err)
-				userID = 0
-			}
-		}
-
-		p := Param{UserID: userID, RequestParam: param}
 		r, err := f(p)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
