@@ -157,7 +157,8 @@ func (r *Router) Register(v interface{}) {
 	}
 }
 
-var structHandlerFunc = func(method string, f HandlerFunc) gin.HandlerFunc {
+// structHandlerFunc 结构体处理函数
+func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 
