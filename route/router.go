@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -58,8 +57,16 @@ type Param struct {
 
 // Parse 解析
 func (p *Param) Parse(v interface{}) error {
+	// 解析
 	if err := json.Unmarshal(p.body, v); err != nil {
 		return err
+	}
+
+	// 检查参数
+	if vv, ok := v.(Checker); ok {
+		if err := vv.Check(); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -128,7 +135,11 @@ func (r *Router) Register(param interface{}, f HandlerFunc) {
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) RegisterStruct(v interface{}) {
 	// 初始化
-	v = initParamWithDB(v, pg.New())
+	var err error
+	v, err = pg.InitParamWithDB(v)
+	if err != nil {
+		panic(err)
+	}
 
 	// 反射获取Type
 	var structName string
@@ -237,41 +248,6 @@ func methodMap(m string) (r string) {
 	return
 }
 
-// initParamWithDB 初始化-使用反射初始化param里的DB
-func initParamWithDB(param interface{}, db pg.DB) interface{} {
-	// 校验类型
-	refType := reflect.TypeOf(param)
-	refValue := reflect.ValueOf(param)
-	if refType.Kind() == reflect.Ptr {
-		refType = refType.Elem()
-		refValue = refValue.Elem()
-	}
-	if refType.Kind() != reflect.Struct {
-		panic("Please input struct param!")
-	}
-
-	// db类型
-	dbType := reflect.TypeOf((*pg.DB)(nil)).Elem()
-	dbValue := reflect.ValueOf(db)
-
-	// 注入DB
-	setValue(refType, dbType, refValue, dbValue)
-
-	return param
-}
-
-func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
-	for i := 0; i < refType.NumField(); i++ {
-		field := refType.Field(i)
-		if field.Type == dbType { // 类型相同，直接赋值
-			v := refValue.Field(i)
-			v.Set(dbValue)
-		} else if field.Type.Implements(dbType) { // 内嵌类型，递归遍历
-			setValue(field.Type, dbType, refValue.Field(i), dbValue)
-		}
-	}
-}
-
 var structHandlerFunc = func(method string, f HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
@@ -301,7 +277,6 @@ var structHandlerFunc = func(method string, f HandlerFunc) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		log.Printf("body: %s\n", body)
 
 		// 获取用户信息
 		var userID int
@@ -351,7 +326,11 @@ var defaultHandlerFunc = func(method string, param interface{}, f HandlerFunc) g
 		param = v.New()
 	} else {
 		// 注入DB
-		param = initParamWithDB(param, pg.New())
+		var err error
+		param, err = pg.InitParamWithDB(param)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return func(c *gin.Context) {

@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
@@ -66,7 +64,6 @@ func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
 	if err = param.Parse(&p); err != nil {
 		return
 	}
-	log.Println(p)
 
 	// 权限
 	_ = param.UserID
