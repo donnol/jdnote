@@ -139,7 +139,10 @@ func (r *Router) Register(v interface{}) {
 		path = addPathPrefix(path, structName)
 
 		// 方法
-		valueFunc := value.Interface().(func(Param) (Result, error))
+		valueFunc, ok := value.Interface().(func(Param) (Result, error))
+		if !ok {
+			continue
+		}
 
 		// 注册路由
 		switch method {
