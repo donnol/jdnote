@@ -148,8 +148,12 @@ func getMethodPath(fullFuncName string) (method, path string) {
 	lastDotIndex := strings.LastIndex(fullFuncName, sep)
 	funcName := fullFuncName[lastDotIndex+1:]
 
-	// 找到函数名里的首个大写字母，并以此作为依据将字符串分割 TODO:如果方法是可导出的，首字母就是大写，需要过滤掉
+	// 找到函数名里的首个大写字母，并以此作为依据将字符串分割
 	firstUpperIndex := strings.IndexFunc(funcName, upperFunc)
+	if firstUpperIndex == 0 {
+		// 如果方法是可导出的，首字母就是大写，需要过滤掉
+		firstUpperIndex = strings.IndexFunc(funcName[1:], upperFunc) + 1
+	}
 	method = funcName[:firstUpperIndex]
 	method = methodMap(method)
 
