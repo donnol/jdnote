@@ -5,10 +5,14 @@ import (
 	"unicode"
 )
 
+const (
+	tablePrefix = "t_"
+)
+
 // tableMapper 表名映射
 func tableMapper(name string) string {
 	name = fieldMapper(name)
-	return "t_" + name
+	return tablePrefix + name
 }
 
 // fieldTypeMapper 将结构体字段类型映射为数据库表字段类型

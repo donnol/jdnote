@@ -28,11 +28,11 @@ func main() {
 
 	// 解析
 	if err := dbdoc.Resolve(w,
-		&user.User{},
-		&role.Role{},
-		&userrole.UserRole{},
-		&action.Action{},
-		&roleaction.RoleAction{},
+		&user.Entity{},
+		&role.Entity{},
+		&userrole.Entity{},
+		&action.Entity{},
+		&roleaction.Entity{},
 	); err != nil {
 		panic(err)
 	}

@@ -68,7 +68,15 @@ func (t *Table) Resolve(v interface{}) *Table {
 
 	vstructName := vstruct.Name
 	nameList := strings.Split(vstructName, ".")
-	t.Name = t.tableMapper(nameList[len(nameList)-1])
+	tableName := nameList[len(nameList)-1]
+	if tableName == "Entity" {
+		// 获取包名
+		pkgNameList := strings.Split(nameList[len(nameList)-2], "/")
+		tableName = pkgNameList[len(pkgNameList)-1]
+		t.Name = tablePrefix + tableName
+	} else {
+		t.Name = t.tableMapper(tableName)
+	}
 	t.Comment = vstruct.Comment
 	t.Description = vstruct.Description
 
