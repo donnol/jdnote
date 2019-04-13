@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/model/user"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
 )
@@ -22,7 +23,7 @@ type Auth struct {
 // AddLogin 登录
 func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 	// 参数
-	p := userao.User{}
+	p := user.Entity{}
 	if err = param.Parse(&p); err != nil {
 		return
 	}
@@ -31,12 +32,12 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 	_ = param.UserID
 
 	// 业务
-	if err = auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
+	var re user.Entity
+	if re, err = auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
 		return r, err
 	}
-	r.CookieAfterLogin = auth.UserAo.User.ID
-	auth.UserAo.Password = ""
-	r.Data = auth.UserAo
+	r.CookieAfterLogin = re.ID
+	r.Data = re
 
 	return
 }
@@ -44,15 +45,19 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 // AddUser 添加用户
 func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 	// 参数
-	p := &userao.User{}
+	p := user.Entity{}
+	if err = param.Parse(&p); err != nil {
+		return
+	}
 
 	// 权限
 
 	// 业务
-	if err = auth.UserAo.Add(); err != nil {
+	var id int
+	if id, err = auth.UserAo.Add(p); err != nil {
 		return r, err
 	}
-	r.Data = p
+	r.Data = id
 
 	return
 }
@@ -60,7 +65,7 @@ func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 // GetUser 获取用户
 func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
 	// 参数
-	p := userao.User{}
+	p := user.Entity{}
 	if err = param.Parse(&p); err != nil {
 		return
 	}
@@ -69,10 +74,11 @@ func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
 	_ = param.UserID
 
 	// 业务
-	if err = auth.UserAo.GetByName(p.Name); err != nil {
+	var re user.Entity
+	if re, err = auth.UserAo.GetByName(p.Name); err != nil {
 		return
 	}
-	r.Data = auth.UserAo
+	r.Data = re
 
 	return
 }

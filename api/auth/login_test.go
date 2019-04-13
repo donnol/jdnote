@@ -9,7 +9,6 @@ import (
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/model/user"
 	"github.com/donnol/jdnote/route"
-	userao "github.com/donnol/jdnote/service/user"
 	"github.com/donnol/jdnote/utils/apitest"
 )
 
@@ -29,7 +28,7 @@ func TestAddLogin(t *testing.T) {
 	)
 	var r struct {
 		route.Error
-		Data user.User
+		Data user.Entity
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
@@ -44,7 +43,7 @@ func TestAddLogin(t *testing.T) {
 		defer f.Close()
 
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&user.User{
+			SetParam(&user.Entity{
 				Name:     "jd",
 				Password: "13420693396",
 			}).
@@ -69,7 +68,7 @@ func TestAddLogin(t *testing.T) {
 
 	t.Run("Normal", func(t *testing.T) {
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&user.User{
+			SetParam(&user.Entity{
 				Name:     "jd",
 				Password: "13420693396",
 			}).
@@ -102,7 +101,7 @@ func TestAddUser(t *testing.T) {
 	)
 	var r struct {
 		route.Error
-		Data userao.User
+		Data int
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
@@ -130,14 +129,11 @@ func TestAddUser(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					var u = r.Data
-					return at.Equal(
-						u.ID != 0, true,
-						u.Name, "jd",
-					).Err()
+					return nil
 				},
 				r.Code, 0,
 				r.Msg, "",
+				r.Data != 0, true,
 			).
 			WriteFile(f).
 			Err(); err != nil {
@@ -160,14 +156,11 @@ func TestAddUser(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					var u = r.Data
-					return at.Equal(
-						u.ID != 0, true,
-						u.Name, "jd",
-					).Err()
+					return nil
 				},
 				r.Code, 0,
 				r.Msg, "",
+				r.Data != 0, true,
 			).
 			Err(); err != nil {
 			t.Fatal(err)
@@ -185,7 +178,7 @@ func TestGetUser(t *testing.T) {
 	)
 	var r struct {
 		route.Error
-		Data userao.User
+		Data user.Entity
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {

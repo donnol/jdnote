@@ -11,8 +11,8 @@ import (
 type User struct {
 	user.User
 
-	UserModel     user.User         `json:"-"`
-	UserRoleModel userrole.UserRole `json:"-"`
+	UserModel     user.User
+	UserRoleModel userrole.UserRole
 }
 
 // Check 检查
@@ -22,21 +22,22 @@ func (u *User) Check() error {
 }
 
 // Add 添加
-func (u *User) Add() error {
-	if err := pg.WithTx(func(tx pg.DB) error {
+func (u *User) Add(e user.Entity) (id int, err error) {
+	if err = pg.WithTx(func(tx pg.DB) error {
+		var err error
+
 		// 添加用户-必须获取model的副本，这样才不会改变model的DB值
 		um := u.UserModel
 		um.SetTx(tx)
 		// 如果像这样直接调用SetTx，就会改变model里的DB值，对后面的操作会一直有影响
 		// u.UserModel.SetTx(tx)
-		if err := um.Add(); err != nil {
+		if id, err = um.Add(e); err != nil {
 			return err
 		}
-		u.ID = um.ID
 
 		// 添加角色
 		ur := u.UserRoleModel
-		ur.UserID = um.ID
+		ur.UserID = id
 		ur.RoleID = role.DefaultRoleID
 		ur.SetTx(tx)
 		if err := ur.Add(); err != nil {
@@ -45,8 +46,8 @@ func (u *User) Add() error {
 
 		return nil
 	}); err != nil {
-		return err
+		return
 	}
 
-	return nil
+	return
 }
