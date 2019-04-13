@@ -17,53 +17,60 @@ func main() {
 
 // initdb 初始化数据库
 func initdb() error {
+	var err error
+
 	// 角色
-	r := &role.Role{
+	re := role.Entity{
 		Role: "ALL",
 	}
+	r := &role.Role{}
 	r.DB = pg.New()
-	if err := r.Add(); err != nil {
+	if re.ID, err = r.Add(re); err != nil {
 		return err
 	}
 
 	// 动作
-	a := &action.Action{
+	ae := action.Entity{
 		Action: "ALL",
 	}
+	a := &action.Action{}
 	a.DB = pg.New()
-	if err := a.Add(); err != nil {
+	if ae.ID, err = a.Add(ae); err != nil {
 		return err
 	}
 
 	// 角色动作关联
-	ra := &roleaction.RoleAction{
-		RoleID:   r.ID,
-		ActionID: a.ID,
+	rae := roleaction.Entity{
+		RoleID:   re.ID,
+		ActionID: ae.ID,
 	}
+	ra := &roleaction.RoleAction{}
 	ra.DB = pg.New()
-	if err := ra.Add(); err != nil {
+	if rae.ID, err = ra.Add(rae); err != nil {
 		return err
 	}
 
 	// 用户
-	u := &user.User{
+	ue := user.Entity{
 		Name:     "jd",
 		Phone:    "13420693396",
 		Email:    "jdlau@126.com",
 		Password: "13420693396",
 	}
+	u := &user.User{}
 	u.DB = pg.New()
-	if err := u.Add(); err != nil {
+	if ue.ID, err = u.Add(ue); err != nil {
 		return err
 	}
 
 	// 用户角色关联
-	ur := &userrole.UserRole{
-		UserID: u.ID,
-		RoleID: r.ID,
+	ure := userrole.Entity{
+		UserID: ue.ID,
+		RoleID: re.ID,
 	}
+	ur := &userrole.UserRole{}
 	ur.DB = pg.New()
-	if err := ur.Add(); err != nil {
+	if _, err = ur.Add(ure); err != nil {
 		return err
 	}
 
