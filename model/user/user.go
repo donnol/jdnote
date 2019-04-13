@@ -29,8 +29,6 @@ func (u *User) VerifyByNameAndPassword(name, password string) (e Entity, err err
 	if err = bcrypt.CompareHashAndPassword([]byte(e.Password), []byte(password)); err != nil {
 		return
 	}
-	// TODO: 这样将密码置空，不让它返回，不是很好，能不能给Entity添加一个方法，然后让route在返回之前调用这个方法来屏蔽字段呢？
-	e.Password = ""
 
 	return
 }

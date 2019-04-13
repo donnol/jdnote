@@ -8,3 +8,11 @@ type Entity struct {
 	Email    string `json:"email" form:"email"`       // 邮箱
 	Password string `json:"password" form:"password"` // 密码
 }
+
+// Filter 过滤器
+func (e Entity) Filter() interface{} {
+	// 将密码置空
+	e.Password = ""
+
+	return e
+}

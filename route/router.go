@@ -202,7 +202,7 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 			}
 		}
 
-		// 注入用户信息，并执行业务方法
+		// 注入用户和参数信息，并执行业务方法
 		p := Param{UserID: userID, body: body}
 		r, err := f(p)
 		if err != nil {
@@ -229,6 +229,12 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 			c.Header("Set-Cookie", cookie)
 		}
 
+		// 调用过滤器，过滤返回内容
+		if v, ok := r.Data.(Filter); ok {
+			r.Data = v.Filter()
+		}
+
+		// 返回
 		c.JSON(http.StatusOK, r)
 	}
 }
