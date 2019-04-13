@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -179,7 +180,11 @@ func (at *AT) PressureRun(n, c int) *AT {
 	// 记录结束时间，并计算耗时
 	after := time.Now()
 	used := after.Unix() - before.Unix()
-	fmt.Printf("\n=== Pressure Report ===\nNumber: %d\nConcurrency: %d\nCompleted: %d\nUsed time: %ds\nRPS: %v\n=== END ===\n\n", n, c, total, used, total/used)
+	var avg int64
+	if used != 0 {
+		avg = total / used
+	}
+	fmt.Printf("\n=== Pressure Report ===\nNumber: %d\nConcurrency: %d\nCompleted: %d\nUsed time: %ds\nRPS: %v\n=== END ===\n\n", n, c, total, used, avg)
 
 	return at
 }
@@ -425,8 +430,19 @@ func (at *AT) run() *AT {
 	at.req = req
 
 	// 发起请求
+	// https://medium.com/@nate510/don-t-use-go-s-default-http-client-4804cb19f779
+	transport := &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 5 * time.Second,
+		}).Dial,
+		TLSHandshakeTimeout: 5 * time.Second,
+	}
+	client := &http.Client{
+		Timeout:   time.Second * 10, // 超时
+		Transport: transport,
+	}
 	beforeDo := time.Now()
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		at.setErr(err)
 		return at
@@ -441,6 +457,8 @@ func (at *AT) run() *AT {
 		}
 	}
 
+	// https://stackoverflow.com/questions/17948827/reusing-http-connections-in-golang
+	// 只要不关闭response，client就不会重用连接，而是新建连接
 	at.resp = resp
 
 	// 收集错误码

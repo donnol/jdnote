@@ -245,4 +245,17 @@ func TestGetUser(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("PressureRun", func(t *testing.T) {
+		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&struct {
+				Name string
+			}{
+				Name: "jd",
+			}).
+			PressureRun(1000, 100).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
