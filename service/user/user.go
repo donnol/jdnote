@@ -37,10 +37,12 @@ func (u *User) Add(e user.Entity) (id int, err error) {
 
 		// 添加角色
 		ur := u.UserRoleModel
-		ur.UserID = id
-		ur.RoleID = role.DefaultRoleID
 		ur.SetTx(tx)
-		if err := ur.Add(); err != nil {
+		ure := userrole.Entity{
+			UserID: id,
+			RoleID: role.DefaultRoleID,
+		}
+		if _, err = ur.Add(ure); err != nil {
 			return err
 		}
 
