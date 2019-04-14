@@ -14,7 +14,7 @@ type Role struct {
 
 // GetByID 获取
 func (r *Role) GetByID(id int) (e Entity, err error) {
-	if err = r.Get(&e, `
+	if err = r.DB.Get(&e, `
 		SELECT * FROM t_role WHERE id = $1
 		`, id); err != nil {
 		return
@@ -25,7 +25,7 @@ func (r *Role) GetByID(id int) (e Entity, err error) {
 
 // Add 添加
 func (r *Role) Add(e Entity) (id int, err error) {
-	if err = r.Get(&id, `
+	if err = r.DB.Get(&id, `
 		INSERT INTO t_role (role)VALUES($1) RETURNING id
 		`, e.Role); err != nil {
 		return
