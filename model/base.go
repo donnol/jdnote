@@ -4,5 +4,5 @@ import (
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
-// Base 基础
+// Base 基底
 type Base = pg.Base
