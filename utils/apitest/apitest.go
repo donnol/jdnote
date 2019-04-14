@@ -436,6 +436,8 @@ func (at *AT) run() *AT {
 			Timeout: 5 * time.Second,
 		}).Dial,
 		TLSHandshakeTimeout: 5 * time.Second,
+		MaxIdleConns:        100, // 最大空闲连接数
+		MaxIdleConnsPerHost: 100, // 每个域名最大空闲连接数
 	}
 	client := &http.Client{
 		Timeout:   time.Second * 10, // 超时
