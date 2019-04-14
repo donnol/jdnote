@@ -113,7 +113,15 @@ func (r *Router) Register(v interface{}) {
 		v = vv.New()
 	} else {
 		var err error
+
+		// 注入DB
 		v, err = pg.InitParamWithDB(v)
+		if err != nil {
+			panic(err)
+		}
+
+		// 注入Logger
+		v, err = utillog.InitParamWithLogger(v)
 		if err != nil {
 			panic(err)
 		}

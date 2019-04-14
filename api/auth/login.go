@@ -8,8 +8,6 @@ import (
 )
 
 func init() {
-	// 用add/get/mod/del分别对应post/get/put/delete方法，路由从方法名(驼峰转换，如：getUser->get /user; getUserCurrent->get /user/current;)获取，但是参数一般都是每个接口都不同的，怎么设置好呢？
-	// 还有，如login方法这种用post的，写成addLogin好像也不太好
 	route.DefaultRouter.Register(&Auth{})
 }
 
@@ -27,6 +25,7 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 	if err = param.Parse(&p); err != nil {
 		return
 	}
+	auth.Debugf("p: %+v\n", p)
 
 	// 权限
 	_ = param.UserID

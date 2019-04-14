@@ -6,5 +6,5 @@ import (
 
 // Base 基底
 type Base struct {
-	*utillog.Logger
+	utillog.Logger
 }

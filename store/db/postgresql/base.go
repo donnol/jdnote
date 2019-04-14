@@ -36,8 +36,8 @@ var globalTx = func() *sqlx.Tx {
 
 // Base 基础
 type Base struct {
-	DB              `json:"-" db:"-"`
-	*utillog.Logger `json:"-" db:"-"`
+	DB             `json:"-" db:"-"`
+	utillog.Logger `json:"-" db:"-"`
 }
 
 // SetTx 设置事务
