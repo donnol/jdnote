@@ -30,62 +30,73 @@ type Notifier interface {
 	Notify(msg string)
 }
 
-// Logger 日志
-type Logger struct {
+// Logger 日志接口
+type Logger interface {
+	SetNotify(notify Notifier)
+	Fatalf(format string, v ...interface{})
+	Errorf(format string, v ...interface{})
+	Warnf(format string, v ...interface{})
+	Infof(format string, v ...interface{})
+	Debugf(format string, v ...interface{})
+	Tracef(format string, v ...interface{})
+}
+
+// logger 日志
+type logger struct {
 	*log.Logger
 
 	notify Notifier
 }
 
 // New 新建
-func New(out io.Writer, prefix string, flag int) *Logger {
-	return &Logger{
+func New(out io.Writer, prefix string, flag int) Logger {
+	return &logger{
 		Logger: log.New(out, prefix+" ", flag),
 	}
 }
 
 // SetNotify 设置通知
-func (l *Logger) SetNotify(notify Notifier) {
+func (l *logger) SetNotify(notify Notifier) {
 	l.notify = notify
 }
 
 // Fatalf 致命
-func (l *Logger) Fatalf(format string, v ...interface{}) {
+func (l *logger) Fatalf(format string, v ...interface{}) {
 	level := FatalLevel
 	l.printf(level, format, v...)
 }
 
 // Errorf 错误
-func (l *Logger) Errorf(format string, v ...interface{}) {
+func (l *logger) Errorf(format string, v ...interface{}) {
 	level := ErrorLevel
 	l.printf(level, format, v...)
 }
 
 // Warnf 警告
-func (l *Logger) Warnf(format string, v ...interface{}) {
+func (l *logger) Warnf(format string, v ...interface{}) {
 	level := WarnLevel
 	l.printf(level, format, v...)
 }
 
 // Infof 信息
-func (l *Logger) Infof(format string, v ...interface{}) {
+func (l *logger) Infof(format string, v ...interface{}) {
 	level := InfoLevel
 	l.printf(level, format, v...)
 }
 
 // Debugf 调试
-func (l *Logger) Debugf(format string, v ...interface{}) {
+func (l *logger) Debugf(format string, v ...interface{}) {
 	level := DebugLevel
 	l.printf(level, format, v...)
 }
 
 // Tracef 追踪
-func (l *Logger) Tracef(format string, v ...interface{}) {
+func (l *logger) Tracef(format string, v ...interface{}) {
 	level := TraceLevel
 	l.printf(level, format, v...)
 }
 
-func (l *Logger) printf(level Level, format string, v ...interface{}) {
+func (l *logger) printf(level Level, format string, v ...interface{}) {
 	format = getFormat(level, format)
 	msg := fmt.Sprintf(format, v...)
 
@@ -96,7 +107,7 @@ func (l *Logger) printf(level Level, format string, v ...interface{}) {
 }
 
 // 发送通知
-func (l *Logger) notice(level Level, msg string) {
+func (l *logger) notice(level Level, msg string) {
 	if l.notify == nil {
 		return
 	}

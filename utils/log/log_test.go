@@ -38,8 +38,6 @@ func TestLogger(t *testing.T) {
 		logger.Infof("%+v\n", cas.value)
 		logger.Debugf("%+v\n", cas.value)
 		logger.Tracef("%+v\n", cas.value)
-
-		logger.Printf("%+v\n", cas.value)
 	}
 }
 
@@ -71,7 +69,5 @@ func TestNotifyLogger(t *testing.T) {
 		logger.Infof("%+v\n", cas.value)
 		logger.Debugf("%+v\n", cas.value)
 		logger.Tracef("%+v\n", cas.value)
-
-		logger.Printf("%+v\n", cas.value)
 	}
 }
