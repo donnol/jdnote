@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"time"
 
 	"github.com/donnol/jdnote/config"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
@@ -131,6 +132,9 @@ type HandlerFunc func(Param) (Result, error)
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) Register(v interface{}) {
+	// 计时开始
+	start := time.Now()
+
 	// 初始化
 	// 如果有实现New方法，则调用
 	if vv, ok := v.(Newer); ok {
@@ -190,6 +194,10 @@ func (r *Router) Register(v interface{}) {
 			panic("Not support method now.")
 		}
 	}
+
+	// 计时结束
+	end := time.Now()
+	utillog.Debugf("Register %s router use time: %v\n", structName, end.Sub(start))
 }
 
 // structHandlerFunc 结构体处理函数
