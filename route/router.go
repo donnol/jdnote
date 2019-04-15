@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"reflect"
 
@@ -13,6 +14,12 @@ import (
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/schema"
+)
+
+// 参数相关
+var (
+	decoder = schema.NewDecoder()
 )
 
 // cookie相关
@@ -44,13 +51,30 @@ type Param struct {
 	UserID       int         `json:"userID"`       // 用户ID
 	RequestParam interface{} `json:"requestParam"` // 请求参数
 
-	body []byte // 参数
+	// 方法
+	method string
+
+	// 参数
+	body   []byte
+	values url.Values
 }
 
 // Parse 解析
 func (p *Param) Parse(v interface{}) error {
+	var err error
+
 	// 解析
-	if err := json.Unmarshal(p.body, v); err != nil {
+	switch p.method {
+	case http.MethodPost:
+		fallthrough
+	case http.MethodPut:
+		err = json.Unmarshal(p.body, v)
+	case http.MethodGet:
+		fallthrough
+	case http.MethodDelete:
+		err = decoder.Decode(v, p.values)
+	}
+	if err != nil {
 		return err
 	}
 
@@ -175,6 +199,7 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 
 		// 获取参数
 		var body []byte
+		var values url.Values
 		switch method {
 		case http.MethodPost:
 			fallthrough
@@ -183,16 +208,7 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 		case http.MethodGet:
 			fallthrough
 		case http.MethodDelete:
-			var queryMap = make(map[string]interface{})
-			values := c.Request.URL.Query()
-			for k, v := range values {
-				if len(v) == 1 {
-					queryMap[k] = v[0]
-				} else {
-					queryMap[k] = v
-				}
-			}
-			body, err = json.Marshal(queryMap)
+			values = c.Request.URL.Query()
 		}
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -211,7 +227,7 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 		}
 
 		// 注入用户和参数信息，并执行业务方法
-		p := Param{UserID: userID, body: body}
+		p := Param{UserID: userID, method: method, body: body, values: values}
 		r, err := f(p)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

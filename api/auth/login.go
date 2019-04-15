@@ -25,7 +25,6 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 	if err = param.Parse(&p); err != nil {
 		return
 	}
-	auth.Debugf("p: %+v\n", p)
 
 	// 权限
 	_ = param.UserID

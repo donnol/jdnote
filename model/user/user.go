@@ -24,7 +24,6 @@ func (u *User) VerifyByNameAndPassword(name, password string) (e Entity, err err
 	if err = u.DB.Get(&e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		return
 	}
-	u.Debugf("e: %+v\n", e)
 
 	// 校验用户和密码
 	if err = bcrypt.CompareHashAndPassword([]byte(e.Password), []byte(password)); err != nil {
