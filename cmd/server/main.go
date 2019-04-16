@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/donnol/jdnote/route"
 	utillog "github.com/donnol/jdnote/utils/log"
@@ -50,7 +51,7 @@ func main() {
 	}()
 
 	// 开启服务器
-	utillog.Debugf("Server start. Listen '%s'", port)
+	utillog.Debugf("Server start in %v. Listening '%s'", time.Now().Format("2006-01-02 15:04:05"), port)
 	if err := srv.ListenAndServe(); err != nil {
 		utillog.Debugf("HTTP server ListenAndServe: %v", err)
 	}
