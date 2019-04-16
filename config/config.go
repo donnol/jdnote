@@ -40,18 +40,19 @@ type JWT struct {
 }
 
 // MakeConfigFromFile 新建DB配置
-func MakeConfigFromFile(file string) Config {
+func MakeConfigFromFile(file string) (Config, error) {
+	var conf Config
+
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		panic(err)
+		return conf, err
 	}
 
-	var conf Config
 	if _, err := toml.Decode(string(data), &conf); err != nil {
-		panic(err)
+		return conf, err
 	}
 
-	return conf
+	return conf, nil
 }
 
 // String 字符串
