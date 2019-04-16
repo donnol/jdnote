@@ -10,7 +10,7 @@ import (
 func InitParamWithDB(param interface{}) (interface{}, error) {
 	// db类型和值
 	dbType := reflect.TypeOf((*DB)(nil)).Elem()
-	dbValue := reflect.ValueOf(New())
+	dbValue := reflect.ValueOf((&Base{}).New())
 
 	// 注入
 	var err error

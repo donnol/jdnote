@@ -1,10 +1,10 @@
 package userao
 
 import (
+	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/model/role"
 	"github.com/donnol/jdnote/model/user"
 	userrole "github.com/donnol/jdnote/model/user_role"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
 // User 用户
@@ -23,7 +23,7 @@ func (u *User) Check() error {
 
 // Add 添加
 func (u *User) Add(e user.Entity) (id int, err error) {
-	if err = pg.WithTx(func(tx pg.DB) error {
+	if err = u.WithTx(func(tx model.DB) error {
 		var err error
 
 		// 添加用户-必须获取model的副本，这样才不会改变model的DB值

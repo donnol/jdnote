@@ -6,3 +6,6 @@ import (
 
 // Base 基底
 type Base = pg.Base
+
+// DB DB
+type DB = pg.DB

@@ -53,7 +53,7 @@ func (b *Base) SetTx(tx DB) *Base {
 }
 
 // New 新建
-func New() DB {
+func (b *Base) New() DB {
 	if isUnitTest {
 		return globalTx
 	}
@@ -62,7 +62,7 @@ func New() DB {
 }
 
 // WithTx 事务
-func WithTx(f func(tx DB) error) error {
+func (b *Base) WithTx(f func(tx DB) error) error {
 	var tx *sqlx.Tx
 	var err error
 
