@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/route"
 	utillog "github.com/donnol/jdnote/utils/log"
 
@@ -17,7 +18,7 @@ import (
 
 func main() {
 	// 配置服务器
-	port := ":8810"
+	port := config.DefaultConfig.Server.Port
 	srv := &http.Server{
 		Addr:    port,
 		Handler: route.DefaultRouter,

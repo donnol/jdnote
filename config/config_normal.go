@@ -1,6 +1,9 @@
 package config
 
 var normal = Config{
+	Server: Server{
+		Port: ":8810",
+	},
 	DB: DB{
 		Scheme:   "postgres",
 		Host:     "127.0.0.1",

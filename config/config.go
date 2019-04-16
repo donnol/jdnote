@@ -12,6 +12,9 @@ var DefaultConfig Config
 
 // Config 配置
 type Config struct {
+	// 服务器配置
+	Server Server `toml:"server"`
+
 	// 数据库配置
 	DB DB `toml:"database"`
 
@@ -21,6 +24,11 @@ type Config struct {
 
 func init() {
 	DefaultConfig = normal
+}
+
+// Server 服务器配置
+type Server struct {
+	Port string // 端口，如：":8810"
 }
 
 // DB 数据库配置
