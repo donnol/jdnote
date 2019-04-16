@@ -51,7 +51,7 @@ func main() {
 	}()
 
 	// 开启服务器
-	utillog.Debugf("Server start in %v. Listening '%s'", time.Now().Format("2006-01-02 15:04:05"), port)
+	utillog.Debugf("Server start at %v. Listening '%s'", time.Now().Format("2006-01-02 15:04:05"), port)
 	if err := srv.ListenAndServe(); err != nil {
 		utillog.Debugf("HTTP server ListenAndServe: %v", err)
 	}
