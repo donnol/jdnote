@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/donnol/jdnote/config"
@@ -158,11 +159,23 @@ func (r *Router) Register(v interface{}) {
 	// 反射获取Type
 	var structName string
 	refType := reflect.TypeOf(v)
+	refTypeRaw := refType
 	refValue := reflect.ValueOf(v)
 	if refType.Kind() == reflect.Ptr {
 		structName = refType.Elem().Name()
+		refTypeRaw = refType.Elem()
 	} else {
 		structName = refType.Name()
+	}
+
+	// 找出attr field
+	var groupName string
+	groupType := reflect.TypeOf(Group{})
+	for i := 0; i < refTypeRaw.NumField(); i++ {
+		field := refTypeRaw.Field(i)
+		if field.Type == groupType {
+			groupName = strings.ToLower(field.Name)
+		}
 	}
 
 	// 找出method field
@@ -170,9 +183,10 @@ func (r *Router) Register(v interface{}) {
 		field := refType.Method(i)
 		value := refValue.Method(i)
 
-		//  路径
+		// 路径
 		method, path := getMethodPath(field.Name)
 		path = addPathPrefix(path, structName)
+		path = addPathPrefix(path, groupName)
 
 		// 方法
 		valueFunc, ok := value.Interface().(func(Param) (Result, error))

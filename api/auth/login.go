@@ -15,6 +15,10 @@ func init() {
 type Auth struct {
 	api.Base
 
+	// 所属的Group
+	V1 route.Group // 属于v1分组
+
+	// 使用的model
 	UserAo userao.User
 }
 
