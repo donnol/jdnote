@@ -104,3 +104,28 @@ func (b *Base) WithTx(f func(tx DB) error) error {
 
 	return err
 }
+
+// InjectTx 注入事务
+func (b *Base) InjectTx(v interface{}, f func(v interface{}) error) error {
+	if err := b.WithTx(func(tx DB) error {
+		var err error
+
+		// 注入tx
+		v, err = initParamWithDB(v, tx)
+		if err != nil {
+			return err
+		}
+
+		// 执行
+		err = f(v)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -8,9 +8,19 @@ import (
 
 // InitParamWithDB 初始化param里的DB
 func InitParamWithDB(param interface{}) (interface{}, error) {
+	param, err := initParamWithDB(param, (&Base{}).New())
+	if err != nil {
+		return param, err
+	}
+
+	return param, nil
+}
+
+// initParamWithDB 初始化param里的DB
+func initParamWithDB(param interface{}, db DB) (interface{}, error) {
 	// db类型和值
 	dbType := reflect.TypeOf((*DB)(nil)).Elem()
-	dbValue := reflect.ValueOf((&Base{}).New())
+	dbValue := reflect.ValueOf(db)
 
 	// 注入
 	var err error

@@ -53,3 +53,32 @@ func (u *User) Add(e user.Entity) (id int, err error) {
 
 	return
 }
+
+// Add2 第二种写法
+func (u *User) Add2(e user.Entity) (id int, err error) {
+	// 这里需要copy一次
+	cu := *u
+
+	if err = u.InjectTx(&cu, func(v interface{}) error {
+		// 这样子，又需要断言回具体类型
+		nu := v.(*User)
+
+		if id, err = nu.UserModel.Add(e); err != nil {
+			return err
+		}
+
+		ure := userrole.Entity{
+			UserID: id,
+			RoleID: role.DefaultRoleID,
+		}
+		if _, err = nu.UserRoleModel.Add(ure); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return
+	}
+
+	return
+}
