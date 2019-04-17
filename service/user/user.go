@@ -82,3 +82,10 @@ func (u *User) Add2(e user.Entity) (id int, err error) {
 
 	return
 }
+
+// Add3 第三种写法
+func (u *User) Add3(e user.Entity) (id int, err error) {
+	// TODO: Base里有另外的oldDB字段，暂时存储DB值
+
+	return
+}
