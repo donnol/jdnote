@@ -39,6 +39,12 @@ func setValue(refType, dbType reflect.Type, refValue, dbValue reflect.Value) {
 
 	for i := 0; i < refType.NumField(); i++ {
 		field := refType.Field(i)
+
+		// 忽略非导出字段
+		if field.PkgPath != "" {
+			continue
+		}
+
 		if field.Type == dbType { // 类型相同，直接赋值
 			v := refValue.Field(i)
 			v.Set(dbValue)
