@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/model/user"
@@ -142,6 +143,35 @@ func TestAddUser(t *testing.T) {
 	})
 
 	t.Run("Tx", func(t *testing.T) {
+		go func() {
+			if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+				SetParam(&struct {
+					Name     string
+					Password string
+				}{
+					Name:     "jd",
+					Password: "13420693396",
+				}).
+				Debug().
+				Run().
+				EqualCode(http.StatusOK).
+				Result(&r).
+				EqualThen(
+					func(at *apitest.AT) error {
+						return nil
+					},
+					r.Code, 0,
+					r.Msg, "",
+					r.Data != 0, true,
+				).
+				Err(); err != nil {
+				t.Fatal(err)
+			}
+		}()
+
+		// 休眠两秒，然后新建一个请求
+		time.Sleep(2 * time.Second)
+
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&struct {
 				Name     string

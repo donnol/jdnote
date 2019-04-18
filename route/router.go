@@ -154,6 +154,8 @@ func (r *Router) Register(v interface{}) {
 		if err != nil {
 			panic(err)
 		}
+
+		utillog.Debugf("After init: %+v\n", v)
 	}
 
 	// 反射获取Type

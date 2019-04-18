@@ -56,7 +56,7 @@ func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	var id int
-	if id, err = auth.UserAo.Add(p); err != nil {
+	if id, err = auth.UserAo.Add3(p); err != nil {
 		return r, err
 	}
 	r.Data = id

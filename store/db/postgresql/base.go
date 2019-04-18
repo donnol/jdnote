@@ -116,7 +116,7 @@ func (b *Base) InjectTx(v interface{}, f func(v interface{}) error) error {
 		var err error
 
 		// 注入tx
-		v, err = initParamWithDB(v, tx)
+		v, err = initParamWithDB(v, tx, true)
 		if err != nil {
 			return err
 		}
@@ -133,4 +133,32 @@ func (b *Base) InjectTx(v interface{}, f func(v interface{}) error) error {
 	}
 
 	return nil
+}
+
+// InjectTx2 注入事务
+func (b *Base) InjectTx2(v interface{}, f func(v interface{}) error) error {
+	var err error
+
+	// 执行事务
+	if err = b.WithTx(func(tx DB) error {
+		var errInner error
+
+		// 注入tx
+		v, errInner = initParamWithDB(v, tx, true)
+		if errInner != nil {
+			return errInner
+		}
+
+		// 执行
+		errInner = f(v)
+		if errInner != nil {
+			return errInner
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return err
 }
