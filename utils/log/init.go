@@ -16,7 +16,7 @@ func InitParamWithLogger(param interface{}) (interface{}, error) {
 
 	// 注入
 	var err error
-	param, err = reflectx.InitParam(param, specType, specValue)
+	param, err = reflectx.InitParam(param, specType, specValue, false)
 	if err != nil {
 		return param, err
 	}
