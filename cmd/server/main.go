@@ -14,6 +14,7 @@ import (
 
 	// 注入路由
 	_ "github.com/donnol/jdnote/api/auth"
+	_ "github.com/donnol/jdnote/api/file"
 )
 
 func main() {
