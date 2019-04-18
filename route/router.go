@@ -250,6 +250,8 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 			}
 		}
 
+		// TODO: 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
+
 		// 注入用户和参数信息，并执行业务方法
 		p := Param{UserID: userID, method: method, body: body, values: values}
 		r, err := f(p)
