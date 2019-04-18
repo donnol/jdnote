@@ -43,13 +43,11 @@ type Base struct {
 	utillog.Logger `json:"-" db:"-"`
 
 	// DB
-	DB    DB `json:"-" db:"-"`
-	oldDB DB `json:"-" db:"-"` // 开始事务的时候，用这个字段保存旧DB值，等事务完成(回滚/提交)后再将它赋回给DB字段，然后将它置空
+	DB DB `json:"-" db:"-"`
 }
 
 // SetTx 设置事务
 func (b *Base) SetTx(tx DB) *Base {
-	b.oldDB = b.DB
 	b.DB = tx
 	return b
 }
@@ -82,9 +80,6 @@ func (b *Base) WithTx(f func(tx DB) error) error {
 		if !success {
 			tx.Rollback() // 执行f时出现任何问题，都要Rollback
 		}
-
-		b.DB = b.oldDB
-		b.oldDB = nil
 	}()
 
 	err = f(tx)

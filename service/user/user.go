@@ -92,9 +92,8 @@ func (u *User) Add2(e user.Entity) (id int, err error) {
 // Add3 第三种写法
 // THINK:这样子写，如果同时开启多个事务，会不会有影响呢？
 func (u *User) Add3(e user.Entity) (id int, err error) {
-	// TODO: Base里有另外的oldDB字段，暂时存储DB值
-
 	u.Debugf("before: %+v\n", u)
+
 	if err = u.InjectTx2(u, func(v interface{}) error {
 		// 这样子，又需要断言回具体类型
 		nu := v.(*User)
