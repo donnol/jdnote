@@ -46,6 +46,12 @@ func getMethodPath(fullFuncName string) (method, path string) {
 		// 如果方法是可导出的，首字母就是大写，需要过滤掉
 		firstUpperIndex = strings.IndexFunc(funcName[1:], upperFunc) + 1
 	}
+	// 如果还是0，说明方法名只有method，没有path
+	if firstUpperIndex == 0 {
+		method = methodMap(funcName)
+		return
+	}
+
 	method = funcName[:firstUpperIndex]
 	method = methodMap(method)
 

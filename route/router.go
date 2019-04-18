@@ -185,16 +185,16 @@ func (r *Router) Register(v interface{}) {
 		field := refType.Method(i)
 		value := refValue.Method(i)
 
-		// 路径
-		method, path := getMethodPath(field.Name)
-		path = addPathPrefix(path, structName)
-		path = addPathPrefix(path, groupName)
-
 		// 方法
 		valueFunc, ok := value.Interface().(func(Param) (Result, error))
 		if !ok {
 			continue
 		}
+
+		// 路径
+		method, path := getMethodPath(field.Name)
+		path = addPathPrefix(path, structName)
+		path = addPathPrefix(path, groupName)
 
 		// 注册路由
 		switch method {
