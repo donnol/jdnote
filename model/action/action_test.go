@@ -4,22 +4,30 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/model"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
 func TestGet(t *testing.T) {
 	a := &Action{
 		Base: model.Base{
-			DB: pg.New(),
+			DB: (&model.Base{}).New(),
 		},
+	}
+	e := Entity{
 		Action: "ALL",
 	}
-	if err := a.Add(); err != nil {
+	var err error
+	var id int
+	if id, err = a.Add(e); err != nil {
 		t.Fatal(err)
+	} else if id == 0 {
+		t.Fatal("Bad id")
 	}
 
-	if err := a.GetByID(8); err != nil {
+	if e, err := a.GetByID(id); err != nil {
 		t.Fatal(err)
+	} else if e.ID == 0 {
+		t.Fatal("Bad entit")
+	} else {
+		t.Log(e)
 	}
-	t.Log(a)
 }

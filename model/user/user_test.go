@@ -4,33 +4,40 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/model"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
 func TestGetByName(t *testing.T) {
 	u := &User{
 		Base: model.Base{
-			DB: pg.New(),
+			DB: (&model.Base{}).New(),
 		},
 	}
-	if err := u.GetByName("jd"); err != nil {
+	if e, err := u.GetByName("jd"); err != nil {
 		t.Fatal(err)
+	} else if e.ID == 0 {
+		t.Fatal("Bad id")
+	} else {
+		t.Log(e)
 	}
-	t.Log(u)
 }
 
 func TestAdd(t *testing.T) {
 	u := &User{
 		Base: model.Base{
-			DB: pg.New(),
+			DB: (&model.Base{}).New(),
 		},
+	}
+	e := Entity{
 		Name:     "jd",
 		Phone:    "13420693396",
 		Email:    "jdlau@126.com",
 		Password: "13420693396",
 	}
-	if err := u.Add(); err != nil {
+	if id, err := u.Add(e); err != nil {
 		t.Fatal(err)
+	} else if id == 0 {
+		t.Fatal("Bad id")
+	} else {
+		t.Log(id)
 	}
-	t.Log(u)
 }

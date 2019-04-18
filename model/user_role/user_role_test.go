@@ -4,13 +4,12 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/model"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
 func TestGetByUserID(t *testing.T) {
 	ur := &UserRole{
 		Base: model.Base{
-			DB: pg.New(),
+			DB: (&model.Base{}).New(),
 		},
 	}
 	if r, err := ur.GetByUserID(38); err != nil {
