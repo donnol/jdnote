@@ -103,7 +103,10 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 		return body, fmt.Errorf("Bad multipart reader")
 	}
 
-	// FIXME: 报错：multipart: NextPart: EOF
+	// TODO:使用NextPart可以拿到内容了，但是参数不好处理，看下能不能用ReadForm替代
+
+	// 报错：multipart: NextPart: EOF
+	// 是因为GetRawData已经把body读出来了
 	for {
 		part, err := p.multipartReader.NextPart()
 		if err == io.EOF {
@@ -116,7 +119,17 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 		if err != nil {
 			return body, err
 		}
-		utillog.Debugf("Part %q: %q\n", part.Header.Get("fileName"), slurp)
+		fileName := part.FileName()
+		formName := part.FormName()
+		// 文件名不为空，即是我们需要的文件
+		if fileName != "" {
+			// 比较文件大小
+			if len(slurp) > int(maxFileSize) {
+				return body, fmt.Errorf("Content too large")
+			}
+			body = slurp
+		}
+		utillog.Debugf("Part %+v, %s: %q\n", formName, fileName, slurp)
 	}
 
 	return body, nil
@@ -298,7 +311,11 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		case http.MethodPost:
 			fallthrough
 		case http.MethodPut:
-			body, err = c.GetRawData()
+			// GetRawData = ioutil.ReadAll(c.Request.Body)
+			// 所以下面的multipartReader会一直报‘multipart: NextPart: EOF’错误
+			if !ho.isFile {
+				body, err = c.GetRawData()
+			}
 		case http.MethodGet:
 			fallthrough
 		case http.MethodDelete:
