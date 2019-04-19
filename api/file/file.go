@@ -29,7 +29,7 @@ func (file *File) Add(param route.Param) (r route.Result, err error) {
 	if err != nil {
 		return
 	}
-	file.Debugf("%d\n", len(body))
+	file.Debugf("%+v, %d\n", p, len(body))
 
 	return
 }

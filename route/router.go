@@ -116,7 +116,7 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 		if err != nil {
 			return body, err
 		}
-		fmt.Printf("Part %q: %q\n", part.Header.Get("Foo"), slurp)
+		utillog.Debugf("Part %q: %q\n", part.Header.Get("fileName"), slurp)
 	}
 
 	return body, nil
