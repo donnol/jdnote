@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -59,6 +61,9 @@ type Param struct {
 	// 参数
 	body   []byte
 	values url.Values
+
+	// 文件
+	multipartReader *multipart.Reader
 }
 
 // Parse 解析
@@ -88,6 +93,33 @@ func (p *Param) Parse(v interface{}) error {
 	}
 
 	return nil
+}
+
+// ParseMultipartForm 解析内容
+func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, error) {
+	var body []byte
+
+	if p.multipartReader == nil {
+		return body, fmt.Errorf("Bad multipart reader")
+	}
+
+	// FIXME: 报错：multipart: NextPart: EOF
+	for {
+		part, err := p.multipartReader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return body, err
+		}
+		slurp, err := ioutil.ReadAll(part)
+		if err != nil {
+			return body, err
+		}
+		fmt.Printf("Part %q: %q\n", part.Header.Get("Foo"), slurp)
+	}
+
+	return body, nil
 }
 
 // Error 错误
@@ -154,8 +186,6 @@ func (r *Router) Register(v interface{}) {
 		if err != nil {
 			panic(err)
 		}
-
-		utillog.Debugf("After init: %+v\n", v)
 	}
 
 	// 反射获取Type
@@ -171,12 +201,38 @@ func (r *Router) Register(v interface{}) {
 	}
 
 	// 找出attr field
+	const (
+		fileTagLeft  = "("
+		fileTagRight = ")"
+		fileTagSep   = ","
+		fileTagName  = "file"
+	)
 	var groupName string
+	var fileMap = make(map[string]struct{})
+	var isFile bool
 	groupType := reflect.TypeOf(Group{})
+	fileType := reflect.TypeOf(File{})
 	for i := 0; i < refTypeRaw.NumField(); i++ {
 		field := refTypeRaw.Field(i)
+
+		// Group属性
 		if field.Type == groupType {
 			groupName = strings.ToLower(field.Name)
+		}
+
+		// File属性
+		if field.Type == fileType {
+			fileTag, ok := field.Tag.Lookup(fileTagName)
+			// 没有使用tag指定方法，则全部方法都是
+			if !ok {
+				isFile = true
+			} else {
+				fileTagList := strings.Split(fileTag, fileTagSep)
+				for _, single := range fileTagList {
+					singleLower := strings.ToLower(single)
+					fileMap[singleLower] = struct{}{}
+				}
+			}
 		}
 	}
 
@@ -196,16 +252,26 @@ func (r *Router) Register(v interface{}) {
 		path = addPathPrefix(path, structName)
 		path = addPathPrefix(path, groupName)
 
+		// 处理器配置
+		var ho handlerOption
+		if isFile {
+			ho.isFile = true
+		} else {
+			if _, ok := fileMap[strings.ToLower(field.Name)]; ok {
+				ho.isFile = true
+			}
+		}
+
 		// 注册路由
 		switch method {
 		case http.MethodPost:
-			r.Engine.POST(path, structHandlerFunc(http.MethodPost, valueFunc))
+			r.Engine.POST(path, structHandlerFunc(http.MethodPost, valueFunc, ho))
 		case http.MethodPut:
-			r.Engine.PUT(path, structHandlerFunc(http.MethodPut, valueFunc))
+			r.Engine.PUT(path, structHandlerFunc(http.MethodPut, valueFunc, ho))
 		case http.MethodGet:
-			r.Engine.GET(path, structHandlerFunc(http.MethodGet, valueFunc))
+			r.Engine.GET(path, structHandlerFunc(http.MethodGet, valueFunc, ho))
 		case http.MethodDelete:
-			r.Engine.DELETE(path, structHandlerFunc(http.MethodDelete, valueFunc))
+			r.Engine.DELETE(path, structHandlerFunc(http.MethodDelete, valueFunc, ho))
 		default:
 			panic("Not support method now.")
 		}
@@ -216,8 +282,12 @@ func (r *Router) Register(v interface{}) {
 	utillog.Debugf("Register %s router use time: %v\n", structName, end.Sub(start))
 }
 
+type handlerOption struct {
+	isFile bool // 是否文件上传/下载接口
+}
+
 // structHandlerFunc 结构体处理函数
-func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
+func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 
@@ -250,10 +320,18 @@ func structHandlerFunc(method string, f HandlerFunc) gin.HandlerFunc {
 			}
 		}
 
-		// TODO: 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
+		// 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
+		var multipartReader *multipart.Reader
+		if ho.isFile {
+			multipartReader, err = c.Request.MultipartReader()
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+		}
 
 		// 注入用户和参数信息，并执行业务方法
-		p := Param{UserID: userID, method: method, body: body, values: values}
+		p := Param{UserID: userID, method: method, body: body, values: values, multipartReader: multipartReader}
 		r, err := f(p)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
