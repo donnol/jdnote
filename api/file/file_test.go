@@ -46,12 +46,10 @@ func TestAddFile(t *testing.T) {
 	writer.Close()
 
 	// 新建请求
-	t.Logf("%s\n", body.Bytes())
 	r, err := http.NewRequest("POST", "http://127.0.0.1:8810/v1/file", body)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("%v\n", writer.Boundary())
 	r.Header.Add("Content-Type", writer.FormDataContentType())
 
 	// 发送请求
@@ -65,7 +63,9 @@ func TestAddFile(t *testing.T) {
 	defer resp.Body.Close()
 
 	// 结果打印
-	t.Log(resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Bad status code")
+	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)

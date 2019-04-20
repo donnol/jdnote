@@ -1,10 +1,10 @@
 package route
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -103,34 +103,34 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 		return body, fmt.Errorf("Bad multipart reader")
 	}
 
-	// TODO:使用NextPart可以拿到内容了，但是参数不好处理，看下能不能用ReadForm替代
-
-	// 报错：multipart: NextPart: EOF
-	// 是因为GetRawData已经把body读出来了
-	for {
-		part, err := p.multipartReader.NextPart()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return body, err
-		}
-		slurp, err := ioutil.ReadAll(part)
-		if err != nil {
-			return body, err
-		}
-		fileName := part.FileName()
-		formName := part.FormName()
-		// 文件名不为空，即是我们需要的文件
-		if fileName != "" {
-			// 比较文件大小
-			if len(slurp) > int(maxFileSize) {
-				return body, fmt.Errorf("Content too large")
-			}
-			body = slurp
-		}
-		utillog.Debugf("Part %+v, %s: %q\n", formName, fileName, slurp)
+	// 使用ReadForm
+	form, err := p.multipartReader.ReadForm(maxFileSize)
+	if err != nil {
+		return body, err
 	}
+
+	// 获取参数
+	if err := decoder.Decode(v, form.Value); err != nil {
+		return body, err
+	}
+
+	// 获取内容
+	buf := new(bytes.Buffer)
+	for _, single := range form.File {
+		for _, one := range single {
+			file, err := one.Open()
+			if err != nil {
+				return body, err
+			}
+			defer file.Close()
+
+			_, err = buf.ReadFrom(file)
+			if err != nil {
+				return body, err
+			}
+		}
+	}
+	body = buf.Bytes()
 
 	return body, nil
 }
