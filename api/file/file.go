@@ -55,7 +55,6 @@ func (file *File) Get(param route.Param) (r route.Result, err error) {
 		return
 	}
 	writer := multipart.NewWriter(buf)
-	defer writer.Close()
 	r.ContentLength = int64(buf.Len())
 	r.ContentType = writer.FormDataContentType()
 	r.ContentReader = buf
