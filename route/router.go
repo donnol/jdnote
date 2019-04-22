@@ -157,6 +157,12 @@ type Result struct {
 
 	// 给登陆接口使用
 	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
+
+	// 下载内容时使用
+	ContentLength int64             `json:"-"`
+	ContentType   string            `json:"-"`
+	ContentReader io.Reader         `json:"-"`
+	ExtraHeaders  map[string]string `json:"-"`
 }
 
 // PresentData 用具体结构体展现数据
@@ -339,7 +345,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 
 		// 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
 		var multipartReader *multipart.Reader
-		if ho.isFile {
+		if ho.isFile && method == http.MethodPost {
 			multipartReader, err = c.Request.MultipartReader()
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -377,6 +383,12 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		// 调用过滤器，过滤返回内容
 		if v, ok := r.Data.(Filter); ok {
 			r.Data = v.Filter()
+		}
+
+		// 返回文件内容
+		if ho.isFile && method == http.MethodGet {
+			c.DataFromReader(http.StatusOK, r.ContentLength, r.ContentType, r.ContentReader, r.ExtraHeaders)
+			return
 		}
 
 		// 返回

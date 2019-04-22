@@ -72,3 +72,30 @@ func TestAddFile(t *testing.T) {
 	}
 	t.Logf("%s\n", data)
 }
+
+func TestGetFile(t *testing.T) {
+	r, err := http.NewRequest("GET", "http://127.0.0.1:8810/v1/file", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 发送请求
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// 结果打印
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Bad status code")
+	}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%s\n", data)
+}
