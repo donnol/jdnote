@@ -2,7 +2,6 @@ package file
 
 import (
 	"bytes"
-	"mime/multipart"
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
@@ -48,19 +47,15 @@ func (file *File) Get(param route.Param) (r route.Result, err error) {
 	_ = param.UserID
 
 	// 业务
+	filename := "test.md"
 	content := "# Hello\n\n## I am bat man\n\n"
+
 	buf := new(bytes.Buffer)
 	_, err = buf.Write([]byte(content))
 	if err != nil {
 		return
 	}
-	writer := multipart.NewWriter(buf)
-	r.ContentLength = int64(buf.Len())
-	r.ContentType = writer.FormDataContentType()
-	r.ContentReader = buf
-	r.ExtraHeaders = map[string]string{
-		"Content-Disposition": `attachment; filename="test.md"`,
-	}
+	r.Content = route.MakeContentFromBuffer(filename, buf)
 	file.Debugf("r: %+v\n", r)
 
 	return

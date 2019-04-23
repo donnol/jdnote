@@ -33,6 +33,12 @@ var (
 	jwtToken = jwt.New([]byte(config.DefaultConfig.JWT.Secret))
 )
 
+// header相关
+var (
+	ContentDispositionHeaderKey         = "Content-Disposition"
+	ContentDispositionHeaderValueFormat = `attachment; filename="%s"`
+)
+
 // DefaultRouter 默认路由
 var DefaultRouter = NewRouter()
 
@@ -159,10 +165,33 @@ type Result struct {
 	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
 
 	// 下载内容时使用
+	Content
+}
+
+// Content 内容
+type Content struct {
 	ContentLength int64             `json:"-"`
 	ContentType   string            `json:"-"`
 	ContentReader io.Reader         `json:"-"`
 	ExtraHeaders  map[string]string `json:"-"`
+}
+
+// MakeContentFromBuffer 新建内容
+func MakeContentFromBuffer(filename string, buf *bytes.Buffer) Content {
+	var r Content
+
+	writer := multipart.NewWriter(buf)
+	r.ContentLength = int64(buf.Len())
+	r.ContentType = writer.FormDataContentType()
+	r.ContentReader = buf
+	r.ExtraHeaders = map[string]string{
+		ContentDispositionHeaderKey: fmt.Sprintf(
+			ContentDispositionHeaderValueFormat,
+			filename,
+		),
+	}
+
+	return r
 }
 
 // PresentData 用具体结构体展现数据
