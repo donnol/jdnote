@@ -2,6 +2,7 @@ package message
 
 import (
 	"testing"
+	"time"
 
 	utillog "github.com/donnol/jdnote/utils/log"
 	nsq "github.com/nsqio/go-nsq"
@@ -35,4 +36,6 @@ func TestNsq(t *testing.T) {
 	if err := consumer.ConnectToNSQLookupd(addr); err != nil {
 		t.Fatal(err)
 	}
+
+	time.Sleep(2 * time.Second)
 }
