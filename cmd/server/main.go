@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +13,8 @@ import (
 	"github.com/donnol/jdnote/route"
 	utillog "github.com/donnol/jdnote/utils/log"
 
+	_ "net/http/pprof"
+
 	// 注入路由
 	_ "github.com/donnol/jdnote/api/auth"
 	_ "github.com/donnol/jdnote/api/file"
@@ -20,10 +23,17 @@ import (
 func main() {
 	// 配置服务器
 	port := config.DefaultConfig.Server.Port
+	router := route.DefaultRouter
 	srv := &http.Server{
 		Addr:    port,
-		Handler: route.DefaultRouter,
+		Handler: router,
 	}
+
+	// 启动pprof
+	go func() {
+		utillog.Debugf("Pprof server start\n")
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})
