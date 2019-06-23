@@ -12,6 +12,7 @@ import (
 	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/route"
 	utillog "github.com/donnol/jdnote/utils/log"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	_ "net/http/pprof"
 
@@ -33,6 +34,13 @@ func main() {
 	go func() {
 		utillog.Debugf("Pprof server start\n")
 		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
+	// 启动prometheus
+	go func() {
+		utillog.Debugf("Prometheus server start\n")
+		http.Handle("/metrics", promhttp.Handler())
+		log.Fatal(http.ListenAndServe("localhost:6660", nil))
 	}()
 
 	// 监听终止信号
