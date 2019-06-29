@@ -339,6 +339,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 	return func(c *gin.Context) {
 		var err error
 
+		// TODO:复制一份refType的实例，使得每个请求绑定的valueFunc方法所属的实例都是独立的，让事务操作更简单的同时确保独立
+
 		// 获取参数
 		var body []byte
 		var values url.Values
