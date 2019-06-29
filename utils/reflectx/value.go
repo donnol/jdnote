@@ -90,3 +90,20 @@ func setValue(refType, specType reflect.Type, refValue, specValue reflect.Value)
 		}
 	}
 }
+
+// CopyStructField 复制结构体字段
+func CopyStructField(refType reflect.Type, refValue reflect.Value) (reflect.Type, reflect.Value) {
+	// 新建一个同类型的Value
+	newType := refType
+	newValue := reflect.New(newType)
+
+	// 复制原有值到Value
+	newValueElem := newValue.Elem()
+	for i := 0; i < refType.NumField(); i++ {
+		oldV := refValue.Field(i)
+		newV := newValueElem.Field(i)
+		newV.Set(oldV)
+	}
+
+	return newType, newValue
+}
