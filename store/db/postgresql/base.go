@@ -35,6 +35,7 @@ var globalTx = func() *sqlx.Tx {
 }()
 
 // Base 基底
+// - NOTE:不要直接使用RawDB或RawTx，一切数据库操作请使用DB()方法
 type Base struct {
 	// 直接内嵌接口，虽然可以在调用的时候少写一个字段名，但同时会有一个不好的地方，就是结构体不小心也实现了这些接口的方法，导致使用者调用的方法不是想要的方法，虽然也可以通过在调用的时候主动将字段名写上去，但是还是难以避免这种情况发生时，使用者感到迷茫……
 	// 或许可以折衷一下，好像DB这种，里面的方法名很容易在实践中被重写，我们就用指定字段名的方式来写，而Logger这种，里面的方法名并不容易被重写，而且，就算被重写了也不会导致出错，就还是直接内嵌
@@ -42,13 +43,17 @@ type Base struct {
 	// 日志
 	utillog.Logger `json:"-" db:"-"`
 
-	// DB
-	DB DB `json:"-" db:"-"`
+	// db
+	RawDB DB `json:"-" db:"-"`
+
+	// tx
+	InTx  bool `json:"-" db:"-"`
+	RawTx DB   `json:"-" db:"-"`
 }
 
 // SetTx 设置事务
 func (b *Base) SetTx(tx DB) *Base {
-	b.DB = tx
+	b.RawDB = tx
 	return b
 }
 
@@ -59,6 +64,15 @@ func (b *Base) New() DB {
 	}
 
 	return defaultDB
+}
+
+// DB 如果开启了事务，就返回事务；否则返回DB
+func (b *Base) DB() DB {
+	if b.InTx {
+		return b.RawTx
+	}
+
+	return b.RawDB
 }
 
 // WithTx 事务

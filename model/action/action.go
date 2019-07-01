@@ -11,7 +11,7 @@ type Action struct {
 
 // GetByID 获取
 func (a *Action) GetByID(id int) (e Entity, err error) {
-	if err = a.DB.Get(&e, `
+	if err = a.DB().Get(&e, `
 		SELECT * FROM t_action WHERE id = $1
 		`, id); err != nil {
 		return
@@ -22,7 +22,7 @@ func (a *Action) GetByID(id int) (e Entity, err error) {
 
 // Add 添加
 func (a *Action) Add(e Entity) (id int, err error) {
-	if err = a.DB.Get(&id, `
+	if err = a.DB().Get(&id, `
 		INSERT INTO t_action (action)VALUES($1) RETURNING id
 		`, e.Action); err != nil {
 		return
