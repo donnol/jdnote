@@ -69,7 +69,7 @@ func setValue(refType, specType reflect.Type, refValue, specValue reflect.Value)
 	for i := 0; i < refType.NumField(); i++ {
 		field := refType.Field(i)
 
-		// 忽略非导出字段
+		// 忽略非导出字段-因为无法对非导出字段赋值
 		if field.PkgPath != "" {
 			continue
 		}
