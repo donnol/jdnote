@@ -53,7 +53,15 @@ type Base struct {
 
 // SetTx 设置事务
 func (b *Base) SetTx(tx DB) *Base {
-	b.RawDB = tx
+	b.InTx = true
+	b.RawTx = tx
+	return b
+}
+
+// ResetTx 重置事务
+func (b *Base) ResetTx() *Base {
+	b.InTx = false
+	b.RawTx = defaultDB
 	return b
 }
 
