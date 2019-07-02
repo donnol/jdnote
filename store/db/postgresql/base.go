@@ -132,6 +132,15 @@ func (b *Base) InjectTx(v interface{}, f func(v interface{}) error) error {
 	if err := b.WithTx(func(tx DB) error {
 		var err error
 
+		defer func() {
+			// 还原v
+			if b.RawDB != defaultDB {
+				if _, err = initParamWithDB(v, b.New(), false); err != nil {
+					return
+				}
+			}
+		}()
+
 		// 注入tx
 		v, err = initParamWithDB(v, tx, true)
 		if err != nil {
