@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"time"
+	"unsafe"
 )
 
 var (
@@ -87,6 +88,49 @@ func setValue(refType, specType reflect.Type, refValue, specValue reflect.Value)
 			value.Set(specValue)
 		} else { // 匿名内嵌或者包含在普通字段里，继续对该字段类型遍历
 			setValue(field.Type, specType, value, specValue)
+		}
+	}
+}
+
+// setAnyValue 设置任意结构体字段值，无论是导出还是非导出
+// From https://stackoverflow.com/questions/42664837/access-unexported-fields-in-golang-reflect
+func setAnyValue(refType, specType reflect.Type, refValue, specValue reflect.Value) {
+	// 反射获取type和value
+	if refType.Kind() == reflect.Ptr {
+		refType = refType.Elem()
+		refValue = refValue.Elem()
+	}
+	if refType.Kind() != reflect.Struct {
+		return
+	}
+
+	// 忽略非结构体或者time.Time类型
+	if refType.Kind() != reflect.Struct ||
+		refType == reflect.TypeOf((*time.Time)(nil)).Elem() {
+		return
+	}
+
+	for i := 0; i < refType.NumField(); i++ {
+		field := refType.Field(i)
+
+		// 获取对应字段的value
+		var value reflect.Value
+		if refValue.Type().Kind() == reflect.Ptr {
+			value = refValue.Elem().Field(i)
+		} else {
+			value = refValue.Field(i)
+		}
+
+		// 根据字段type判断是否可以赋值
+		if field.Type == specType { // 类型相同，直接赋值
+			if field.PkgPath != "" {
+				rf := reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr())).Elem()
+				rf.Set(specValue)
+			} else {
+				value.Set(specValue)
+			}
+		} else { // 匿名内嵌或者包含在普通字段里，继续对该字段类型遍历
+			setAnyValue(field.Type, specType, value, specValue)
 		}
 	}
 }
