@@ -5,7 +5,7 @@ import (
 )
 
 // Base 基底
-type Base = pg.Base
+type Base struct{}
 
 // DB DB
 type DB = pg.DB

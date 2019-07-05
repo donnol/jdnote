@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -11,8 +12,8 @@ type User struct {
 }
 
 // GetByName 以名字获取用户
-func (u *User) GetByName(name string) (e Entity, err error) {
-	if err = u.DB().Get(&e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
+	if err = ctx.DB().Get(&e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		return
 	}
 
@@ -20,8 +21,8 @@ func (u *User) GetByName(name string) (e Entity, err error) {
 }
 
 // VerifyByNameAndPassword 以名字和密码校验用户
-func (u *User) VerifyByNameAndPassword(name, password string) (e Entity, err error) {
-	if err = u.DB().Get(&e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
+	if err = ctx.DB().Get(&e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		return
 	}
 
@@ -34,13 +35,13 @@ func (u *User) VerifyByNameAndPassword(name, password string) (e Entity, err err
 }
 
 // Add 添加
-func (u *User) Add(e Entity) (id int, err error) {
+func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
 	hashedPassword, err := u.hashPassword(e.Password)
 	if err != nil {
 		return
 	}
 
-	if err = u.DB().Get(&id, `INSERT INTO t_user (name, phone, email, password)
+	if err = ctx.DB().Get(&id, `INSERT INTO t_user (name, phone, email, password)
 	VALUES($1, $2, $3, $4) RETURNING id`,
 		e.Name,
 		e.Phone,

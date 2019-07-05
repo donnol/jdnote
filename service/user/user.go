@@ -1,6 +1,7 @@
 package userao
 
 import (
+	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model/role"
 	"github.com/donnol/jdnote/model/user"
 	userrole "github.com/donnol/jdnote/model/user_role"
@@ -21,27 +22,19 @@ func (u *User) Check() error {
 }
 
 // Add 添加
-func (u *User) Add(e user.Entity) (id int, err error) {
-	if err = u.InjectTx(u, func(v interface{}) error {
-		// 使用断言转换具体类型
-		nu := v.(*User)
+func (u *User) Add(ctx context.Context, e user.Entity) (id int, err error) {
 
-		// 用户模块添加
-		if id, err = nu.UserModel.Add(e); err != nil {
-			return err
-		}
+	// 用户模块添加
+	if id, err = u.UserModel.Add(ctx, e); err != nil {
+		return
+	}
 
-		// 用户角色模块添加
-		ure := userrole.Entity{
-			UserID: id,
-			RoleID: role.DefaultRoleID,
-		}
-		if _, err = nu.UserRoleModel.Add(ure); err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	// 用户角色模块添加
+	ure := userrole.Entity{
+		UserID: id,
+		RoleID: role.DefaultRoleID,
+	}
+	if _, err = u.UserRoleModel.Add(ctx, ure); err != nil {
 		return
 	}
 

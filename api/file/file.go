@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/route"
 )
 
@@ -23,7 +24,7 @@ type File struct {
 }
 
 // Add 上传文件
-func (file *File) Add(param route.Param) (r route.Result, err error) {
+func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, err error) {
 	p := struct {
 		FileName string `json:"fileName"`
 	}{}
@@ -31,13 +32,13 @@ func (file *File) Add(param route.Param) (r route.Result, err error) {
 	if err != nil {
 		return
 	}
-	file.Debugf("%+v, %d\n", p, len(body))
+	ctx.Logger().Debugf("%+v, %d\n", p, len(body))
 
 	return
 }
 
 // Get 下载文件
-func (file *File) Get(param route.Param) (r route.Result, err error) {
+func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	if err = param.Parse(&struct{}{}); err != nil {
 		return
@@ -56,7 +57,7 @@ func (file *File) Get(param route.Param) (r route.Result, err error) {
 		return
 	}
 	r.Content = route.MakeContentFromBuffer(filename, buf)
-	file.Debugf("r: %+v\n", r)
+	ctx.Logger().Debugf("r: %+v\n", r)
 
 	return
 }

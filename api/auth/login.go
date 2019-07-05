@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model/user"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
@@ -23,7 +24,7 @@ type Auth struct {
 }
 
 // AddLogin 登录
-func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
+func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := user.Entity{}
 	if err = param.Parse(&p); err != nil {
@@ -35,7 +36,7 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	var re user.Entity
-	if re, err = auth.UserAo.VerifyByNameAndPassword(p.Name, p.Password); err != nil {
+	if re, err = auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password); err != nil {
 		return r, err
 	}
 	r.CookieAfterLogin = re.ID
@@ -45,7 +46,7 @@ func (auth *Auth) AddLogin(param route.Param) (r route.Result, err error) {
 }
 
 // AddUser 添加用户
-func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
+func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := user.Entity{}
 	if err = param.Parse(&p); err != nil {
@@ -56,7 +57,7 @@ func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	var id int
-	if id, err = auth.UserAo.Add(p); err != nil {
+	if id, err = auth.UserAo.Add(ctx, p); err != nil {
 		return r, err
 	}
 	r.Data = id
@@ -65,7 +66,7 @@ func (auth *Auth) AddUser(param route.Param) (r route.Result, err error) {
 }
 
 // GetUser 获取用户
-func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
+func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := user.Entity{}
 	if err = param.Parse(&p); err != nil {
@@ -77,7 +78,7 @@ func (auth *Auth) GetUser(param route.Param) (r route.Result, err error) {
 
 	// 业务
 	var re user.Entity
-	if re, err = auth.UserAo.GetByName(p.Name); err != nil {
+	if re, err = auth.UserAo.GetByName(ctx, p.Name); err != nil {
 		return
 	}
 	r.Data = re

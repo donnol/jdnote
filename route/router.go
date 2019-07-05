@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/config"
+	"github.com/donnol/jdnote/context"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
@@ -208,7 +210,7 @@ func (r *Result) PresentData(v interface{}) error {
 }
 
 // HandlerFunc 处理函数
-type HandlerFunc func(Param) (Result, error)
+type HandlerFunc func(context.Context, Param) (Result, error)
 
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
@@ -290,7 +292,7 @@ func (r *Router) Register(v interface{}) {
 		value := refValue.Method(i)
 
 		// 方法
-		valueFunc, ok := value.Interface().(func(Param) (Result, error))
+		valueFunc, ok := value.Interface().(func(context.Context, Param) (Result, error))
 		if !ok {
 			continue
 		}
@@ -332,6 +334,7 @@ func (r *Router) Register(v interface{}) {
 
 type handlerOption struct {
 	isFile bool // 是否文件上传/下载接口
+	useTx  bool // 是否使用事务
 }
 
 // structHandlerFunc 结构体处理函数
@@ -382,12 +385,34 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			}
 		}
 
-		// 注入用户和参数信息，并执行业务方法
+		// 注入上下文、用户和参数信息，并执行业务方法
+		var r Result
 		p := Param{UserID: userID, method: method, body: body, values: values, multipartReader: multipartReader}
-		r, err := f(p)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+		pgBase := &pg.Base{}
+		db := pgBase.New()
+		logger := utillog.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
+		if ho.useTx {
+			// 事务
+			if err := pgBase.WithTx(func(tx pg.DB) error {
+				ctx := context.New(tx, logger)
+
+				r, err = f(ctx, p)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+		} else {
+			ctx := context.New(db, logger)
+			r, err = f(ctx, p)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
 		}
 
 		// 设置header
