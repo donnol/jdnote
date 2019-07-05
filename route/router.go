@@ -17,7 +17,6 @@ import (
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
-	"github.com/donnol/jdnote/utils/reflectx"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
 )
@@ -32,11 +31,6 @@ var (
 	sessionKey = "jd_session"
 
 	jwtToken = jwt.New([]byte(config.DefaultConfig.JWT.Secret))
-)
-
-// 控制每个请求是否使用结构体副本，默认开启
-var (
-	copyStruct = true
 )
 
 // header相关
@@ -247,11 +241,9 @@ func (r *Router) Register(v interface{}) {
 	refType := reflect.TypeOf(v)
 	refTypeRaw := refType
 	refValue := reflect.ValueOf(v)
-	refValueRaw := refValue
 	if refType.Kind() == reflect.Ptr {
 		structName = refType.Elem().Name()
 		refTypeRaw = refType.Elem()
-		refValueRaw = refValue.Elem()
 	} else {
 		structName = refType.Name()
 	}
@@ -309,11 +301,7 @@ func (r *Router) Register(v interface{}) {
 		path = addPathPrefix(path, groupName)
 
 		// 处理器配置
-		var ho = handlerOption{
-			refType:  refTypeRaw,
-			refValue: refValueRaw,
-			funcName: field.Name,
-		}
+		var ho = handlerOption{}
 		if isFile {
 			ho.isFile = true
 		} else {
@@ -343,25 +331,13 @@ func (r *Router) Register(v interface{}) {
 }
 
 type handlerOption struct {
-	isFile   bool          // 是否文件上传/下载接口
-	refType  reflect.Type  // 结构体反射Type
-	refValue reflect.Value // 结构体反射Value
-	funcName string        // 路由对应的方法名
+	isFile bool // 是否文件上传/下载接口
 }
 
 // structHandlerFunc 结构体处理函数
 func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
-
-		if copyStruct {
-			// 复制一份refType的实例，使得每个请求绑定的valueFunc方法所属的实例都是独立的，让事务操作更简单的同时确保独立
-			_, newValue := reflectx.CopyStructField(ho.refType, ho.refValue)
-
-			// 寻找方法
-			funcValue := newValue.MethodByName(ho.funcName)
-			f = funcValue.Interface().(func(Param) (Result, error))
-		}
 
 		// 获取参数
 		var body []byte
