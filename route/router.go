@@ -17,6 +17,7 @@ import (
 	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/context"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
+	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
@@ -142,23 +143,9 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 	return body, nil
 }
 
-// Error 错误
-type Error struct {
-	Code int    `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
-	Msg  string `json:"msg"`  // 信息，一般是出错时的描述信息
-}
-
-// Error 实现error接口
-func (e Error) Error() string {
-	return fmt.Sprintf("Code: %d, Msg: %s", e.Code, e.Msg)
-}
-
-// 确保Error实现了error接口
-var _ error = Error{}
-
 // Result 通用结果
 type Result struct {
-	Error
+	errors.Error
 
 	Data interface{} `json:"data"` // 正常返回时的数据
 
@@ -386,7 +373,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			values = c.Request.URL.Query()
 		}
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -406,20 +393,23 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if ho.isFile && method == http.MethodPost {
 			multipartReader, err = c.Request.MultipartReader()
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.JSON(http.StatusMethodNotAllowed, gin.H{"error": err.Error()})
 				return
 			}
 		}
 
 		// 注入上下文、用户和参数信息，并执行业务方法
 		var r Result
+		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
 		pgBase := &pg.Base{}
 		db := pgBase.New()
 		logger := utillog.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 		if ho.useTx {
 			// 事务
-			if err := pgBase.WithTx(func(tx pg.DB) error {
+			err = pgBase.WithTx(func(tx pg.DB) error {
+				var err error
+
 				ctx := context.New(tx, logger, userID)
 
 				r, err = f(ctx, p)
@@ -428,15 +418,22 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				}
 
 				return nil
-			}); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
+			})
 		} else {
 			ctx := context.New(db, logger, userID)
 			r, err = f(ctx, p)
+		}
+		// 处理错误
+		if e, ok := err.(errors.Error); ok {
+			if e.IsNormal() {
+				statusCode = http.StatusBadRequest
+			} else if e.IsFatal() {
+				statusCode = http.StatusInternalServerError
+			}
+			r.Error = e
+		} else {
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 				return
 			}
 		}
@@ -452,7 +449,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			var session string
 			session, err = jwtToken.Sign(r.CookieAfterLogin)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 			var maxAge = 3600 * 24 * 7
@@ -467,11 +464,11 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 
 		// 返回文件内容
 		if ho.isFile && method == http.MethodGet {
-			c.DataFromReader(http.StatusOK, r.ContentLength, r.ContentType, r.ContentReader, r.ExtraHeaders)
+			c.DataFromReader(statusCode, r.ContentLength, r.ContentType, r.ContentReader, r.ExtraHeaders)
 			return
 		}
 
 		// 返回
-		c.JSON(http.StatusOK, r)
+		c.JSON(statusCode, r)
 	}
 }
