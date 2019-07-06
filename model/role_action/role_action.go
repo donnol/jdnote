@@ -12,7 +12,7 @@ type RoleAction struct {
 
 // Add 添加
 func (ra *RoleAction) Add(ctx context.Context, e Entity) (id int, err error) {
-	if err = ctx.DB().Get(&id, `
+	if err = ctx.DB().GetContext(ctx, &id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
 		`, e.RoleID, e.ActionID); err != nil {

@@ -13,7 +13,7 @@ type User struct {
 
 // GetByName 以名字获取用户
 func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
-	if err = ctx.DB().Get(&e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		return
 	}
 
@@ -22,7 +22,7 @@ func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error)
 
 // VerifyByNameAndPassword 以名字和密码校验用户
 func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
-	if err = ctx.DB().Get(&e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		return
 	}
 
@@ -41,7 +41,7 @@ func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
 		return
 	}
 
-	if err = ctx.DB().Get(&id, `INSERT INTO t_user (name, phone, email, password)
+	if err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_user (name, phone, email, password)
 	VALUES($1, $2, $3, $4) RETURNING id`,
 		e.Name,
 		e.Phone,
