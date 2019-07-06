@@ -35,7 +35,7 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 	}
 
 	// 权限
-	_ = param.UserID
+	_ = ctx.UserID()
 
 	// 业务
 	var re user.Entity
@@ -77,7 +77,7 @@ func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Resul
 	}
 
 	// 权限
-	_ = param.UserID
+	_ = ctx.UserID()
 
 	// 业务
 	var re user.Entity

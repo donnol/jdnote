@@ -12,7 +12,8 @@ import (
 func TestContext(t *testing.T) {
 	db := (&pg.Base{}).New()
 	logger := utillog.New(os.Stdout, "[Context]", log.LstdFlags|log.Lshortfile)
-	ctx := New(db, logger)
+	userID := 1
+	ctx := New(db, logger, userID)
 	var id uint
 	if err := ctx.DB().Get(&id, "Select id from t_user order by id desc"); err != nil {
 		t.Fatal(err)

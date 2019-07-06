@@ -60,7 +60,6 @@ func NewRouter() *Router {
 
 // Param 通用参数
 type Param struct {
-	UserID       int         `json:"userID"`       // 用户ID
 	RequestParam interface{} `json:"requestParam"` // 请求参数
 
 	// 方法
@@ -414,14 +413,14 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 
 		// 注入上下文、用户和参数信息，并执行业务方法
 		var r Result
-		p := Param{UserID: userID, method: method, body: body, values: values, multipartReader: multipartReader}
+		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
 		pgBase := &pg.Base{}
 		db := pgBase.New()
 		logger := utillog.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 		if ho.useTx {
 			// 事务
 			if err := pgBase.WithTx(func(tx pg.DB) error {
-				ctx := context.New(tx, logger)
+				ctx := context.New(tx, logger, userID)
 
 				r, err = f(ctx, p)
 				if err != nil {
@@ -434,7 +433,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				return
 			}
 		} else {
-			ctx := context.New(db, logger)
+			ctx := context.New(db, logger, userID)
 			r, err = f(ctx, p)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
