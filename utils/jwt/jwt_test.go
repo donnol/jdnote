@@ -27,4 +27,12 @@ func TestToken(t *testing.T) {
 	if userID != id {
 		t.Fatalf("Bad userID, got %d\n", userID)
 	}
+
+	t.Run("VerifyEmpty", func(t *testing.T) {
+		r, err := token.Verify("")
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(r)
+	})
 }

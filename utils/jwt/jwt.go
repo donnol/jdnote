@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -58,6 +59,10 @@ func (t *Token) Sign(userID int) (string, error) {
 
 // Verify 校验
 func (t *Token) Verify(tokenString string) (int, error) {
+	if strings.TrimSpace(tokenString) == "" {
+		return 0, nil
+	}
+
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return t.secret, nil
 	})
