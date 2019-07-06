@@ -383,8 +383,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if err == nil {
 			userID, err = jwtToken.Verify(cookie)
 			if err != nil {
-				utillog.Warnf("token verify failed, err: %+v\n", err)
-				userID = 0
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
 			}
 		}
 
