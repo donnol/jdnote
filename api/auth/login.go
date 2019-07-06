@@ -19,6 +19,9 @@ type Auth struct {
 	// 所属的Group
 	V1 route.Group // 属于v1分组
 
+	// 方法配置-多个方法用逗号分隔
+	Tx route.Method `tx:"AddUser"`
+
 	// 使用的model
 	UserAo userao.User
 }

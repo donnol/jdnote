@@ -252,16 +252,20 @@ func (r *Router) Register(v interface{}) {
 
 	// 找出attr field
 	const (
-		fileTagLeft  = "("
-		fileTagRight = ")"
-		fileTagSep   = ","
-		fileTagName  = "file"
+		fileTagLeft     = "("
+		fileTagRight    = ")"
+		fileTagSep      = ","
+		fileTagName     = "file"
+		methodTxTagName = "tx"
 	)
 	var groupName string
 	var fileMap = make(map[string]struct{})
 	var isFile bool
+	var methodTxMap = make(map[string]struct{})
+	var isTx bool
 	groupType := reflect.TypeOf(Group{})
 	fileType := reflect.TypeOf(File{})
+	methodType := reflect.TypeOf(Method{})
 	for i := 0; i < refTypeRaw.NumField(); i++ {
 		field := refTypeRaw.Field(i)
 
@@ -281,6 +285,20 @@ func (r *Router) Register(v interface{}) {
 				for _, single := range fileTagList {
 					singleLower := strings.ToLower(single)
 					fileMap[singleLower] = struct{}{}
+				}
+			}
+		}
+
+		// Method属性
+		if field.Type == methodType {
+			// 事务
+			methodTxTag, ok := field.Tag.Lookup(methodTxTagName)
+			if !ok {
+				isTx = true
+			} else {
+				methodTxTags := strings.Split(methodTxTag, fileTagSep)
+				for _, single := range methodTxTags {
+					methodTxMap[single] = struct{}{}
 				}
 			}
 		}
@@ -311,6 +329,13 @@ func (r *Router) Register(v interface{}) {
 				ho.isFile = true
 			}
 		}
+		if isTx {
+			ho.useTx = true
+		} else {
+			if _, ok := methodTxMap[field.Name]; ok {
+				ho.useTx = true
+			}
+		}
 
 		// 注册路由
 		switch method {
@@ -339,6 +364,8 @@ type handlerOption struct {
 
 // structHandlerFunc 结构体处理函数
 func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
+	utillog.Debugf("handler option: %+v\n", ho)
+
 	return func(c *gin.Context) {
 		var err error
 
