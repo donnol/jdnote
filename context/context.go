@@ -2,6 +2,8 @@ package context
 
 import (
 	"context"
+	"log"
+	"os"
 
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 	utillog "github.com/donnol/jdnote/utils/log"
@@ -50,4 +52,9 @@ func New(db pg.DB, logger utillog.Logger, userID int) Context {
 	mctx.logger = logger
 	mctx.userID = userID
 	return mctx
+}
+
+// Default 默认
+func Default() Context {
+	return New((&pg.Base{}).New(), utillog.New(os.Stdout, "", log.LstdFlags), 0)
 }
