@@ -1,18 +1,19 @@
 package user
 
 import (
+	"log"
+	"os"
 	"testing"
 
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/context"
+	pg "github.com/donnol/jdnote/store/db/postgresql"
+	utillog "github.com/donnol/jdnote/utils/log"
 )
 
 func TestGetByName(t *testing.T) {
-	u := &User{
-		Base: model.Base{
-			DB: (&model.Base{}).New(),
-		},
-	}
-	if e, err := u.GetByName("jd"); err != nil {
+	u := &User{}
+	ctx := context.New((&pg.Base{}).New(), utillog.New(os.Stdout, "", log.LstdFlags), 0)
+	if e, err := u.GetByName(ctx, "jd"); err != nil {
 		t.Fatal(err)
 	} else if e.ID == 0 {
 		t.Fatal("Bad id")
@@ -22,18 +23,15 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	u := &User{
-		Base: model.Base{
-			DB: (&model.Base{}).New(),
-		},
-	}
+	u := &User{}
 	e := Entity{
 		Name:     "jd",
 		Phone:    "13420693396",
 		Email:    "jdlau@126.com",
 		Password: "13420693396",
 	}
-	if id, err := u.Add(e); err != nil {
+	ctx := context.New((&pg.Base{}).New(), utillog.New(os.Stdout, "", log.LstdFlags), 0)
+	if id, err := u.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {
 		t.Fatal("Bad id")

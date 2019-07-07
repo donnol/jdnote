@@ -208,20 +208,6 @@ func (r *Router) Register(v interface{}) {
 	// 如果有实现New方法，则调用
 	if vv, ok := v.(Newer); ok {
 		v = vv.New()
-	} else {
-		var err error
-
-		// 注入DB
-		v, err = pg.InitParamWithDB(v)
-		if err != nil {
-			panic(err)
-		}
-
-		// 注入Logger
-		v, err = utillog.InitParamWithLogger(v)
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	// 反射获取Type

@@ -9,8 +9,8 @@ import (
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/model/user"
-	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/apitest"
+	"github.com/donnol/jdnote/utils/errors"
 )
 
 func TestMain(m *testing.M) {
@@ -28,7 +28,7 @@ func TestAddLogin(t *testing.T) {
 		[]*http.Cookie{},
 	)
 	var r struct {
-		route.Error
+		errors.Error
 		Data user.Entity
 	}
 
@@ -101,7 +101,7 @@ func TestAddUser(t *testing.T) {
 		[]*http.Cookie{},
 	)
 	var r struct {
-		route.Error
+		errors.Error
 		Data int
 	}
 
@@ -207,7 +207,7 @@ func TestGetUser(t *testing.T) {
 		[]*http.Cookie{},
 	)
 	var r struct {
-		route.Error
+		errors.Error
 		Data user.Entity
 	}
 
