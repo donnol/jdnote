@@ -53,7 +53,9 @@ type Router struct {
 // NewRouter 新建路由
 func NewRouter() *Router {
 	router := gin.Default()
+
 	gin.DefaultWriter = io.MultiWriter(os.Stdout)
+
 	return &Router{
 		Engine: router,
 	}
@@ -61,8 +63,6 @@ func NewRouter() *Router {
 
 // Param 通用参数
 type Param struct {
-	RequestParam interface{} `json:"requestParam"` // 请求参数
-
 	// 方法
 	method string
 
@@ -389,7 +389,6 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
 		pgBase := &pg.Base{}
-		db := pgBase.New()
 		logger := utillog.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 		if ho.useTx {
 			// 事务
@@ -406,6 +405,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				return nil
 			})
 		} else {
+			db := pgBase.New()
 			ctx := context.New(db, logger, userID)
 			r, err = f(ctx, p)
 		}
