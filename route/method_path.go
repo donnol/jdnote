@@ -74,18 +74,18 @@ func getMethodPath(fullFuncName string) (method, path string) {
 
 // methodMap 方法映射
 func methodMap(m string) (r string) {
-	m = strings.ToLower(m)
+	m = strings.ToUpper(m)
 	switch m {
-	case "get":
+	case "GET":
 		r = http.MethodGet
-	case "add":
+	case "ADD":
 		r = http.MethodPost
-	case "mod":
+	case "MOD":
 		r = http.MethodPut
-	case "del":
+	case "DEL":
 		r = http.MethodDelete
 	default:
-		r = http.MethodPost
+		r = m
 	}
 	return
 }
