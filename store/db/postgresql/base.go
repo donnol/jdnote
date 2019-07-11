@@ -3,7 +3,6 @@ package pg
 import (
 	"os"
 
-	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -35,34 +34,7 @@ var globalTx = func() *sqlx.Tx {
 }()
 
 // Base 基底
-// - NOTE:不要直接使用RawDB或RawTx，一切数据库操作请使用DB()方法
 type Base struct {
-	// 直接内嵌接口，虽然可以在调用的时候少写一个字段名，但同时会有一个不好的地方，就是结构体不小心也实现了这些接口的方法，导致使用者调用的方法不是想要的方法，虽然也可以通过在调用的时候主动将字段名写上去，但是还是难以避免这种情况发生时，使用者感到迷茫……
-	// 或许可以折衷一下，好像DB这种，里面的方法名很容易在实践中被重写，我们就用指定字段名的方式来写，而Logger这种，里面的方法名并不容易被重写，而且，就算被重写了也不会导致出错，就还是直接内嵌
-
-	// 日志
-	utillog.Logger `json:"-" db:"-"`
-
-	// db
-	RawDB DB `json:"-" db:"-"`
-
-	// tx
-	InTx  bool `json:"-" db:"-"`
-	RawTx DB   `json:"-" db:"-"`
-}
-
-// SetTx 设置事务
-func (b *Base) SetTx(tx DB) *Base {
-	b.InTx = true
-	b.RawTx = tx
-	return b
-}
-
-// ResetTx 重置事务
-func (b *Base) ResetTx() *Base {
-	b.InTx = false
-	b.RawTx = defaultDB
-	return b
 }
 
 // New 新建
@@ -74,16 +46,8 @@ func (b *Base) New() DB {
 	return defaultDB
 }
 
-// DB 如果开启了事务，就返回事务；否则返回DB
-func (b *Base) DB() DB {
-	if b.InTx {
-		return b.RawTx
-	}
-
-	return b.RawDB
-}
-
-// WithTx 事务
+// WithTx 事务-这种写法必须确定f函数里是否也调用了WithTx，如果不确定，有可能导致事务重复开启，从而出错。所以，在使用唯一一层事务时才使用这个方法
+// 适合在最外层使用
 func (b *Base) WithTx(f func(tx DB) error) error {
 	var tx *sqlx.Tx
 	var err error
@@ -127,34 +91,12 @@ func (b *Base) WithTx(f func(tx DB) error) error {
 	return err
 }
 
-// InjectTx 注入事务
-func (b *Base) InjectTx(v interface{}, f func(v interface{}) error) error {
-	if err := b.WithTx(func(tx DB) error {
-		var err error
+// WithTxIn 事务-这种写法的tx是由外面传进来的，所以不会有重复开启事务的问题，但是，会有另外的问题，那就是提前提交
+// 即，f里的WithTxIn方法会在f完成时提交，那么回到本方法后的事务已经不可用了，所以这里不能提交。那么这时候这个方法就有点多余了
+// 适合在内层使用
+func (b *Base) WithTxIn(tx DB, f func(tx DB) error) error {
 
-		defer func() {
-			// 还原v
-			if b.RawDB != defaultDB {
-				if _, err = initParamWithDB(v, b.New(), false); err != nil {
-					return
-				}
-			}
-		}()
-
-		// 注入tx
-		v, err = initParamWithDB(v, tx, true)
-		if err != nil {
-			return err
-		}
-
-		// 执行
-		err = f(v)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	if err := f(tx); err != nil {
 		return err
 	}
 
