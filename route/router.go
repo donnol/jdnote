@@ -391,7 +391,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		pgBase := &pg.Base{}
 		logger := utillog.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 		if ho.useTx {
-			// 事务
+			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
+			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
 			err = pgBase.WithTx(func(tx pg.DB) error {
 				var err error
 

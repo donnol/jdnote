@@ -90,15 +90,3 @@ func (b *Base) WithTx(f func(tx DB) error) error {
 
 	return err
 }
-
-// WithTxIn 事务-这种写法的tx是由外面传进来的，所以不会有重复开启事务的问题，但是，会有另外的问题，那就是提前提交
-// 即，f里的WithTxIn方法会在f完成时提交，那么回到本方法后的事务已经不可用了，所以这里不能提交。那么这时候这个方法就有点多余了
-// 适合在内层使用
-func (b *Base) WithTxIn(tx DB, f func(tx DB) error) error {
-
-	if err := f(tx); err != nil {
-		return err
-	}
-
-	return nil
-}
