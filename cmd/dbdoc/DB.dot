@@ -30,6 +30,7 @@ digraph "Database Structure" {
 			</TABLE>>
 		];
 	}
-edge [ arrowhead=inv, arrowtail=normal, style=dashed, color="#444444" ];
-user:department_id -> department:id ;
+
+	edge [ arrowtail=normal, style=dashed, color="#444444" ];
+	user:department_id -> department:id ;
 }
