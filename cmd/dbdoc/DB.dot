@@ -17,6 +17,16 @@ digraph "Database Structure" {
 			</TABLE>>
 		];
 	}
+	subgraph "table_role" {
+		node [ shape = "plaintext" ];
+		"role" [ label=<
+			<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+			<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">role</TD></TR>
+			<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">INT</FONT></TD></TR>
+			<TR><TD COLSPAN="3" PORT="name">name:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">VARCHAR</FONT></TD></TR>
+			</TABLE>>
+		];
+	}
 	subgraph "table_user" {
 		node [ shape = "plaintext" ];
 		"user" [ label=<
@@ -30,7 +40,20 @@ digraph "Database Structure" {
 			</TABLE>>
 		];
 	}
+	subgraph "table_user_role" {
+		node [ shape = "plaintext" ];
+		"user_role" [ label=<
+			<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+			<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">user_role</TD></TR>
+			<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">INT</FONT></TD></TR>
+			<TR><TD COLSPAN="3" PORT="user_id">user_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">INT</FONT></TD></TR>
+			<TR><TD COLSPAN="3" PORT="role_id">role_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">INT</FONT></TD></TR>
+			</TABLE>>
+		];
+	}
 
 	edge [ arrowtail=normal, style=dashed, color="#444444" ];
 	user:department_id -> department:id ;
+	user_role:user_id -> user:id
+	user_role:role_id -> role:id
 }
