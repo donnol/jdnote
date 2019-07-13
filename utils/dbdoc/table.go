@@ -21,6 +21,10 @@ type Table struct {
 	typeMapper  Mapper // 字段类型映射函数
 
 	doc []byte
+
+	//  er图
+	Subgraph string // 子图
+	Edge     string // 边
 }
 
 // Mapper 映射函数类型
@@ -34,6 +38,7 @@ type Field struct {
 	Primary     bool   // 是否主键
 	Description string // 描述
 	Index              // 索引
+	Relation           // 关系
 }
 
 // Index 索引
@@ -41,6 +46,12 @@ type Index struct {
 	Name      string  // 名字
 	Unique    bool    // 是否唯一索引
 	FieldList []Field // 涉及字段
+}
+
+// Relation 关系
+type Relation struct {
+	TableName  string // 表名字
+	TableField string // 表字段
 }
 
 // NewTable 新建表
@@ -61,10 +72,13 @@ func (t *Table) New() *Table {
 
 // Resolve 解析
 func (t *Table) Resolve(v interface{}) *Table {
+	const relationTagName = "rel"
+	const relationTagSep = "."
+
 	var err error
 	var vstruct reflectx.Struct
 	vstruct, err = reflectx.ResolveStruct(v)
-	checkError(err)
+	must(err)
 
 	vstructName := vstruct.Name
 	nameList := strings.Split(vstructName, ".")
@@ -104,6 +118,17 @@ func (t *Table) Resolve(v interface{}) *Table {
 				tf.Type = t.typeMapper(sf.Type.Kind().String())
 			}
 			tf.Description = sf.Comment
+
+			// 关系
+			relTagValue, ok := sf.Tag.Lookup(relationTagName)
+			if ok {
+				relTagValues := strings.Split(relTagValue, relationTagSep)
+				if len(relTagValues) != 2 {
+					must(fmt.Errorf(`请指定rel标签的表和字段，如: 'rel:"user.id"'`))
+				}
+				tf.Relation.TableName = relTagValues[0]
+				tf.Relation.TableField = relTagValues[1]
+			}
 		}
 
 		t.FieldList = append(t.FieldList, tf)
@@ -129,7 +154,7 @@ func (t *Table) Write(w io.Writer) *Table {
 	t = t.makeDoc()
 
 	_, err := w.Write(t.doc)
-	checkError(err)
+	must(err)
 
 	return t
 }
@@ -211,6 +236,70 @@ func (t *Table) makeDoc() *Table {
 	}
 	content := fmt.Sprintf(format, t.Name, t.Comment, header+field, description, index)
 	t.doc = []byte(content)
+
+	return t
+}
+
+// dot脚本
+var (
+	// %s分别是多个子图，边样式和边
+	GraphFormat = `digraph "Database Structure" {
+		label = "ER Diagram";
+		labelloc = t;
+		compound = true;
+		node [ shape = record ];
+		fontname = "Helvetica";
+		ranksep = 1.25;
+		ratio = 0.7;
+		rankdir = LR;
+		%s
+		%s
+		%s
+	}`
+	// %s分别是表名，表名，标签列表
+	subgraphFormat = `
+		subgraph "table_%s" {
+			node [ shape = "plaintext" ]
+			"%s" [ %s 
+			]
+		}
+			`
+	// %s分别是表名和列的列表
+	subgraphLabelFormat = `label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">%s</TD></TR>
+				%s
+				</TABLE>>
+	`
+	// %s分别是字段名和字段类型
+	subgraphLabelRowFormat = `
+				<TR><TD COLSPAN="3" PORT="%s">%s:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">%s</FONT></TD></TR>
+	`
+	EdgeStyleFormat = `edge [ arrowtail=normal, style=dashed, color="#444444" ]
+	`
+	// %s分别是源表名，源字段名，目标表名，目标字段名
+	edgeFormat = `
+		%s:%s -> %s:%s
+	`
+)
+
+// MakeGraph 生成图
+func (t *Table) MakeGraph() *Table {
+	// 字段
+	var label, edge string
+	for _, tf := range t.FieldList {
+		label += fmt.Sprintf(subgraphLabelRowFormat, tf.Name, tf.Name, tf.Type)
+
+		if tf.Relation.TableName != "" && tf.Relation.TableField != "" {
+			edge += fmt.Sprintf(edgeFormat, t.Name, tf.Name, tf.Relation.TableName, tf.Relation.TableField)
+		}
+	}
+
+	subgraphLabel := fmt.Sprintf(subgraphLabelFormat, t.Name, label)
+	subgraph := fmt.Sprintf(subgraphFormat, t.Name, t.Name, subgraphLabel)
+
+	t.Subgraph = subgraph
+	t.Edge = edge
 
 	return t
 }
