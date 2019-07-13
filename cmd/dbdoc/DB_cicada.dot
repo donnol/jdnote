@@ -1,0 +1,107 @@
+digraph "Database Structure" {
+		label = "ER Diagram";
+		labelloc = t;
+		compound = true;
+		node [ shape = record ];
+		fontname = "Helvetica";
+		ranksep = 1.25;
+		ratio = 0.7;
+		rankdir = LR;
+		
+		subgraph "table_t_user" {
+			node [ shape = "plaintext" ]
+			"t_user" [ label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_user</TD></TR>
+				
+				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="name">name:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="phone">phone:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="email">email:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="password">password:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				</TABLE>>
+	 
+			]
+		}
+			
+		subgraph "table_t_role" {
+			node [ shape = "plaintext" ]
+			"t_role" [ label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_role</TD></TR>
+				
+				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="role">role:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				</TABLE>>
+	 
+			]
+		}
+			
+		subgraph "table_t_user_role" {
+			node [ shape = "plaintext" ]
+			"t_user_role" [ label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_user_role</TD></TR>
+				
+				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="user_id">user_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="role_id">role_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				</TABLE>>
+	 
+			]
+		}
+			
+		subgraph "table_t_action" {
+			node [ shape = "plaintext" ]
+			"t_action" [ label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_action</TD></TR>
+				
+				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="action">action:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">text</FONT></TD></TR>
+	
+				</TABLE>>
+	 
+			]
+		}
+			
+		subgraph "table_t_role_action" {
+			node [ shape = "plaintext" ]
+			"t_role_action" [ label=<
+				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_role_action</TD></TR>
+				
+				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="role_id">role_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				<TR><TD COLSPAN="3" PORT="action_id">action_id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
+	
+				</TABLE>>
+	 
+			]
+		}
+			
+		edge [ arrowtail=normal, style=dashed, color="#444444" ]
+	
+		
+		t_user_role:user_id -> t_user:id
+	
+		t_user_role:role_id -> t_role:id
+	
+		t_role_action:role_id -> t_role:id
+	
+		t_role_action:action_id -> t_action:id
+	
+	}

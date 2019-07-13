@@ -1,5 +1,7 @@
 # 数据库表定义
 
+![ER图](./db_cicada.svg)
+
 ## t_user
 
 
