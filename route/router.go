@@ -42,8 +42,18 @@ var (
 	ContentDispositionHeaderValueFormat = `attachment; filename="%s"`
 )
 
-// DefaultRouter 默认路由
-var DefaultRouter = NewRouter()
+// defaultRouter 默认路由
+var defaultRouter = NewRouter()
+
+// DefaultRouter 获取默认路由
+func DefaultRouter() *Router {
+	return defaultRouter
+}
+
+// Register 注册
+func Register(v interface{}) {
+	defaultRouter.Register(v)
+}
 
 // Router 路由
 type Router struct {
