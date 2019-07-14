@@ -1,4 +1,36 @@
 package api
 
+import (
+	"fmt"
+
+	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/service/auth"
+)
+
 // Base 基底
-type Base struct{}
+type Base struct {
+	AuthAo auth.Auth
+}
+
+// CheckLogin 检查登录态
+func (b Base) CheckLogin(ctx context.Context) error {
+	if ctx.UserID() == 0 {
+		return fmt.Errorf("Please login")
+	}
+	return nil
+}
+
+// CheckPerm 检查权限
+func (b Base) CheckPerm(ctx context.Context, perms []string) error {
+	// 先要登录
+	if err := b.CheckLogin(ctx); err != nil {
+		return err
+	}
+
+	// 检查权限
+	if err := b.AuthAo.CheckPerm(ctx, perms); err != nil {
+		return err
+	}
+
+	return nil
+}

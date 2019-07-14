@@ -19,12 +19,13 @@ import (
 	// 注入路由
 	_ "github.com/donnol/jdnote/api/auth"
 	_ "github.com/donnol/jdnote/api/file"
+	_ "github.com/donnol/jdnote/api/note"
 )
 
 func main() {
 	// 配置服务器
 	port := config.DefaultConfig.Server.Port
-	router := route.DefaultRouter
+	router := route.DefaultRouter()
 	srv := &http.Server{
 		Addr:    port,
 		Handler: router,

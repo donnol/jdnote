@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	route.DefaultRouter.Register(&Auth{})
+	route.Register(&Auth{})
 }
 
 // Auth 认证

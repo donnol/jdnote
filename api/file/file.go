@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	route.DefaultRouter.Register(&File{})
+	route.Register(&File{})
 }
 
 // File 文件

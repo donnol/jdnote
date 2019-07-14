@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model/action"
 	"github.com/donnol/jdnote/model/role"
 	roleaction "github.com/donnol/jdnote/model/role_action"
 	"github.com/donnol/jdnote/model/user"
 	userrole "github.com/donnol/jdnote/model/user_role"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 )
 
 func main() {
@@ -19,13 +19,14 @@ func main() {
 func initdb() error {
 	var err error
 
+	ctx := context.Default()
+
 	// 角色
 	re := role.Entity{
 		Role: "ALL",
 	}
 	r := &role.Role{}
-	r.DB = pg.New()
-	if re.ID, err = r.Add(re); err != nil {
+	if re.ID, err = r.Add(ctx, re); err != nil {
 		return err
 	}
 
@@ -34,8 +35,7 @@ func initdb() error {
 		Action: "ALL",
 	}
 	a := &action.Action{}
-	a.DB = pg.New()
-	if ae.ID, err = a.Add(ae); err != nil {
+	if ae.ID, err = a.Add(ctx, ae); err != nil {
 		return err
 	}
 
@@ -45,8 +45,7 @@ func initdb() error {
 		ActionID: ae.ID,
 	}
 	ra := &roleaction.RoleAction{}
-	ra.DB = pg.New()
-	if rae.ID, err = ra.Add(rae); err != nil {
+	if rae.ID, err = ra.Add(ctx, rae); err != nil {
 		return err
 	}
 
@@ -58,8 +57,7 @@ func initdb() error {
 		Password: "13420693396",
 	}
 	u := &user.User{}
-	u.DB = pg.New()
-	if ue.ID, err = u.Add(ue); err != nil {
+	if ue.ID, err = u.Add(ctx, ue); err != nil {
 		return err
 	}
 
@@ -69,8 +67,7 @@ func initdb() error {
 		RoleID: re.ID,
 	}
 	ur := &userrole.UserRole{}
-	ur.DB = pg.New()
-	if _, err = ur.Add(ure); err != nil {
+	if _, err = ur.Add(ctx, ure); err != nil {
 		return err
 	}
 
