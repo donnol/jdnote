@@ -27,7 +27,7 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.MustLogin(ctx); err != nil {
+	if err = n.CheckLogin(ctx); err != nil {
 		return
 	}
 

@@ -443,15 +443,12 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		c.Header("Access-Control-Allow-Credentials", "true")
 		// cookie
 		if r.CookieAfterLogin != 0 {
-			var session string
-			session, err = jwtToken.Sign(r.CookieAfterLogin)
+			cookie, err := MakeCookie(r.CookieAfterLogin)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			var maxAge = 3600 * 24 * 7
-			cookie := fmt.Sprintf("%s=%s; HttpOnly; max-age=%d", sessionKey, session, maxAge)
-			c.Header("Set-Cookie", cookie)
+			c.Header("Set-Cookie", cookie.String())
 		}
 
 		// 调用过滤器，过滤返回内容
@@ -468,4 +465,21 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		// 返回
 		c.JSON(statusCode, r)
 	}
+}
+
+// MakeCookie 新建令牌
+func MakeCookie(userID int) (cookie http.Cookie, err error) {
+	session, err := jwtToken.Sign(userID)
+	if err != nil {
+		return
+	}
+
+	var maxAge = 3600 * 24 * 7
+
+	cookie.Name = sessionKey
+	cookie.Value = session
+	cookie.MaxAge = maxAge
+	cookie.HttpOnly = true
+
+	return
 }

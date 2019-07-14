@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/service/note"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
@@ -19,16 +20,21 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdd(t *testing.T) {
+	cookie, err := route.MakeCookie(114)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := http.Header{}
 	var at = apitest.NewAT(
 		"/note",
 		http.MethodPost,
 		"添加",
-		http.Header{},
-		[]*http.Cookie{},
+		h,
+		[]*http.Cookie{&cookie},
 	)
 	var r struct {
 		errors.Error
-		Data int
+		Data int `json:"data"`
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
