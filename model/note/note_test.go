@@ -30,11 +30,11 @@ func TestAddNote(t *testing.T) {
 	t.Log(detail)
 
 	// 分页
-	r, err := note.GetPage(ctx, Entity{}, model.DefaultCommonParam)
+	r, total, err := note.GetPage(ctx, Entity{}, model.DefaultCommonParam)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(r)
+	t.Log(r, total)
 
 	// 修改
 	if err := note.Mod(ctx, id, Entity{
@@ -56,4 +56,16 @@ func TestAddNote(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(details)
+}
+
+func TestGetPage(t *testing.T) {
+	note := &Note{}
+	ctx := context.Default()
+
+	// 分页
+	r, total, err := note.GetPage(ctx, Entity{}, model.CommonParam{Size: 5})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(r, total)
 }

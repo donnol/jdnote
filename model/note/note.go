@@ -1,8 +1,6 @@
 package note
 
 import (
-	"encoding/json"
-
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/lib/pq"
@@ -50,24 +48,19 @@ func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
 
 // GetPage 获取笔记分页
 func (note *Note) GetPage(ctx context.Context, entity Entity, param model.CommonParam) (
-	res struct {
-		Data  []json.RawMessage
-		Total int
-	},
+	res []Entity,
+	total int,
 	err error,
 ) {
-	var dbResult []struct {
-		Data  json.RawMessage
-		Total int
-	}
-	err = ctx.DB().SelectContext(ctx, &dbResult, `
-		SELECT json_build_object(
-			'ID', id,
-			'Title', title,
-			'Detail', detail,
-			'CreatedAt', created_at
-		) AS data,
-		COUNT(*) OVER () AS total
+
+	var dbr Pages
+	err = ctx.DB().SelectContext(ctx, &dbr, `
+		SELECT 
+			id,
+			title,
+			detail,
+			created_at,
+			COUNT(*) OVER () AS total
 		FROM t_note
 		WHERE true
 		
@@ -89,12 +82,12 @@ func (note *Note) GetPage(ctx context.Context, entity Entity, param model.Common
 	if err != nil {
 		return
 	}
-	for i, single := range dbResult {
-		if i == 0 {
-			res.Total = single.Total
-		}
-		res.Data = append(res.Data, single.Data)
+
+	res, total, err = dbr.Transfer()
+	if err != nil {
+		return
 	}
+
 	return
 }
 
