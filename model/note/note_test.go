@@ -12,7 +12,7 @@ func TestAddNote(t *testing.T) {
 	ctx := context.Default()
 
 	// 加
-	id, err := note.AddNote(ctx, Entity{
+	id, err := note.Add(ctx, Entity{
 		UserID: 1,
 		Title:  "test",
 		Detail: "test detail",
@@ -23,30 +23,37 @@ func TestAddNote(t *testing.T) {
 	t.Log(id)
 
 	// 查
-	detail, err := note.GetNote(ctx, id)
+	detail, err := note.Get(ctx, id)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(detail)
 
-	// 列表查
-	r, err := note.GetNoteList(ctx, Entity{}, model.DefaultCommonParam)
+	// 分页
+	r, err := note.GetPage(ctx, Entity{}, model.DefaultCommonParam)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(r)
 
 	// 修改
-	if err := note.ModifyNote(ctx, id, Entity{
+	if err := note.Mod(ctx, id, Entity{
 		Detail: "testDetail",
 	}); err != nil {
 		t.Fatal(err)
 	}
 
 	// 查
-	detail, err = note.GetNote(ctx, id)
+	detail, err = note.Get(ctx, id)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(detail)
+
+	// 列表
+	details, err := note.GetList(ctx, []int64{int64(id - 1), int64(id)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(details)
 }
