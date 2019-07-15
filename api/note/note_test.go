@@ -37,6 +37,14 @@ func TestAdd(t *testing.T) {
 		Data int `json:"data"`
 	}
 
+	var modAT = apitest.NewAT(
+		"/note",
+		http.MethodPut,
+		"修改",
+		h,
+		[]*http.Cookie{&cookie},
+	)
+
 	t.Run("MakeDoc", func(t *testing.T) {
 		// t.SkipNow()
 
@@ -59,10 +67,33 @@ func TestAdd(t *testing.T) {
 			Result(&r).
 			EqualThen(
 				func(at *apitest.AT) error {
-					t.Log(r.Data)
 					return at.Equal(
 						r.Data != 0, true,
 					).Err()
+				},
+				r.Code == 0, true,
+				r.Msg == "", true,
+			).
+			WriteFile(f).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := modAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&note.ModParam{
+				ID: r.Data,
+				Param: note.Param{
+					Title:  "mod title",
+					Detail: "mod detail",
+				},
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&r).
+			EqualThen(
+				func(at *apitest.AT) error {
+					return nil
 				},
 				r.Code == 0, true,
 				r.Msg == "", true,
