@@ -34,7 +34,7 @@ func TestAdd(t *testing.T) {
 	)
 	var r struct {
 		errors.Error
-		Data int `json:"data"`
+		Data api.AddResult `json:"data"`
 	}
 
 	var modAT = apitest.NewAT(
@@ -44,6 +44,7 @@ func TestAdd(t *testing.T) {
 		h,
 		[]*http.Cookie{&cookie},
 	)
+	var modR errors.Error
 
 	t.Run("MakeDoc", func(t *testing.T) {
 		// t.SkipNow()
@@ -57,10 +58,7 @@ func TestAdd(t *testing.T) {
 		defer f.Close()
 
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&note.Param{
-				Title:  "test title",
-				Detail: "test detail",
-			}).
+			SetParam(&struct{}{}).
 			Debug().
 			Run().
 			EqualCode(http.StatusOK).
@@ -68,7 +66,7 @@ func TestAdd(t *testing.T) {
 			EqualThen(
 				func(at *apitest.AT) error {
 					return at.Equal(
-						r.Data != 0, true,
+						r.Data.ID != 0, true,
 					).Err()
 				},
 				r.Code == 0, true,
@@ -81,7 +79,7 @@ func TestAdd(t *testing.T) {
 
 		if err := modAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&note.ModParam{
-				ID: r.Data,
+				ID: r.Data.ID,
 				Param: note.Param{
 					Title:  "mod title",
 					Detail: "mod detail",
@@ -90,7 +88,7 @@ func TestAdd(t *testing.T) {
 			Debug().
 			Run().
 			EqualCode(http.StatusOK).
-			Result(&r).
+			Result(&modR).
 			EqualThen(
 				func(at *apitest.AT) error {
 					return nil

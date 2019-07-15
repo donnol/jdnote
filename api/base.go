@@ -34,3 +34,8 @@ func (b Base) CheckPerm(ctx context.Context, perms []string) error {
 
 	return nil
 }
+
+// AddResult 添加记录后的结果
+type AddResult struct {
+	ID int `json:"id"` // 新纪录ID
+}

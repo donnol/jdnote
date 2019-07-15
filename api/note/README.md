@@ -6,23 +6,19 @@
 
 Param
 
-* title (*string*) 标题
-* detail (*string*) 详情
 
 Return
 
 * code (*int*) 请求返回码，一般0表示正常，非0表示异常
 * msg (*string*) 信息，一般是出错时的描述信息
-* data (*int*) 
+* data (*object*) 
+    * id (*int*) 新纪录ID
 
 <details>
 <summary>Param</summary>
 
 ```json
-{
-    "title": "test title",
-    "detail": "test detail"
-}
+{}
 ```
 
 </details>
@@ -34,7 +30,9 @@ Return
 {
     "code": 0,
     "msg": "",
-    "data": 83
+    "data": {
+        "id": 89
+    }
 }
 ```
 
@@ -54,14 +52,13 @@ Return
 
 * code (*int*) 请求返回码，一般0表示正常，非0表示异常
 * msg (*string*) 信息，一般是出错时的描述信息
-* data (*int*) 
 
 <details>
 <summary>Param</summary>
 
 ```json
 {
-    "id": 83,
+    "id": 89,
     "title": "mod title",
     "detail": "mod detail"
 }

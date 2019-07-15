@@ -10,13 +10,9 @@ type Note struct {
 	NoteModel note.Note
 }
 
-// Add 添加
-func (n *Note) Add(ctx context.Context, p Param) (id int, err error) {
-	id, err = n.NoteModel.Add(ctx, note.Entity{
-		UserID: ctx.UserID(),
-		Title:  p.Title,
-		Detail: p.Detail,
-	})
+// AddOne 添加
+func (n *Note) AddOne(ctx context.Context) (id int, err error) {
+	id, err = n.NoteModel.AddOne(ctx)
 	if err != nil {
 		return
 	}

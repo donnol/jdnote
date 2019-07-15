@@ -11,6 +11,20 @@ type Note struct {
 	model.Base
 }
 
+// AddOne 添加一条记录，并返回它的id
+func (note *Note) AddOne(ctx context.Context) (id int, err error) {
+	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
+		VALUES($1, '', '')
+		RETURNING id`,
+		ctx.UserID(),
+	)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // Add 添加笔记
 func (note *Note) Add(ctx context.Context, entity Entity) (id int, err error) {
 	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)

@@ -69,3 +69,14 @@ func TestGetPage(t *testing.T) {
 	}
 	t.Log(r, total)
 }
+
+func TestAddOne(t *testing.T) {
+	note := &Note{}
+	ctx := context.Default()
+
+	id, err := note.AddOne(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(id)
+}
