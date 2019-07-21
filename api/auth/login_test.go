@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 
 func TestAddLogin(t *testing.T) {
 	var at = apitest.NewAT(
-		"/v1/auth/login",
+		"/auth/login",
 		http.MethodPost,
 		"登陆",
 		http.Header{},
@@ -94,7 +94,7 @@ func TestAddLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	var at = apitest.NewAT(
-		"/v1/auth/user",
+		"/auth/user",
 		http.MethodPost,
 		"添加",
 		http.Header{},
@@ -200,7 +200,7 @@ func TestAddUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	var at = apitest.NewAT(
-		"/v1/auth/user",
+		"/auth/user",
 		http.MethodGet,
 		"获取",
 		http.Header{},
