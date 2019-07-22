@@ -18,7 +18,7 @@ type Error struct {
 	Code int    `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
 	Msg  string `json:"msg"`  // 信息，一般是出错时的描述信息
 
-	level int `json:"-"` // 级别
+	level int // 级别
 }
 
 // New 新建普通错误

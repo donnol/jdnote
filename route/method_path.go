@@ -68,8 +68,6 @@ func getMethodPath(fullFuncName string) (method, path string) {
 
 		tmpPath = tmpPath[firstUpperIndex:]
 	}
-
-	return
 }
 
 // methodMap 方法映射

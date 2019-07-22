@@ -323,7 +323,7 @@ func day(year, month, day int) int64 {
 func makeFunc() {
 	swap := func(in []reflect.Value) []reflect.Value { // 这里定义实际运行的函数体
 		if len(in) != 2 {
-			panic("in lenght is not two")
+			panic("in length is not two")
 		}
 		return []reflect.Value{in[1], in[0]}
 	}

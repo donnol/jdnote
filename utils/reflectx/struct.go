@@ -85,8 +85,8 @@ func getFields(s Struct) []Field {
 // collectStructComment 收集结构体的注释
 func collectStructComment(refType reflect.Type, s *Struct) error {
 	// 解析-获取结构体注释
-	var r = make(map[string]string)
-	var f = make(map[string]string)
+	r := make(map[string]string)
+	f := make(map[string]string)
 	var err error
 	if r, f, err = resolve(s.Name); err != nil {
 		return fmt.Errorf("resolve output failed, error is %v", err)

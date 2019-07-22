@@ -13,7 +13,6 @@ func TestWorker(t *testing.T) {
 	w.Push(Job{
 		do: func() error {
 			panic("terriable")
-			return nil
 		},
 	})
 	w.Push(Job{
