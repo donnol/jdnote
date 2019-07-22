@@ -2,7 +2,7 @@
 
 ## 登陆
 
-`POST /login`
+`POST /auth/login`
 
 Param
 
@@ -46,7 +46,7 @@ Return
     "code": 0,
     "msg": "",
     "data": {
-        "id": 38,
+        "id": 114,
         "name": "jd",
         "phone": "",
         "email": "",
