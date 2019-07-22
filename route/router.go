@@ -40,6 +40,15 @@ var (
 var (
 	ContentDispositionHeaderKey         = "Content-Disposition"
 	ContentDispositionHeaderValueFormat = `attachment; filename="%s"`
+
+	setCookieHeaderKey     = "Set-Cookie"
+	contentTypeHeaderKey   = "Content-Type"
+	contentTypeHeaderValue = "application/json; charset=utf-8"
+	// 跨域
+	accessOriginHeaderKey         = "Access-Control-Allow-Origin"
+	accessOriginHeaderValue       = "*"
+	accessCreadentialsHeaderKey   = "Access-Control-Allow-Credentials"
+	accessCreadentialsHeaderValue = "true"
 )
 
 // defaultRouter 默认路由
@@ -369,7 +378,10 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			values = c.Request.URL.Query()
 		}
 		if err != nil {
-			c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotAcceptable, Result{Error: errors.Error{
+				Code: errors.ErrorCodeRouter,
+				Msg:  fmt.Sprintf("%+v", err),
+			}})
 			return
 		}
 
@@ -379,7 +391,10 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if err == nil {
 			userID, err = jwtToken.Verify(cookie)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, Result{Error: errors.Error{
+					Code: errors.ErrorCodeRouter,
+					Msg:  fmt.Sprintf("%+v", err),
+				}})
 				return
 			}
 		}
@@ -389,7 +404,10 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if ho.isFile && method == http.MethodPost {
 			multipartReader, err = c.Request.MultipartReader()
 			if err != nil {
-				c.JSON(http.StatusMethodNotAllowed, gin.H{"error": err.Error()})
+				c.JSON(http.StatusMethodNotAllowed, Result{Error: errors.Error{
+					Code: errors.ErrorCodeRouter,
+					Msg:  fmt.Sprintf("%+v", err),
+				}})
 				return
 			}
 		}
@@ -430,25 +448,31 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			r.Error = e
 		} else {
 			if err != nil {
-				c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+				c.JSON(http.StatusForbidden, Result{Error: errors.Error{
+					Code: errors.ErrorCodeRouter,
+					Msg:  fmt.Sprintf("%+v", err),
+				}})
 				return
 			}
 		}
 
 		// 设置header
 		// 格式
-		c.Header("Content-Type", "application/json; charset=utf-8")
+		c.Header(contentTypeHeaderKey, contentTypeHeaderValue)
 		// 跨域
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header(accessOriginHeaderKey, accessOriginHeaderValue)
+		c.Header(accessCreadentialsHeaderKey, accessCreadentialsHeaderValue)
 		// cookie
 		if r.CookieAfterLogin != 0 {
 			cookie, err := MakeCookie(r.CookieAfterLogin)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, Result{Error: errors.Error{
+					Code: errors.ErrorCodeRouter,
+					Msg:  fmt.Sprintf("%+v", err),
+				}})
 				return
 			}
-			c.Header("Set-Cookie", cookie.String())
+			c.Header(setCookieHeaderKey, cookie.String())
 		}
 
 		// 调用过滤器，过滤返回内容

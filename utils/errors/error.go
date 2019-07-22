@@ -8,6 +8,11 @@ const (
 	LevelFatal  = 2
 )
 
+// 错误码
+const (
+	ErrorCodeRouter = 10001
+)
+
 // Error 错误
 type Error struct {
 	Code int    `json:"code"` // 请求返回码，一般0表示正常，非0表示异常
