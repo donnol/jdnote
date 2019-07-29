@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"os"
 	"runtime"
 	"time"
 )
@@ -46,6 +47,13 @@ type logger struct {
 	*log.Logger
 
 	notify Notifier
+}
+
+var defaultLogger = New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
+
+// Default 默认
+func Default() Logger {
+	return defaultLogger
 }
 
 // New 新建
