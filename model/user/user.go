@@ -12,6 +12,16 @@ type User struct {
 	model.Base
 }
 
+// GetByID 以id获取用户
+func (u *User) GetByID(ctx context.Context, id int) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE id = $1`, id); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	return
+}
+
 // GetByName 以名字获取用户
 func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {

@@ -23,21 +23,32 @@ type Auth struct {
 	UserAo userao.User
 }
 
+// LoginUser 登录用户
+type LoginUser struct {
+	Name   string `json:"name"`
+	Role   string `json:"role"`
+	UserID int    `json:"userID"`
+}
+
 // GetIslogin 是否登录
 func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 
 	// 权限
+	if ctx.UserID() == 0 {
+		r.Data = LoginUser{}
+		return
+	}
 
 	// 业务
-	r.Data = struct {
-		Name   string `json:"name"`
-		Role   string `json:"role"`
-		UserID int    `json:"userID"`
-	}{
-		Name:   "jd",
+	u, err := auth.UserAo.GetByID(ctx, ctx.UserID())
+	if err != nil {
+		return
+	}
+	r.Data = LoginUser{
+		Name:   u.Name,
 		Role:   "admin",
-		UserID: 1,
+		UserID: u.ID,
 	}
 
 	return
