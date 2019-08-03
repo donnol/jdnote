@@ -500,11 +500,14 @@ func MakeCookie(userID int) (cookie http.Cookie, err error) {
 		return
 	}
 
-	var maxAge = 3600 * 24 * 7
+	days := 7
+	var maxAge = 3600 * 24 * days
 
 	cookie.Name = sessionKey
 	cookie.Value = session
 	cookie.MaxAge = maxAge
+	cookie.Expires = time.Now().AddDate(0, 0, days)
+	cookie.Path = "/"
 	cookie.HttpOnly = true
 
 	return
