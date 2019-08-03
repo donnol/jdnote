@@ -1,10 +1,9 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/service/auth"
+	"github.com/pkg/errors"
 )
 
 // Base 基底
@@ -15,7 +14,7 @@ type Base struct {
 // CheckLogin 检查登录态
 func (b Base) CheckLogin(ctx context.Context) error {
 	if ctx.UserID() == 0 {
-		return fmt.Errorf("Please login")
+		return errors.Errorf("Please login")
 	}
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/service/note"
 	"github.com/donnol/jdnote/utils/apitest"
@@ -45,6 +46,18 @@ func TestAdd(t *testing.T) {
 		[]*http.Cookie{&cookie},
 	)
 	var modR errors.Error
+
+	var pageAT = apitest.NewAT(
+		"/note/page",
+		http.MethodGet,
+		"获取分页",
+		h,
+		[]*http.Cookie{&cookie},
+	)
+	var pageR struct {
+		errors.Error
+		Data note.PageResult `json:"data"`
+	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
 		// t.SkipNow()
@@ -89,6 +102,26 @@ func TestAdd(t *testing.T) {
 			Run().
 			EqualCode(http.StatusOK).
 			Result(&modR).
+			EqualThen(
+				func(at *apitest.AT) error {
+					return nil
+				},
+				r.Code == 0, true,
+				r.Msg == "", true,
+			).
+			WriteFile(f).
+			Err(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := pageAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			SetParam(&model.CommonParam{
+				Size: 10,
+			}).
+			Debug().
+			Run().
+			EqualCode(http.StatusOK).
+			Result(&pageR).
 			EqualThen(
 				func(at *apitest.AT) error {
 					return nil

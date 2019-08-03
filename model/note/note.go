@@ -93,7 +93,7 @@ func (note *Note) GetPage(ctx context.Context, entity Entity, param model.Common
 		OFFSET $2
 		`,
 		param.Size,
-		param.Offset,
+		param.Start,
 		entity.Title,
 		entity.ID,
 	)

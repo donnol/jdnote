@@ -48,3 +48,13 @@ type Result struct {
 	Detail    string `json:"detail"`    // 详情
 	CreatedAt int64  `json:"createdAt"` // 创建时间
 }
+
+// PageParam 分页参数
+type PageParam struct {
+}
+
+// PageResult 分页结果
+type PageResult struct {
+	Total int      `json:"total"` // 总数
+	List  []Result `json:"list"`  // 列表
+}
