@@ -397,6 +397,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				}})
 				return
 			}
+		} else {
+			utillog.Warnf("Get cookie failed: %+v\n", err)
 		}
 
 		// 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
