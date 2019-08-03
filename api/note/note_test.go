@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdd(t *testing.T) {
-	cookie, err := route.MakeCookie(114)
+	cookie, err := route.MakeCookie(119)
 	if err != nil {
 		t.Fatal(err)
 	}

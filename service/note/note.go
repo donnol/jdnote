@@ -25,6 +25,7 @@ func (n *Note) GetPage(ctx context.Context, entity PageParam, param model.Common
 	for _, single := range res {
 		tmp = Result{}
 
+		tmp.NoteID = single.ID
 		tmp.UserName = strconv.Itoa(single.UserID)
 		tmp.Title = single.Title
 		tmp.Detail = single.Detail

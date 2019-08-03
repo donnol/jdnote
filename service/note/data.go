@@ -43,6 +43,7 @@ func (m ModParam) Check() error {
 
 // Result 结果
 type Result struct {
+	NoteID    int    `json:"noteID"`    // 笔记ID
 	UserName  string `json:"userName"`  // 用户名
 	Title     string `json:"title"`     // 标题
 	Detail    string `json:"detail"`    // 详情
