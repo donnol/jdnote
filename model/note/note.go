@@ -4,6 +4,7 @@ import (
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 // Note 笔记
@@ -19,6 +20,7 @@ func (note *Note) AddOne(ctx context.Context) (id int, err error) {
 		ctx.UserID(),
 	)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -36,6 +38,7 @@ func (note *Note) Add(ctx context.Context, entity Entity) (id int, err error) {
 		entity.Detail,
 	)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 	return
@@ -55,6 +58,7 @@ func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
 		},
 	)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 	return
@@ -94,6 +98,7 @@ func (note *Note) GetPage(ctx context.Context, entity Entity, param model.Common
 		entity.ID,
 	)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -115,6 +120,7 @@ func (note *Note) Get(ctx context.Context, id int) (entity Entity, err error) {
 		id,
 	)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 	return
@@ -130,6 +136,7 @@ func (note *Note) GetList(ctx context.Context, ids []int64) (entitys []Entity, e
 		`,
 		pq.Int64Array(ids),
 	); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 

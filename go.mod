@@ -20,6 +20,7 @@ require (
 	github.com/mdempsky/gocode v0.0.0-20181226182234-be056ad32a5e // indirect
 	github.com/nsqio/go-nsq v1.0.7
 	github.com/nsqio/nsq v1.1.0 // indirect
+	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v1.0.0
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
 	github.com/steveyen/gtreap v0.0.0-20150807155958-0abe01ef9be2 // indirect

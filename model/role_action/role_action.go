@@ -1,11 +1,10 @@
 package roleaction
 
 import (
-	"fmt"
-
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 // RoleAction 角色动作
@@ -19,6 +18,7 @@ func (ra *RoleAction) Add(ctx context.Context, e Entity) (id int, err error) {
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
 		`, e.RoleID, e.ActionID); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -43,10 +43,11 @@ func (ra *RoleAction) CheckPerm(ctx context.Context, perms []string) error {
 		ctx.UserID(),
 		pq.StringArray(perms),
 	); err != nil {
+		err = errors.WithStack(err)
 		return err
 	}
 	if !exist {
-		return fmt.Errorf("No permission")
+		return errors.Errorf("No permission")
 	}
 
 	return nil

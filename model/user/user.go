@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,6 +15,7 @@ type User struct {
 // GetByName 以名字获取用户
 func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -23,11 +25,13 @@ func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error)
 // VerifyByNameAndPassword 以名字和密码校验用户
 func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
 	// 校验用户和密码
 	if err = bcrypt.CompareHashAndPassword([]byte(e.Password), []byte(password)); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -38,6 +42,7 @@ func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password strin
 func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
 	hashedPassword, err := u.hashPassword(e.Password)
 	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
@@ -48,6 +53,7 @@ func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
 		e.Email,
 		hashedPassword,
 	); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 

@@ -16,11 +16,12 @@ import (
 	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/context"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
-	"github.com/donnol/jdnote/utils/errors"
+	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
+	"github.com/pkg/errors"
 )
 
 // 参数相关
@@ -108,13 +109,13 @@ func (p *Param) Parse(v interface{}) error {
 		err = decoder.Decode(v, p.values)
 	}
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
 	// 检查参数
 	if vv, ok := v.(Checker); ok {
 		if err := vv.Check(); err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 	}
 
@@ -163,7 +164,7 @@ func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, er
 
 // Result 通用结果
 type Result struct {
-	errors.Error
+	utilerrors.Error
 
 	Data interface{} `json:"data"` // 正常返回时的数据
 
@@ -377,8 +378,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			values = c.Request.URL.Query()
 		}
 		if err != nil {
-			c.JSON(http.StatusNotAcceptable, Result{Error: errors.Error{
-				Code: errors.ErrorCodeRouter,
+			c.JSON(http.StatusNotAcceptable, Result{Error: utilerrors.Error{
+				Code: utilerrors.ErrorCodeRouter,
 				Msg:  fmt.Sprintf("%+v", err),
 			}})
 			return
@@ -390,8 +391,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if err == nil {
 			userID, err = jwtToken.Verify(cookie)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, Result{Error: errors.Error{
-					Code: errors.ErrorCodeRouter,
+				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
+					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
 				}})
 				return
@@ -403,8 +404,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if ho.isFile && method == http.MethodPost {
 			multipartReader, err = c.Request.MultipartReader()
 			if err != nil {
-				c.JSON(http.StatusMethodNotAllowed, Result{Error: errors.Error{
-					Code: errors.ErrorCodeRouter,
+				c.JSON(http.StatusMethodNotAllowed, Result{Error: utilerrors.Error{
+					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
 				}})
 				return
@@ -438,7 +439,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			r, err = f(ctx, p)
 		}
 		// 处理错误
-		if e, ok := err.(errors.Error); ok {
+		if e, ok := err.(utilerrors.Error); ok {
 			if e.IsNormal() {
 				statusCode = http.StatusBadRequest
 			} else if e.IsFatal() {
@@ -447,8 +448,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			r.Error = e
 		} else {
 			if err != nil {
-				c.JSON(http.StatusForbidden, Result{Error: errors.Error{
-					Code: errors.ErrorCodeRouter,
+				c.JSON(http.StatusForbidden, Result{Error: utilerrors.Error{
+					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
 				}})
 				return
@@ -465,8 +466,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		if r.CookieAfterLogin != 0 {
 			cookie, err := MakeCookie(r.CookieAfterLogin)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, Result{Error: errors.Error{
-					Code: errors.ErrorCodeRouter,
+				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
+					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
 				}})
 				return
