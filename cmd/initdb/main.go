@@ -52,9 +52,9 @@ func initdb() error {
 	// 用户
 	ue := user.Entity{
 		Name:     "jd",
-		Phone:    "13420693396",
+		Phone:    "jd",
 		Email:    "jdlau@126.com",
-		Password: "13420693396",
+		Password: "jd",
 	}
 	u := &user.User{}
 	if ue.ID, err = u.Add(ctx, ue); err != nil {

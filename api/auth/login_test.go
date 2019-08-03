@@ -46,7 +46,7 @@ func TestAddLogin(t *testing.T) {
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&user.Entity{
 				Name:     "jd",
-				Password: "13420693396",
+				Password: "jd",
 			}).
 			Debug().
 			Run().
@@ -71,7 +71,7 @@ func TestAddLogin(t *testing.T) {
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&user.Entity{
 				Name:     "jd",
-				Password: "13420693396",
+				Password: "jd",
 			}).
 			Debug().
 			Run().
@@ -122,7 +122,7 @@ func TestAddUser(t *testing.T) {
 				Password string
 			}{
 				Name:     "jd",
-				Password: "13420693396",
+				Password: "jd",
 			}).
 			Debug().
 			Run().
@@ -150,7 +150,7 @@ func TestAddUser(t *testing.T) {
 					Password string
 				}{
 					Name:     "jd",
-					Password: "13420693396",
+					Password: "jd",
 				}).
 				Debug().
 				Run().
@@ -178,7 +178,7 @@ func TestAddUser(t *testing.T) {
 				Password string
 			}{
 				Name:     "jd",
-				Password: "13420693396",
+				Password: "jd",
 			}).
 			Debug().
 			Run().

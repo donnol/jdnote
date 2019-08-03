@@ -26,9 +26,9 @@ func TestAdd(t *testing.T) {
 	u := &User{}
 	e := Entity{
 		Name:     "jd",
-		Phone:    "13420693396",
+		Phone:    "jd",
 		Email:    "jdlau@126.com",
-		Password: "13420693396",
+		Password: "jd",
 	}
 	ctx := context.New((&pg.Base{}).New(), utillog.New(os.Stdout, "", log.LstdFlags), 0)
 	if id, err := u.Add(ctx, e); err != nil {

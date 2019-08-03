@@ -6,22 +6,22 @@
 
 Param
 
-* Name (*string*) 
-* Password (*string*) 
+- Name (_string_)
+- Password (_string_)
 
 Return
 
-* code (*int*) 请求返回码，一般0表示正常，非0表示异常
-* msg (*string*) 信息，一般是出错时的描述信息
-* Data (*int*) 
+- code (_int_) 请求返回码，一般 0 表示正常，非 0 表示异常
+- msg (_string_) 信息，一般是出错时的描述信息
+- Data (_int_)
 
 <details>
 <summary>Param</summary>
 
 ```json
 {
-    "Name": "jd",
-    "Password": "13420693396"
+  "Name": "jd",
+  "Password": "jd"
 }
 ```
 
@@ -32,11 +32,10 @@ Return
 
 ```json
 {
-    "code": 0,
-    "msg": "",
-    "data": 115
+  "code": 0,
+  "msg": "",
+  "data": 115
 }
 ```
 
 </details>
-
