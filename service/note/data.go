@@ -27,13 +27,13 @@ func (p Param) Check() error {
 
 // ModParam 修改参数
 type ModParam struct {
-	ID int `json:"id"` // 记录ID
+	NoteID int `json:"noteID"` // 记录ID
 	Param
 }
 
 // Check 检查
 func (m ModParam) Check() error {
-	if m.ID == 0 {
+	if m.NoteID == 0 {
 		return fmt.Errorf("Empty ID")
 	}
 	if err := m.Param.Check(); err != nil {

@@ -40,6 +40,21 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 	return
 }
 
+// Get 获取
+func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
+	e, err := n.NoteModel.Get(ctx, id)
+	if err != nil {
+		return
+	}
+	r.NoteID = e.ID
+	r.Title = e.Title
+	r.Detail = e.Detail
+	r.UserName = strconv.Itoa(e.UserID)
+	r.CreatedAt = e.CreatedAt.Unix()
+
+	return
+}
+
 // AddOne 添加
 func (n *Note) AddOne(ctx context.Context) (id int, err error) {
 	id, err = n.NoteModel.AddOne(ctx)
@@ -56,6 +71,16 @@ func (n *Note) Mod(ctx context.Context, id int, p Param) (err error) {
 		Title:  p.Title,
 		Detail: p.Detail,
 	}); err != nil {
+		return
+	}
+
+	return
+}
+
+// Del 删除
+func (n *Note) Del(ctx context.Context, id int) (err error) {
+	err = n.NoteModel.Del(ctx, id)
+	if err != nil {
 		return
 	}
 

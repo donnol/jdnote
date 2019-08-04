@@ -66,6 +66,22 @@ func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
 	return
 }
 
+// Del 删除笔记
+func (note *Note) Del(ctx context.Context, id int) (err error) {
+	_, err = ctx.DB().NamedExecContext(ctx, `Delete FROM t_note
+		Where id = :id
+		`,
+		map[string]interface{}{
+			"id": id,
+		},
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
 // GetPage 获取笔记分页
 func (note *Note) GetPage(ctx context.Context, entity Entity, param model.CommonParam) (
 	res []Entity,
