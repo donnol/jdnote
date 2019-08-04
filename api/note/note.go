@@ -3,7 +3,6 @@ package note
 import (
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/context"
-	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/service/note"
 )
@@ -22,7 +21,7 @@ type Note struct {
 // GetPage 获取分页
 func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
-	param := model.CommonParam{}
+	param := note.PageParam{}
 	if err = p.Parse(&param); err != nil {
 		return
 	}
@@ -33,7 +32,7 @@ func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, er
 	}
 
 	// 业务
-	result, err := n.NoteAo.GetPage(ctx, note.PageParam{}, param)
+	result, err := n.NoteAo.GetPage(ctx, param)
 	if err != nil {
 		return
 	}

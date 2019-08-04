@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/service/note"
 	"github.com/donnol/jdnote/utils/apitest"
@@ -114,10 +113,10 @@ func TestAdd(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		pageParam := note.PageParam{}
+		pageParam.PageSize = 10
 		if err := pageAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&model.CommonParam{
-				Size: 10,
-			}).
+			SetParam(&pageParam).
 			Debug().
 			Run().
 			EqualCode(http.StatusOK).

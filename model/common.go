@@ -2,11 +2,14 @@ package model
 
 // CommonParam 通用参数
 type CommonParam struct {
-	Start int `json:"start"` // 分页开始
-	Size  int `json:"size"`  // 分页大小
+	BeginTime int64 `json:"beginTime"` // 开始时间
+	EndTime   int64 `json:"endTime"`   // 结束时间
+
+	PageIndex int `json:"pageIndex"` // 分页开始
+	PageSize  int `json:"pageSize"`  // 分页大小
 }
 
 // DefaultCommonParam 默认值
 var DefaultCommonParam = CommonParam{
-	Size: 10,
+	PageSize: 10,
 }

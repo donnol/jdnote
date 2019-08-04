@@ -1,6 +1,8 @@
 package note
 
 import (
+	"time"
+
 	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/lib/pq"
@@ -88,14 +90,30 @@ func (note *Note) GetPage(ctx context.Context, entity Entity, param model.Common
 		AND CASE WHEN $4 <> 0 THEN
 			id = $4
 		ELSE true END
+		AND CASE WHEN $5 <> '' THEN
+			detail ~* $5
+		ELSE true END
+		AND CASE WHEN $6 THEN
+			created_at >= $7::timestamp
+		ELSE true END
+		AND CASE WHEN $8 THEN
+			created_at <= $9::timestamp
+		ELSE true END
+
 		ORDER BY id DESC
 		LIMIT $1
 		OFFSET $2
 		`,
-		param.Size,
-		param.Start,
+		param.PageSize,
+		param.PageIndex,
 		entity.Title,
 		entity.ID,
+		entity.Detail,
+
+		param.BeginTime != 0,
+		time.Unix(param.BeginTime, 0),
+		param.EndTime != 0,
+		time.Unix(param.EndTime, 0),
 	)
 	if err != nil {
 		err = errors.WithStack(err)

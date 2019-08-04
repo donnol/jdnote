@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/donnol/jdnote/context"
-	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/model/note"
 )
 
@@ -14,8 +13,12 @@ type Note struct {
 }
 
 // GetPage 获取分页
-func (n *Note) GetPage(ctx context.Context, entity PageParam, param model.CommonParam) (r PageResult, err error) {
-	res, total, err := n.NoteModel.GetPage(ctx, note.Entity{}, param)
+func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
+	entity := note.Entity{
+		Title:  param.Title,
+		Detail: param.Detail,
+	}
+	res, total, err := n.NoteModel.GetPage(ctx, entity, param.CommonParam)
 	if err != nil {
 		return
 	}

@@ -63,7 +63,7 @@ func TestGetPage(t *testing.T) {
 	ctx := context.Default()
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, model.CommonParam{Size: 5})
+	r, total, err := note.GetPage(ctx, Entity{}, model.CommonParam{PageSize: 5})
 	if err != nil {
 		t.Fatal(err)
 	}
