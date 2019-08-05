@@ -7,8 +7,13 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// DefaultConfig 默认配置
-var DefaultConfig Config
+// defaultConfig 默认配置
+var defaultConfig Config
+
+// Default 默认值
+func Default() Config {
+	return defaultConfig
+}
 
 // Config 配置
 type Config struct {
@@ -23,7 +28,7 @@ type Config struct {
 }
 
 func init() {
-	DefaultConfig = normal
+	defaultConfig = normal
 }
 
 // Server 服务器配置
@@ -64,7 +69,7 @@ func MakeConfigFromFile(file string) (Config, error) {
 }
 
 // String 字符串
-func (db *DB) String() string {
+func (db DB) String() string {
 	var str string
 
 	format := "%s://%s:%s@%s:%d/%s?sslmode=disable"

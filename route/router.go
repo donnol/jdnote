@@ -33,7 +33,7 @@ var (
 var (
 	sessionKey = "jd_session"
 
-	jwtToken = jwt.New([]byte(config.DefaultConfig.JWT.Secret))
+	jwtToken = jwt.New([]byte(config.Default().JWT.Secret))
 )
 
 // header相关

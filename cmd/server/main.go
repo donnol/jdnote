@@ -24,7 +24,7 @@ import (
 
 func main() {
 	// 配置服务器
-	port := config.DefaultConfig.Server.Port
+	port := config.Default().Server.Port
 	router := route.DefaultRouter()
 	srv := &http.Server{
 		Addr:    port,

@@ -9,7 +9,7 @@ import (
 // defaultDB 默认db
 var defaultDB = func() *sqlx.DB {
 
-	db, err := sqlx.Open(config.DefaultConfig.DB.Scheme, config.DefaultConfig.DB.String())
+	db, err := sqlx.Open(config.Default().DB.Scheme, config.Default().DB.String())
 	if err != nil {
 		panic(err)
 	}
