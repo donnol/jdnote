@@ -19,6 +19,7 @@ import (
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
 	"github.com/pkg/errors"
@@ -72,6 +73,8 @@ type Router struct {
 // NewRouter 新建路由
 func NewRouter() *Router {
 	router := gin.Default()
+
+	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	gin.DefaultWriter = io.MultiWriter(os.Stdout)
 

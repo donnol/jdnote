@@ -23,9 +23,14 @@ import (
 )
 
 func main() {
-	// 配置服务器
+	// 配置
 	port := config.Default().Server.Port
+
 	router := route.DefaultRouter()
+	// 静态文件
+	router.StaticFS("/static", http.Dir("dist"))
+
+	// 新建server
 	srv := &http.Server{
 		Addr:    port,
 		Handler: router,
