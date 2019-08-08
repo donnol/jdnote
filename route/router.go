@@ -392,13 +392,11 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var userID int
 		cookie, err := c.Cookie(sessionKey)
 		if err == nil {
-			userID, err = jwtToken.Verify(cookie)
+			verifyUserID, err := jwtToken.Verify(cookie)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
-					Code: utilerrors.ErrorCodeRouter,
-					Msg:  fmt.Sprintf("%+v", err),
-				}})
-				return
+				utillog.Warnf("Verify cookie failed: %+v\n", err)
+			} else {
+				userID = verifyUserID
 			}
 		} else {
 			utillog.Warnf("Get cookie failed: %+v\n", err)
