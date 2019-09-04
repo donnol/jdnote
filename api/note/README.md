@@ -31,7 +31,7 @@ Return
     "code": 0,
     "msg": "",
     "data": {
-        "id": 99
+        "id": 8
     }
 }
 ```
@@ -44,7 +44,7 @@ Return
 
 Param
 
-* id (*int*) 记录ID
+* noteID (*int*) 记录ID
 * title (*string*) 标题
 * detail (*string*) 详情
 
@@ -58,7 +58,7 @@ Return
 
 ```json
 {
-    "id": 99,
+    "noteID": 8,
     "title": "mod title",
     "detail": "mod detail"
 }
@@ -122,79 +122,105 @@ beginTime=0&detail=&endTime=0&pageIndex=0&pageSize=10&title=
     "code": 0,
     "msg": "",
     "data": {
-        "total": 68,
+        "total": 7,
         "list": [
             {
-                "noteID": 99,
+                "noteID": 8,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1564888827
+                "createdAt": 1567568480
             },
             {
-                "noteID": 98,
+                "noteID": 7,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1564887133
+                "createdAt": 1567567411
             },
             {
-                "noteID": 97,
+                "noteID": 6,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1564886414
+                "createdAt": 1567566515
             },
             {
-                "noteID": 96,
+                "noteID": 5,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1564885851
+                "createdAt": 1567566455
             },
             {
-                "noteID": 95,
+                "noteID": 4,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1564885694
+                "createdAt": 1567566318
             },
             {
-                "noteID": 94,
+                "noteID": 3,
                 "userName": "0",
-                "title": "mod title",
-                "detail": "mod detail",
-                "createdAt": 1564811225
+                "title": "55555",
+                "detail": "# 5656565",
+                "createdAt": 1565230377
             },
             {
-                "noteID": 93,
+                "noteID": 2,
                 "userName": "0",
-                "title": "mod title",
-                "detail": "mod detail",
-                "createdAt": 1564811206
-            },
-            {
-                "noteID": 92,
-                "userName": "0",
-                "title": "mod title",
-                "detail": "mod detail",
-                "createdAt": 1564806878
-            },
-            {
-                "noteID": 91,
-                "userName": "0",
-                "title": "mod title",
-                "detail": "mod detail",
-                "createdAt": 1564806333
-            },
-            {
-                "noteID": 90,
-                "userName": "0",
-                "title": "mod title",
-                "detail": "mod detail",
-                "createdAt": 1564806204
+                "title": "123",
+                "detail": "# 123\n\n## 123",
+                "createdAt": 1565054643
             }
         ]
+    }
+}
+```
+
+</details>
+
+## 获取详情
+
+`GET /note`
+
+Param
+
+* noteID (*int*) 
+
+Return
+
+* code (*int*) 请求返回码，一般0表示正常，非0表示异常
+* msg (*string*) 信息，一般是出错时的描述信息
+* data (*object*) 
+    * noteID (*int*) 笔记ID
+    * userName (*string*) 用户名
+    * title (*string*) 标题
+    * detail (*string*) 详情
+    * createdAt (*int64*) 创建时间
+
+<details>
+<summary>Param</summary>
+
+```json
+noteID=8
+```
+
+</details>
+
+<details>
+<summary>Return</summary>
+
+```json
+{
+    "code": 0,
+    "msg": "",
+    "data": {
+        "noteID": 8,
+        "userName": "119",
+        "title": "mod title",
+        "detail": "mod detail",
+        "createdAt": 1567568480
     }
 }
 ```

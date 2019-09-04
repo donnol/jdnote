@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/model"
 	"github.com/donnol/jdnote/model/note"
 )
 
@@ -51,6 +52,30 @@ func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
 	r.Detail = e.Detail
 	r.UserName = strconv.Itoa(e.UserID)
 	r.CreatedAt = e.CreatedAt.Unix()
+
+	return
+}
+
+// Get2 获取
+func (n *Note) Get2(ctx context.Context, id int) (res model.Result) {
+	var r Result
+
+	// 从model拿数据
+	res1 := n.NoteModel.Get2(ctx, id)
+
+	// 设置错误
+	res.SetErr(res1.Err())
+
+	// 处理具体数据
+	e := res1.Data().(note.Entity)
+	r.NoteID = e.ID
+	r.Title = e.Title
+	r.Detail = e.Detail
+	r.UserName = strconv.Itoa(e.UserID)
+	r.CreatedAt = e.CreatedAt.Unix()
+
+	// 设置数据
+	res.SetData(r)
 
 	return
 }

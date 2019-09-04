@@ -13,3 +13,44 @@ type CommonParam struct {
 var DefaultCommonParam = CommonParam{
 	PageSize: 10,
 }
+
+// Result 结果
+type Result struct {
+	data interface{} // 数据
+	err  error       // 错误
+}
+
+// SetData 设置数据
+func (r *Result) SetData(data interface{}) *Result {
+	r.data = data
+	return r
+}
+
+// Data 获取数据
+func (r *Result) Data() interface{} {
+	return r.data
+}
+
+// SetErr 设置错误，如果已存在错误，则忽略
+func (r *Result) SetErr(err ...error) *Result {
+	if r.err != nil {
+		return r
+	}
+	for _, e := range err {
+		if e != nil {
+			r.err = e
+			break
+		}
+	}
+	return r
+}
+
+// Err 获取错误
+func (r *Result) Err() error {
+	return r.err
+}
+
+// ErrIsNil 错误是否存在
+func (r *Result) ErrIsNil() bool {
+	return r.err == nil
+}

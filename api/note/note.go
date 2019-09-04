@@ -59,7 +59,8 @@ func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 业务
-	result, err := n.NoteAo.Get(ctx, param.NoteID)
+	mres := n.NoteAo.Get2(ctx, param.NoteID)
+	result, err := mres.Data(), mres.Err()
 	if err != nil {
 		return
 	}
