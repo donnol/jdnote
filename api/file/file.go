@@ -24,25 +24,21 @@ type File struct {
 }
 
 // Add 上传文件
-func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (file *File) Add(ctx context.Context, param route.Param) (r route.Result) {
 	p := struct {
 		FileName string `json:"fileName"`
 	}{}
 	body, err := param.ParseMultipartForm(64*1024*1024, &p)
-	if err != nil {
-		return
-	}
+	r.SetErr(err)
 	ctx.Logger().Debugf("%+v, %d\n", p, len(body))
 
 	return
 }
 
 // Get 下载文件
-func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (file *File) Get(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
-	if err = param.Parse(&struct{}{}); err != nil {
-		return
-	}
+	r.SetErr(param.Parse(&struct{}{}))
 
 	// 权限
 	_ = ctx.UserID()
@@ -52,10 +48,8 @@ func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, e
 	content := "# Hello\n\n## I am bat man\n\n"
 
 	buf := new(bytes.Buffer)
-	_, err = buf.Write([]byte(content))
-	if err != nil {
-		return
-	}
+	_, err := buf.Write([]byte(content))
+	r.SetErr(err)
 	r.Content = route.MakeContentFromBuffer(filename, buf)
 	ctx.Logger().Debugf("r: %+v\n", r)
 

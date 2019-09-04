@@ -31,7 +31,7 @@ type LoginUser struct {
 }
 
 // GetIslogin 是否登录
-func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
 
 	// 权限
@@ -42,9 +42,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 
 	// 业务
 	u, err := auth.UserAo.GetByID(ctx, ctx.UserID())
-	if err != nil {
-		return
-	}
+	r.SetErr(err)
 	r.Data = LoginUser{
 		Name:   u.Name,
 		Role:   "admin",
@@ -55,21 +53,17 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 }
 
 // AddLogin 登录
-func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
 	p := user.Entity{}
-	if err = param.Parse(&p); err != nil {
-		return
-	}
+	r.SetErr(param.Parse(&p))
 
 	// 权限
 	_ = ctx.UserID()
 
 	// 业务
-	var re user.Entity
-	if re, err = auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password); err != nil {
-		return r, err
-	}
+	re, err := auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password)
+	r.SetErr(err)
 	r.CookieAfterLogin = re.ID
 	r.Data = re
 
@@ -77,41 +71,33 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 }
 
 // AddUser 添加用户
-func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
 	p := user.Entity{}
-	if err = param.Parse(&p); err != nil {
-		return
-	}
+	r.SetErr(param.Parse(&p))
 
 	// 权限
 
 	// 业务
-	var id int
-	if id, err = auth.UserAo.Add(ctx, p); err != nil {
-		return r, err
-	}
+	id, err := auth.UserAo.Add(ctx, p)
+	r.SetErr(err)
 	r.Data = id
 
 	return
 }
 
 // GetUser 获取用户
-func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result, err error) {
+func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
 	p := user.Entity{}
-	if err = param.Parse(&p); err != nil {
-		return
-	}
+	r.SetErr(param.Parse(&p))
 
 	// 权限
 	_ = ctx.UserID()
 
 	// 业务
-	var re user.Entity
-	if re, err = auth.UserAo.GetByName(ctx, p.Name); err != nil {
-		return
-	}
+	re, err := auth.UserAo.GetByName(ctx, p.Name)
+	r.SetErr(err)
 	r.Data = re
 
 	return
