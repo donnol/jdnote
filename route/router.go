@@ -224,6 +224,14 @@ func (r *Result) ErrIsNil() bool {
 	return r.err == nil
 }
 
+// Unwrap 如果错误不为nil，则panic
+func (r *Result) Unwrap() *Result {
+	if r.err != nil {
+		panic(r.err)
+	}
+	return r
+}
+
 // PresentData 用具体结构体展现数据
 func (r *Result) PresentData(v interface{}) error {
 	b, err := json.Marshal(r.Data)

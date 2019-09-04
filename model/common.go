@@ -54,3 +54,11 @@ func (r *Result) Err() error {
 func (r *Result) ErrIsNil() bool {
 	return r.err == nil
 }
+
+// Unwrap 如果错误不为nil，则panic
+func (r *Result) Unwrap() *Result {
+	if r.err != nil {
+		panic(r.err)
+	}
+	return r
+}
