@@ -61,13 +61,9 @@ func (n *Note) Get2(ctx context.Context, id int) (res model.Result) {
 	var r Result
 
 	// 从model拿数据
-	res1 := n.NoteModel.Get2(ctx, id)
-
-	// 设置错误
-	res.SetErr(res1.Err())
+	e := n.NoteModel.Get2(ctx, id).Unwrap().(note.Entity)
 
 	// 处理具体数据
-	e := res1.Data().(note.Entity)
 	r.NoteID = e.ID
 	r.Title = e.Title
 	r.Detail = e.Detail

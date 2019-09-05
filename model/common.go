@@ -56,9 +56,10 @@ func (r *Result) ErrIsNil() bool {
 }
 
 // Unwrap 如果错误不为nil，则panic
-func (r *Result) Unwrap() *Result {
+// 由调用方决定要不要调Unwrap，而不是在方法里自己panic -- 将决定权留给调用方
+func (r Result) Unwrap() interface{} {
 	if r.err != nil {
 		panic(r.err)
 	}
-	return r
+	return r.data
 }

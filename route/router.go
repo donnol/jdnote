@@ -225,11 +225,11 @@ func (r *Result) ErrIsNil() bool {
 }
 
 // Unwrap 如果错误不为nil，则panic
-func (r *Result) Unwrap() *Result {
+func (r *Result) Unwrap() interface{} {
 	if r.err != nil {
 		panic(r.err)
 	}
-	return r
+	return r.Data
 }
 
 // PresentData 用具体结构体展现数据
