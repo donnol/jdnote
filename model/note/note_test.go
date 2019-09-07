@@ -3,7 +3,7 @@ package note
 import (
 	"testing"
 
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/model"
 )
 

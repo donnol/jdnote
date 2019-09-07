@@ -1,7 +1,7 @@
 package userao
 
 import (
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/model/role"
 	"github.com/donnol/jdnote/model/user"
 	userrole "github.com/donnol/jdnote/model/user_role"

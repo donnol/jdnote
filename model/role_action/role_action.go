@@ -1,7 +1,7 @@
 package roleaction
 
 import (
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"

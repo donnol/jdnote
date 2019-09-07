@@ -14,11 +14,12 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/config"
-	"github.com/donnol/jdnote/context"
-	pg "github.com/donnol/jdnote/store/db/postgresql"
+	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
@@ -447,12 +448,12 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var r Result
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
-		pgBase := &pg.Base{}
+		dbBase := model.NewBase()
 		logger := utillog.Default()
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
-			err = pgBase.WithTx(func(tx pg.DB) error {
+			err = dbBase.WithTx(func(tx db.DB) error {
 				ctx := context.New(tx, logger, userID)
 
 				r = f(ctx, p)
@@ -460,7 +461,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				return nil
 			})
 		} else {
-			db := pgBase.New()
+			db := dbBase.DB()
 			ctx := context.New(db, logger, userID)
 			r = f(ctx, p)
 			err = r.Err()

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	roleaction "github.com/donnol/jdnote/model/role_action"
 )
 

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	pg "github.com/donnol/jdnote/store/db/postgresql"
 	utillog "github.com/donnol/jdnote/utils/log"
 )

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/model"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"

@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/route"
 )
 

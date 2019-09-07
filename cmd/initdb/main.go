@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/donnol/jdnote/context"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/model/action"
 	"github.com/donnol/jdnote/model/role"
 	roleaction "github.com/donnol/jdnote/model/role_action"

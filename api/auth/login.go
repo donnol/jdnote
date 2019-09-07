@@ -2,10 +2,10 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/context"
 	"github.com/donnol/jdnote/model/user"
 	"github.com/donnol/jdnote/route"
 	userao "github.com/donnol/jdnote/service/user"
+	"github.com/donnol/jdnote/utils/context"
 )
 
 func init() {

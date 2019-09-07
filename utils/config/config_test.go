@@ -3,7 +3,7 @@ package config
 import "testing"
 
 func TestMakeConfigFromFile(t *testing.T) {
-	conf, err := MakeConfigFromFile("config.toml")
+	conf, err := MakeConfigFromFile("testdata/config.toml")
 	if err != nil {
 		t.Fatal(err)
 	}

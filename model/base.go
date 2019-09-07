@@ -1,11 +1,20 @@
 package model
 
 import (
-	pg "github.com/donnol/jdnote/store/db/postgresql"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 // Base 基底
-type Base struct{}
+type Base struct {
+	*db.Base
+}
 
-// DB DB
-type DB = pg.DB
+// NewBase 新建
+func NewBase() *Base {
+	return &Base{
+		Base: db.New(defaultDB),
+	}
+}
+
+// DB DB接口
+type DB = db.DB

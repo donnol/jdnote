@@ -2,11 +2,9 @@ package context
 
 import (
 	"context"
-	"log"
-	"os"
 
-	pg "github.com/donnol/jdnote/store/db/postgresql"
 	utillog "github.com/donnol/jdnote/utils/log"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 // Context 上下文
@@ -14,7 +12,7 @@ type Context interface {
 	context.Context
 
 	// 获取DB实例
-	DB() pg.DB
+	DB() db.DB
 	// 获取日志实例
 	Logger() utillog.Logger
 	// 获取当前登录用户ID
@@ -24,13 +22,13 @@ type Context interface {
 // myContext myContext
 type myContext struct {
 	context.Context
-	db     pg.DB
+	db     db.DB
 	logger utillog.Logger
 	userID int
 }
 
 // DB 获取DB实例
-func (mc *myContext) DB() (db pg.DB) {
+func (mc *myContext) DB() (db db.DB) {
 	return mc.db
 }
 
@@ -45,16 +43,11 @@ func (mc *myContext) UserID() int {
 }
 
 // New 新建
-func New(db pg.DB, logger utillog.Logger, userID int) Context {
+func New(db db.DB, logger utillog.Logger, userID int) Context {
 	mctx := new(myContext)
 	mctx.Context = context.Background()
 	mctx.db = db
 	mctx.logger = logger
 	mctx.userID = userID
 	return mctx
-}
-
-// Default 默认
-func Default() Context {
-	return New((&pg.Base{}).New(), utillog.New(os.Stdout, "", log.LstdFlags), 0)
 }
