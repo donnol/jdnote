@@ -1,14 +1,14 @@
 package api
 
 import (
+	"github.com/donnol/jdnote/models/authao"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/service/auth"
 	"github.com/pkg/errors"
 )
 
 // Base 基底
 type Base struct {
-	AuthAo auth.Auth
+	AuthAo authao.Auth
 }
 
 // CheckLogin 检查登录态

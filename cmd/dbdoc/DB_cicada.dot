@@ -8,11 +8,11 @@ digraph "Database Structure" {
 		ratio = 0.7;
 		rankdir = LR;
 		
-		subgraph "table_t_user" {
+		subgraph "table_t_userdb" {
 			node [ shape = "plaintext" ]
-			"t_user" [ label=<
+			"t_userdb" [ label=<
 				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
-				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_user</TD></TR>
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_userdb</TD></TR>
 				
 				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
 	
@@ -29,11 +29,11 @@ digraph "Database Structure" {
 			]
 		}
 			
-		subgraph "table_t_role" {
+		subgraph "table_t_roledb" {
 			node [ shape = "plaintext" ]
-			"t_role" [ label=<
+			"t_roledb" [ label=<
 				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
-				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_role</TD></TR>
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_roledb</TD></TR>
 				
 				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
 	
@@ -44,11 +44,11 @@ digraph "Database Structure" {
 			]
 		}
 			
-		subgraph "table_t_user_role" {
+		subgraph "table_t_userroledb" {
 			node [ shape = "plaintext" ]
-			"t_user_role" [ label=<
+			"t_userroledb" [ label=<
 				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
-				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_user_role</TD></TR>
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_userroledb</TD></TR>
 				
 				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
 	
@@ -61,11 +61,11 @@ digraph "Database Structure" {
 			]
 		}
 			
-		subgraph "table_t_action" {
+		subgraph "table_t_actiondb" {
 			node [ shape = "plaintext" ]
-			"t_action" [ label=<
+			"t_actiondb" [ label=<
 				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
-				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_action</TD></TR>
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_actiondb</TD></TR>
 				
 				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
 	
@@ -76,11 +76,11 @@ digraph "Database Structure" {
 			]
 		}
 			
-		subgraph "table_t_role_action" {
+		subgraph "table_t_roleactiondb" {
 			node [ shape = "plaintext" ]
-			"t_role_action" [ label=<
+			"t_roleactiondb" [ label=<
 				<TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
-				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_role_action</TD></TR>
+				<TR><TD COLSPAN="3" BGCOLOR="#DDDDDD">t_roleactiondb</TD></TR>
 				
 				<TR><TD COLSPAN="3" PORT="id">id:<FONT FACE="Helvetica-Oblique" POINT-SIZE="10">integer</FONT></TD></TR>
 	
@@ -96,12 +96,12 @@ digraph "Database Structure" {
 		edge [ arrowtail=normal, style=dashed, color="#444444" ]
 	
 		
-		t_user_role:user_id -> t_user:id
+		t_userroledb:user_id -> t_user:id
 	
-		t_user_role:role_id -> t_role:id
+		t_userroledb:role_id -> t_role:id
 	
-		t_role_action:role_id -> t_role:id
+		t_roleactiondb:role_id -> t_role:id
 	
-		t_role_action:action_id -> t_action:id
+		t_roleactiondb:action_id -> t_action:id
 	
 	}

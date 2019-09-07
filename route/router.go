@@ -448,7 +448,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var r Result
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
-		dbBase := model.NewBase()
+		dbBase := models.NewBase()
 		logger := utillog.Default()
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可

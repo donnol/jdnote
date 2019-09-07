@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/models/noteao"
 	"github.com/donnol/jdnote/route"
-	"github.com/donnol/jdnote/service/note"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
 )
@@ -55,7 +55,7 @@ func TestAdd(t *testing.T) {
 	)
 	var pageR struct {
 		errors.Error
-		Data note.PageResult `json:"data"`
+		Data noteao.PageResult `json:"data"`
 	}
 	var detailAT = apitest.NewAT(
 		"/note",
@@ -66,7 +66,7 @@ func TestAdd(t *testing.T) {
 	)
 	var detailR struct {
 		errors.Error
-		Data note.Result `json:"data"`
+		Data noteao.Result `json:"data"`
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
@@ -101,9 +101,9 @@ func TestAdd(t *testing.T) {
 		}
 
 		if err := modAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&note.ModParam{
+			SetParam(&noteao.ModParam{
 				NoteID: r.Data.ID,
-				Param: note.Param{
+				Param: noteao.Param{
 					Title:  "mod title",
 					Detail: "mod detail",
 				},
@@ -124,7 +124,7 @@ func TestAdd(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		pageParam := note.PageParam{}
+		pageParam := noteao.PageParam{}
 		pageParam.PageSize = 10
 		if err := pageAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
 			SetParam(&pageParam).

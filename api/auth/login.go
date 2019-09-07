@@ -2,9 +2,9 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/models/user"
+	"github.com/donnol/jdnote/models/userao"
+	"github.com/donnol/jdnote/models/userao/userdb"
 	"github.com/donnol/jdnote/route"
-	userao "github.com/donnol/jdnote/service/user"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -55,7 +55,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 // AddLogin 登录
 func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
-	p := user.Entity{}
+	p := userdb.Entity{}
 	r.SetErr(param.Parse(&p))
 
 	// 权限
@@ -73,7 +73,7 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 // AddUser 添加用户
 func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
-	p := user.Entity{}
+	p := userdb.Entity{}
 	r.SetErr(param.Parse(&p))
 
 	// 权限
@@ -89,7 +89,7 @@ func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Resul
 // GetUser 获取用户
 func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result) {
 	// 参数
-	p := user.Entity{}
+	p := userdb.Entity{}
 	r.SetErr(param.Parse(&p))
 
 	// 权限
