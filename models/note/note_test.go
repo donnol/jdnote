@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/models"
 )
 
 func TestAddNote(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/models"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )

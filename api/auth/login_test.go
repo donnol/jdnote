@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/model/user"
+	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
 )

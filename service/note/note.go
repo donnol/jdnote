@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model"
-	"github.com/donnol/jdnote/model/note"
+	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/models/note"
 )
 
 // Note 笔记

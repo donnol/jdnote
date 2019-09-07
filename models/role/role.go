@@ -2,7 +2,7 @@ package role
 
 import (
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/models"
 	"github.com/pkg/errors"
 )
 

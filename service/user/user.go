@@ -2,9 +2,9 @@ package userao
 
 import (
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model/role"
-	"github.com/donnol/jdnote/model/user"
-	userrole "github.com/donnol/jdnote/model/user_role"
+	"github.com/donnol/jdnote/models/role"
+	"github.com/donnol/jdnote/models/user"
+	userrole "github.com/donnol/jdnote/models/user_role"
 )
 
 // User 用户

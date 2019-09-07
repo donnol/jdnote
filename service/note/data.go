@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/models"
 )
 
 // Param 参数

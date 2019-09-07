@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/model/action"
-	"github.com/donnol/jdnote/model/role"
-	roleaction "github.com/donnol/jdnote/model/role_action"
-	"github.com/donnol/jdnote/model/user"
-	userrole "github.com/donnol/jdnote/model/user_role"
+	"github.com/donnol/jdnote/models/action"
+	"github.com/donnol/jdnote/models/role"
+	roleaction "github.com/donnol/jdnote/models/role_action"
+	"github.com/donnol/jdnote/models/user"
+	userrole "github.com/donnol/jdnote/models/user_role"
 )
 
 func main() {

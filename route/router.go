@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/config"
-	"github.com/donnol/jdnote/model"
+	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
