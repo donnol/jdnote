@@ -1,4 +1,4 @@
-package roleactionao
+package roleaction
 
 import (
 	"github.com/donnol/jdnote/models"

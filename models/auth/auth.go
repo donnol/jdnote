@@ -1,7 +1,7 @@
-package authao
+package auth
 
 import (
-	"github.com/donnol/jdnote/models/roleactionao/roleactiondb"
+	"github.com/donnol/jdnote/models/roleaction/roleactiondb"
 	"github.com/donnol/jdnote/utils/context"
 )
 

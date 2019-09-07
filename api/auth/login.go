@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/models/userao"
-	"github.com/donnol/jdnote/models/userao/userdb"
+	"github.com/donnol/jdnote/models/user"
+	"github.com/donnol/jdnote/models/user/userdb"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -20,7 +20,7 @@ type Auth struct {
 	Tx route.Method `tx:"AddUser"`
 
 	// 使用的model
-	UserAo userao.User
+	UserAo user.User
 }
 
 // LoginUser 登录用户

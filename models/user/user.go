@@ -1,10 +1,10 @@
-package userao
+package user
 
 import (
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/roleao/roledb"
-	"github.com/donnol/jdnote/models/userao/userdb"
-	"github.com/donnol/jdnote/models/userroleao/userroledb"
+	"github.com/donnol/jdnote/models/role/roledb"
+	"github.com/donnol/jdnote/models/user/userdb"
+	"github.com/donnol/jdnote/models/userrole/userroledb"
 	"github.com/donnol/jdnote/utils/context"
 )
 

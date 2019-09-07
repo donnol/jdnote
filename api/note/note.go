@@ -2,7 +2,7 @@ package note
 
 import (
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/models/noteao"
+	"github.com/donnol/jdnote/models/note"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -15,13 +15,13 @@ func init() {
 type Note struct {
 	api.Base
 
-	NoteAo noteao.Note
+	NoteAo note.Note
 }
 
 // GetPage 获取分页
 func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result) {
 	// 参数
-	param := noteao.PageParam{}
+	param := note.PageParam{}
 	res.SetErr(p.Parse(&param))
 
 	// 权限
@@ -80,7 +80,7 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result) {
 // Mod 修改
 func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result) {
 	// 参数
-	param := noteao.ModParam{}
+	param := note.ModParam{}
 	res.SetErr(p.Parse(&param))
 
 	// 权限

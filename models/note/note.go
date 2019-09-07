@@ -1,10 +1,10 @@
-package noteao
+package note
 
 import (
 	"strconv"
 
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/noteao/notedb"
+	"github.com/donnol/jdnote/models/note/notedb"
 	"github.com/donnol/jdnote/utils/context"
 )
 

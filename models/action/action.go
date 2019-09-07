@@ -1,4 +1,4 @@
-package actionao
+package action
 
 import (
 	"github.com/donnol/jdnote/models"

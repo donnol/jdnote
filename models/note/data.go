@@ -1,4 +1,4 @@
-package noteao
+package note
 
 import (
 	"fmt"
