@@ -31,7 +31,7 @@ type LoginUser struct {
 }
 
 // GetIslogin 是否登录
-func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Result) {
+func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 
 	// 权限
@@ -42,7 +42,9 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 
 	// 业务
 	u, err := auth.UserAo.GetByID(ctx, ctx.UserID())
-	r.SetErr(err)
+	if err != nil {
+		return
+	}
 	r.Data = LoginUser{
 		Name:   u.Name,
 		Role:   "admin",
@@ -53,17 +55,21 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 }
 
 // AddLogin 登录
-func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result) {
+func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	r.SetErr(param.Parse(&p))
+	if err = param.Parse(&p); err != nil {
+		return
+	}
 
 	// 权限
 	_ = ctx.UserID()
 
 	// 业务
 	re, err := auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password)
-	r.SetErr(err)
+	if err != nil {
+		return
+	}
 	r.CookieAfterLogin = re.ID
 	r.Data = re
 
@@ -71,33 +77,41 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 }
 
 // AddUser 添加用户
-func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result) {
+func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	r.SetErr(param.Parse(&p))
+	if err = param.Parse(&p); err != nil {
+		return
+	}
 
 	// 权限
 
 	// 业务
 	id, err := auth.UserAo.Add(ctx, p)
-	r.SetErr(err)
+	if err != nil {
+		return
+	}
 	r.Data = id
 
 	return
 }
 
 // GetUser 获取用户
-func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result) {
+func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	r.SetErr(param.Parse(&p))
+	if err = param.Parse(&p); err != nil {
+		return
+	}
 
 	// 权限
 	_ = ctx.UserID()
 
 	// 业务
 	re, err := auth.UserAo.GetByName(ctx, p.Name)
-	r.SetErr(err)
+	if err != nil {
+		return
+	}
 	r.Data = re
 
 	return

@@ -160,27 +160,6 @@ func (note *Note) Get(ctx context.Context, id int) (entity Entity, err error) {
 	return
 }
 
-// Get2 获取笔记
-func (note *Note) Get2(ctx context.Context, id int) (res models.Result) {
-	if id == 0 {
-		return
-	}
-	var entity Entity
-	err := ctx.DB().GetContext(ctx, &entity, `
-		SELECT id, user_id, title, detail, created_at
-		FROM t_note
-		WHERE id = $1
-		`,
-		id,
-	)
-	if err != nil {
-		err = errors.WithStack(err)
-	}
-	res.SetData(entity).SetErr(err)
-
-	return
-}
-
 // GetList 获取笔记列表
 func (note *Note) GetList(ctx context.Context, ids []int64) (entitys []Entity, err error) {
 	if err = ctx.DB().SelectContext(ctx, &entitys, `

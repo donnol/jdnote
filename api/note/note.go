@@ -19,17 +19,23 @@ type Note struct {
 }
 
 // GetPage 获取分页
-func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result) {
+func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := note.PageParam{}
-	res.SetErr(p.Parse(&param))
+	if err = p.Parse(&param); err != nil {
+		return
+	}
 
 	// 权限
-	res.SetErr(n.CheckLogin(ctx))
+	if err = n.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
 	result, err := n.NoteAo.GetPage(ctx, param)
-	res.SetErr(err)
+	if err != nil {
+		return
+	}
 
 	// 返回
 	res.Data = result
@@ -38,36 +44,46 @@ func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result) {
 }
 
 // Get 获取
-func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result) {
+func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := struct {
 		NoteID int `json:"noteID"`
 	}{}
-	res.SetErr(p.Parse(&param))
+	if err = p.Parse(&param); err != nil {
+		return
+	}
 
 	// 权限
-	res.SetErr(n.CheckLogin(ctx))
+	if err = n.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
-	mres := n.NoteAo.Get2(ctx, param.NoteID)
-	res.SetErr(mres.Err())
+	mres, err := n.NoteAo.Get(ctx, param.NoteID)
+	if err != nil {
+		return
+	}
 
 	// 返回
-	res.Data = mres.Data()
+	res.Data = mres
 
 	return
 }
 
 // Add 添加
-func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result) {
+func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 
 	// 权限
-	res.SetErr(n.CheckLogin(ctx))
+	if err = n.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
 	id, err := n.NoteAo.AddOne(ctx)
-	res.SetErr(err)
+	if err != nil {
+		return
+	}
 
 	// 返回
 	res.Data = api.AddResult{
@@ -78,17 +94,23 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result) {
 }
 
 // Mod 修改
-func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result) {
+func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := note.ModParam{}
-	res.SetErr(p.Parse(&param))
+	if err = p.Parse(&param); err != nil {
+		return
+	}
 
 	// 权限
-	res.SetErr(n.CheckLogin(ctx))
+	if err = n.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
-	err := n.NoteAo.Mod(ctx, param.NoteID, param.Param)
-	res.SetErr(err)
+	err = n.NoteAo.Mod(ctx, param.NoteID, param.Param)
+	if err != nil {
+		return
+	}
 
 	// 返回
 
@@ -96,19 +118,25 @@ func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result) {
 }
 
 // Del 删除
-func (n *Note) Del(ctx context.Context, p route.Param) (res route.Result) {
+func (n *Note) Del(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := struct {
 		NoteID int `json:"noteID"`
 	}{}
-	res.SetErr(p.Parse(&param))
+	if err = p.Parse(&param); err != nil {
+		return
+	}
 
 	// 权限
-	res.SetErr(n.CheckLogin(ctx))
+	if err = n.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
-	err := n.NoteAo.Del(ctx, param.NoteID)
-	res.SetErr(err)
+	err = n.NoteAo.Del(ctx, param.NoteID)
+	if err != nil {
+		return
+	}
 
 	// 返回
 

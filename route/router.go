@@ -177,8 +177,6 @@ type Result struct {
 
 	// 下载内容时使用
 	Content
-
-	err error // 错误
 }
 
 // Content 内容
@@ -207,32 +205,6 @@ func MakeContentFromBuffer(filename string, buf *bytes.Buffer) Content {
 	return r
 }
 
-// SetErr 设置错误
-func (r *Result) SetErr(err error) *Result {
-	if r.err == nil && err != nil {
-		r.err = err
-	}
-	return r
-}
-
-// Err 获取错误
-func (r *Result) Err() error {
-	return r.err
-}
-
-// ErrIsNil 错误是否存在
-func (r *Result) ErrIsNil() bool {
-	return r.err == nil
-}
-
-// Unwrap 如果错误不为nil，则panic
-func (r *Result) Unwrap() interface{} {
-	if r.err != nil {
-		panic(r.err)
-	}
-	return r.Data
-}
-
 // PresentData 用具体结构体展现数据
 func (r *Result) PresentData(v interface{}) error {
 	b, err := json.Marshal(r.Data)
@@ -247,7 +219,7 @@ func (r *Result) PresentData(v interface{}) error {
 }
 
 // HandlerFunc 处理函数
-type HandlerFunc func(context.Context, Param) Result
+type HandlerFunc func(context.Context, Param) (Result, error)
 
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
@@ -333,7 +305,7 @@ func (r *Router) Register(v interface{}) {
 		value := refValue.Method(i)
 
 		// 方法
-		valueFunc, ok := value.Interface().(func(context.Context, Param) Result)
+		valueFunc, ok := value.Interface().(func(context.Context, Param) (Result, error))
 		if !ok {
 			continue
 		}
@@ -454,17 +426,20 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
 			err = dbBase.WithTx(func(tx db.DB) error {
+				var err error
 				ctx := context.New(tx, logger, userID)
 
-				r = f(ctx, p)
+				r, err = f(ctx, p)
+				if err != nil {
+					return err
+				}
 
 				return nil
 			})
 		} else {
 			db := dbBase.DB()
 			ctx := context.New(db, logger, userID)
-			r = f(ctx, p)
-			err = r.Err()
+			r, err = f(ctx, p)
 		}
 		// 处理错误
 		if e, ok := err.(utilerrors.Error); ok {
