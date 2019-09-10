@@ -300,6 +300,7 @@ func (r *Router) Register(v interface{}) {
 	}
 
 	// 找出method field
+	var routeNum int
 	for i := 0; i < refType.NumMethod(); i++ {
 		field := refType.Method(i)
 		value := refValue.Method(i)
@@ -309,6 +310,7 @@ func (r *Router) Register(v interface{}) {
 		if !ok {
 			continue
 		}
+		routeNum++
 
 		// 路径
 		method, path := getMethodPath(field.Name)
@@ -349,7 +351,7 @@ func (r *Router) Register(v interface{}) {
 
 	// 计时结束
 	end := time.Now()
-	utillog.Debugf("Register %s router use time: %v\n", structName, end.Sub(start))
+	utillog.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
 }
 
 type handlerOption struct {
