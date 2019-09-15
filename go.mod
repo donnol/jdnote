@@ -28,3 +28,5 @@ require (
 	golang.org/x/tools v0.0.0-20190123021125-9279ec27fd88 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
+
+go 1.13
