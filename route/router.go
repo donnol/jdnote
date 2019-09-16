@@ -335,15 +335,16 @@ func (r *Router) Register(v interface{}) {
 		}
 
 		// 注册路由
+		handler := structHandlerFunc(method, valueFunc, ho)
 		switch method {
 		case http.MethodPost:
-			r.Engine.POST(path, structHandlerFunc(http.MethodPost, valueFunc, ho))
+			r.Engine.POST(path, handler)
 		case http.MethodPut:
-			r.Engine.PUT(path, structHandlerFunc(http.MethodPut, valueFunc, ho))
+			r.Engine.PUT(path, handler)
 		case http.MethodGet:
-			r.Engine.GET(path, structHandlerFunc(http.MethodGet, valueFunc, ho))
+			r.Engine.GET(path, handler)
 		case http.MethodDelete:
-			r.Engine.DELETE(path, structHandlerFunc(http.MethodDelete, valueFunc, ho))
+			r.Engine.DELETE(path, handler)
 		default:
 			panic("Not support method now.")
 		}
