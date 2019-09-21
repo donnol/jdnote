@@ -1,12 +1,15 @@
 package auth
 
 import (
+	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/roleaction/roleactiondb"
 	"github.com/donnol/jdnote/utils/context"
 )
 
 // Auth 认证
 type Auth struct {
+	models.Base
+
 	RoleActionModel roleactiondb.RoleAction
 }
 

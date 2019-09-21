@@ -3,12 +3,15 @@ package note
 import (
 	"strconv"
 
+	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/note/notedb"
 	"github.com/donnol/jdnote/utils/context"
 )
 
 // Note 笔记
 type Note struct {
+	models.Base
+
 	NoteModel notedb.Note
 }
 
