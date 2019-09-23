@@ -219,7 +219,9 @@ func (r *Result) PresentData(v interface{}) error {
 }
 
 // HandlerFunc 处理函数
-type HandlerFunc func(context.Context, Param) (Result, error)
+// 使用别名，可以互相替换，但是不能添加方法
+// 使用类型，不可以互相替换，需要转型，但是可以添加方法
+type HandlerFunc = func(context.Context, Param) (Result, error)
 
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
@@ -306,7 +308,7 @@ func (r *Router) Register(v interface{}) {
 		value := refValue.Method(i)
 
 		// 方法
-		valueFunc, ok := value.Interface().(func(context.Context, Param) (Result, error))
+		valueFunc, ok := value.Interface().(HandlerFunc)
 		if !ok {
 			continue
 		}
