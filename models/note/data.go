@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/models/note/notedb"
 )
 
 // Param 参数
@@ -43,15 +44,6 @@ func (m ModParam) Check() error {
 	return nil
 }
 
-// Result 结果
-type Result struct {
-	NoteID    int    `json:"noteID"`    // 笔记ID
-	UserName  string `json:"userName"`  // 用户名
-	Title     string `json:"title"`     // 标题
-	Detail    string `json:"detail"`    // 详情
-	CreatedAt int64  `json:"createdAt"` // 创建时间
-}
-
 // PageParam 分页参数
 type PageParam struct {
 	Title  string `json:"title"`  // 标题
@@ -62,6 +54,6 @@ type PageParam struct {
 
 // PageResult 分页结果
 type PageResult struct {
-	Total int      `json:"total"` // 总数
-	List  []Result `json:"list"`  // 列表
+	Total int             `json:"total"` // 总数
+	List  []notedb.Result `json:"list"`  // 列表
 }

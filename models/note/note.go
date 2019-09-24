@@ -27,9 +27,9 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 	}
 	r.Total = total
 
-	var tmp Result
+	var tmp notedb.Result
 	for _, single := range res {
-		tmp = Result{}
+		tmp = notedb.Result{}
 
 		tmp.NoteID = single.ID
 		tmp.UserName = strconv.Itoa(single.UserID)
@@ -44,7 +44,7 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 }
 
 // Get 获取
-func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
+func (n *Note) Get(ctx context.Context, id int) (r notedb.Result, err error) {
 	e, err := n.NoteModel.Get(ctx, id)
 	if err != nil {
 		return
