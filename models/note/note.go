@@ -1,8 +1,6 @@
 package note
 
 import (
-	"strconv"
-
 	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/note/notedb"
 	"github.com/donnol/jdnote/utils/context"
@@ -49,11 +47,10 @@ func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
 	if err != nil {
 		return
 	}
-	r.NoteID = e.ID
-	r.Title = e.Title
-	r.Detail = e.Detail
-	r.UserName = strconv.Itoa(e.UserID)
-	r.CreatedAt = e.CreatedAt.Unix()
+	r, err = r.Init(e)
+	if err != nil {
+		return
+	}
 
 	return
 }
