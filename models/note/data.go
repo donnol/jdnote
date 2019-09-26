@@ -2,6 +2,7 @@ package note
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/donnol/jdnote/models"
@@ -54,6 +55,28 @@ type PageParam struct {
 
 // PageResult 分页结果
 type PageResult struct {
-	Total int             `json:"total"` // 总数
-	List  []notedb.Result `json:"list"`  // 列表
+	Total int      `json:"total"` // 总数
+	List  []Result `json:"list"`  // 列表
+}
+
+// Result 结果
+type Result struct {
+	NoteID    int    `json:"noteID"`    // 笔记ID
+	UserName  string `json:"userName"`  // 用户名
+	Title     string `json:"title"`     // 标题
+	Detail    string `json:"detail"`    // 详情
+	CreatedAt int64  `json:"createdAt"` // 创建时间
+}
+
+// Init 初始化
+func (r Result) Init(single notedb.Entity) (Result, error) {
+	tmp := r
+
+	tmp.NoteID = single.ID
+	tmp.UserName = strconv.Itoa(single.UserID)
+	tmp.Title = single.Title
+	tmp.Detail = single.Detail
+	tmp.CreatedAt = single.CreatedAt.Unix()
+
+	return tmp, nil
 }

@@ -27,15 +27,15 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 	}
 	r.Total = total
 
-	var tmp notedb.Result
+	r.List = make([]Result, 0, len(res))
+	var tmp Result
 	for _, single := range res {
-		tmp = notedb.Result{}
+		tmp = Result{}
 
-		tmp.NoteID = single.ID
-		tmp.UserName = strconv.Itoa(single.UserID)
-		tmp.Title = single.Title
-		tmp.Detail = single.Detail
-		tmp.CreatedAt = single.CreatedAt.Unix()
+		tmp, err = tmp.Init(single)
+		if err != nil {
+			return
+		}
 
 		r.List = append(r.List, tmp)
 	}
@@ -44,7 +44,7 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 }
 
 // Get 获取
-func (n *Note) Get(ctx context.Context, id int) (r notedb.Result, err error) {
+func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
 	e, err := n.NoteModel.Get(ctx, id)
 	if err != nil {
 		return

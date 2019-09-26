@@ -15,15 +15,6 @@ type Entity struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`           // 创建时间
 }
 
-// Result 结果
-type Result struct {
-	NoteID    int    `json:"noteID"`    // 笔记ID
-	UserName  string `json:"userName"`  // 用户名
-	Title     string `json:"title"`     // 标题
-	Detail    string `json:"detail"`    // 详情
-	CreatedAt int64  `json:"createdAt"` // 创建时间
-}
-
 // Process 处理
 func (e Entity) Process() Entity {
 	ne := e
