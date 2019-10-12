@@ -1,5 +1,7 @@
 package route
 
+import "github.com/donnol/jdnote/utils/context"
+
 // Newer 新建
 type Newer interface {
 	New() interface{}
@@ -7,7 +9,7 @@ type Newer interface {
 
 // Checker 检查接口
 type Checker interface {
-	Check() error
+	Check(context.Context) error
 }
 
 // Filter 过滤器

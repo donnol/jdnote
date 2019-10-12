@@ -58,7 +58,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	if err = param.Parse(&p); err != nil {
+	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}
 
@@ -80,7 +80,7 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	if err = param.Parse(&p); err != nil {
+	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}
 
@@ -100,7 +100,7 @@ func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Resul
 func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
 	p := userdb.Entity{}
-	if err = param.Parse(&p); err != nil {
+	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}
 

@@ -17,7 +17,7 @@ type User struct {
 }
 
 // Check 检查
-func (u *User) Check() error {
+func (u *User) Check(ctx context.Context) error {
 
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/models/note"
-	"github.com/donnol/jdnote/models/note/notedb"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
@@ -67,7 +66,7 @@ func TestAdd(t *testing.T) {
 	)
 	var detailR struct {
 		errors.Error
-		Data notedb.Result `json:"data"`
+		Data note.Result `json:"data"`
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {

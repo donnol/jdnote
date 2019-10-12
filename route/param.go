@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
 )
 
@@ -25,7 +26,7 @@ type Param struct {
 }
 
 // Parse 解析
-func (p *Param) Parse(v interface{}) error {
+func (p *Param) Parse(ctx context.Context, v interface{}) error {
 	var err error
 
 	// 解析
@@ -45,7 +46,7 @@ func (p *Param) Parse(v interface{}) error {
 
 	// 检查参数
 	if vv, ok := v.(Checker); ok {
-		if err := vv.Check(); err != nil {
+		if err := vv.Check(ctx); err != nil {
 			return errors.WithStack(err)
 		}
 	}

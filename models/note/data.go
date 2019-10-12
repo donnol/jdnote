@@ -7,6 +7,7 @@ import (
 
 	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/note/notedb"
+	"github.com/donnol/jdnote/utils/context"
 )
 
 // Param 参数
@@ -16,7 +17,7 @@ type Param struct {
 }
 
 // Check 检查
-func (p Param) Check() error {
+func (p Param) Check(ctx context.Context) error {
 	if strings.TrimSpace(p.Title) == "" {
 		return fmt.Errorf("Empty Title")
 	}
@@ -34,11 +35,11 @@ type ModParam struct {
 }
 
 // Check 检查
-func (m ModParam) Check() error {
+func (m ModParam) Check(ctx context.Context) error {
 	if m.NoteID == 0 {
 		return fmt.Errorf("Empty ID")
 	}
-	if err := m.Param.Check(); err != nil {
+	if err := m.Param.Check(ctx); err != nil {
 		return err
 	}
 

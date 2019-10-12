@@ -40,7 +40,7 @@ func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, e
 // Get 下载文件
 func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
-	if err = param.Parse(&struct{}{}); err != nil {
+	if err = param.Parse(ctx, &struct{}{}); err != nil {
 		return
 	}
 

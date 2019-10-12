@@ -22,7 +22,7 @@ type Note struct {
 func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := note.PageParam{}
-	if err = p.Parse(&param); err != nil {
+	if err = p.Parse(ctx, &param); err != nil {
 		return
 	}
 
@@ -49,7 +49,7 @@ func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err er
 	param := struct {
 		NoteID int `json:"noteID"`
 	}{}
-	if err = p.Parse(&param); err != nil {
+	if err = p.Parse(ctx, &param); err != nil {
 		return
 	}
 
@@ -97,7 +97,7 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result, err er
 func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
 	param := note.ModParam{}
-	if err = p.Parse(&param); err != nil {
+	if err = p.Parse(ctx, &param); err != nil {
 		return
 	}
 
@@ -123,7 +123,7 @@ func (n *Note) Del(ctx context.Context, p route.Param) (res route.Result, err er
 	param := struct {
 		NoteID int `json:"noteID"`
 	}{}
-	if err = p.Parse(&param); err != nil {
+	if err = p.Parse(ctx, &param); err != nil {
 		return
 	}
 
