@@ -1,8 +1,6 @@
 package route
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -23,7 +21,6 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
-	"github.com/pkg/errors"
 )
 
 // 参数相关
@@ -82,140 +79,6 @@ func NewRouter() *Router {
 	return &Router{
 		Engine: router,
 	}
-}
-
-// Param 通用参数
-type Param struct {
-	// 方法
-	method string
-
-	// 参数
-	body   []byte
-	values url.Values
-
-	// 文件
-	multipartReader *multipart.Reader
-}
-
-// Parse 解析
-func (p *Param) Parse(v interface{}) error {
-	var err error
-
-	// 解析
-	switch p.method {
-	case http.MethodPost:
-		fallthrough
-	case http.MethodPut:
-		err = json.Unmarshal(p.body, v)
-	case http.MethodGet:
-		fallthrough
-	case http.MethodDelete:
-		err = decoder.Decode(v, p.values)
-	}
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	// 检查参数
-	if vv, ok := v.(Checker); ok {
-		if err := vv.Check(); err != nil {
-			return errors.WithStack(err)
-		}
-	}
-
-	return nil
-}
-
-// ParseMultipartForm 解析内容
-func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, error) {
-	var body []byte
-
-	if p.multipartReader == nil {
-		return body, fmt.Errorf("Bad multipart reader")
-	}
-
-	// 使用ReadForm
-	form, err := p.multipartReader.ReadForm(maxFileSize)
-	if err != nil {
-		return body, err
-	}
-
-	// 获取参数
-	if err := decoder.Decode(v, form.Value); err != nil {
-		return body, err
-	}
-
-	// 获取内容
-	buf := new(bytes.Buffer)
-	for _, single := range form.File {
-		for _, one := range single {
-			file, err := one.Open()
-			if err != nil {
-				return body, err
-			}
-			defer file.Close()
-
-			_, err = buf.ReadFrom(file)
-			if err != nil {
-				return body, err
-			}
-		}
-	}
-	body = buf.Bytes()
-
-	return body, nil
-}
-
-// Result 通用结果
-type Result struct {
-	utilerrors.Error
-
-	Data interface{} `json:"data"` // 正常返回时的数据
-
-	// 给登陆接口使用
-	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
-
-	// 下载内容时使用
-	Content
-}
-
-// Content 内容
-type Content struct {
-	ContentLength int64             `json:"-"`
-	ContentType   string            `json:"-"`
-	ContentReader io.Reader         `json:"-"`
-	ExtraHeaders  map[string]string `json:"-"`
-}
-
-// MakeContentFromBuffer 新建内容
-func MakeContentFromBuffer(filename string, buf *bytes.Buffer) Content {
-	var r Content
-
-	writer := multipart.NewWriter(buf)
-	r.ContentLength = int64(buf.Len())
-	r.ContentType = writer.FormDataContentType()
-	r.ContentReader = buf
-	r.ExtraHeaders = map[string]string{
-		ContentDispositionHeaderKey: fmt.Sprintf(
-			ContentDispositionHeaderValueFormat,
-			filename,
-		),
-	}
-
-	return r
-}
-
-// PresentData 用具体结构体展现数据
-func (r *Result) PresentData(v interface{}) error {
-	b, err := json.Marshal(r.Data)
-	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(b, v); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // HandlerFunc 处理函数
