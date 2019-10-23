@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/roleaction/roleactiondb"
+	"github.com/donnol/jdnote/models/roleaction/roleactiondata"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -10,7 +10,7 @@ import (
 type Auth struct {
 	models.Base
 
-	RoleActionModel roleactiondb.RoleAction
+	RoleActionModel roleactiondata.RoleAction
 }
 
 // CheckPerm 检查用户是否拥有指定权限

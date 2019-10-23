@@ -1,4 +1,4 @@
-package notedb
+package notedata
 
 import (
 	"time"

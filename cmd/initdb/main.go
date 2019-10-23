@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/actionao/actiondb"
-	"github.com/donnol/jdnote/models/roleactionao/roleactiondb"
-	"github.com/donnol/jdnote/models/roleao/roledb"
-	"github.com/donnol/jdnote/models/userao/userdb"
-	"github.com/donnol/jdnote/models/userroleao/userroledb"
+	"github.com/donnol/jdnote/models/action/actiondata"
+	"github.com/donnol/jdnote/models/role/roledata"
+	"github.com/donnol/jdnote/models/roleaction/roleactiondata"
+	"github.com/donnol/jdnote/models/user/userdata"
+	"github.com/donnol/jdnote/models/userrole/userroledata"
 )
 
 func main() {
@@ -22,51 +22,51 @@ func initdb() error {
 	ctx := models.DefaultCtx()
 
 	// 角色
-	re := roledb.Entity{
+	re := roledata.Entity{
 		Role: "ALL",
 	}
-	r := &roledb.Role{}
+	r := &roledata.Role{}
 	if re.ID, err = r.Add(ctx, re); err != nil {
 		return err
 	}
 
 	// 动作
-	ae := actiondb.Entity{
+	ae := actiondata.Entity{
 		Action: "ALL",
 	}
-	a := &actiondb.Action{}
+	a := &actiondata.Action{}
 	if ae.ID, err = a.Add(ctx, ae); err != nil {
 		return err
 	}
 
 	// 角色动作关联
-	rae := roleactiondb.Entity{
+	rae := roleactiondata.Entity{
 		RoleID:   re.ID,
 		ActionID: ae.ID,
 	}
-	ra := &roleactiondb.RoleAction{}
+	ra := &roleactiondata.RoleAction{}
 	if rae.ID, err = ra.Add(ctx, rae); err != nil {
 		return err
 	}
 
 	// 用户
-	ue := userdb.Entity{
+	ue := userdata.Entity{
 		Name:     "jd",
 		Phone:    "jd",
 		Email:    "jdlau@126.com",
 		Password: "jd",
 	}
-	u := &userdb.User{}
+	u := &userdata.User{}
 	if ue.ID, err = u.Add(ctx, ue); err != nil {
 		return err
 	}
 
 	// 用户角色关联
-	ure := userroledb.Entity{
+	ure := userroledata.Entity{
 		UserID: ue.ID,
 		RoleID: re.ID,
 	}
-	ur := &userroledb.UserRole{}
+	ur := &userroledata.UserRole{}
 	if _, err = ur.Add(ctx, ure); err != nil {
 		return err
 	}

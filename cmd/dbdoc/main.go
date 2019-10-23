@@ -5,11 +5,11 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/donnol/jdnote/models/actionao/actiondb"
-	"github.com/donnol/jdnote/models/roleactionao/roleactiondb"
-	"github.com/donnol/jdnote/models/roleao/roledb"
-	"github.com/donnol/jdnote/models/userao/userdb"
-	"github.com/donnol/jdnote/models/userroleao/userroledb"
+	"github.com/donnol/jdnote/models/action/actiondata"
+	"github.com/donnol/jdnote/models/role/roledata"
+	"github.com/donnol/jdnote/models/roleaction/roleactiondata"
+	"github.com/donnol/jdnote/models/user/userdata"
+	"github.com/donnol/jdnote/models/userrole/userroledata"
 	"github.com/donnol/jdnote/utils/dbdoc"
 )
 
@@ -35,11 +35,11 @@ func makeDoc() {
 
 	// 解析
 	if err := dbdoc.Resolve(w,
-		&userdb.Entity{},
-		&roledb.Entity{},
-		&userroledb.Entity{},
-		&actiondb.Entity{},
-		&roleactiondb.Entity{},
+		&userdata.Entity{},
+		&roledata.Entity{},
+		&userroledata.Entity{},
+		&actiondata.Entity{},
+		&roleactiondata.Entity{},
 	); err != nil {
 		panic(err)
 	}
@@ -61,11 +61,11 @@ func makeDot(filename string) {
 
 	// 解析
 	if err := dbdoc.ResolveGraph(w,
-		&userdb.Entity{},
-		&roledb.Entity{},
-		&userroledb.Entity{},
-		&actiondb.Entity{},
-		&roleactiondb.Entity{},
+		&userdata.Entity{},
+		&roledata.Entity{},
+		&userroledata.Entity{},
+		&actiondata.Entity{},
+		&roleactiondata.Entity{},
 	); err != nil {
 		panic(err)
 	}

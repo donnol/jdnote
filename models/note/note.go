@@ -2,7 +2,7 @@ package note
 
 import (
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/note/notedb"
+	"github.com/donnol/jdnote/models/note/notedata"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -10,12 +10,12 @@ import (
 type Note struct {
 	models.Base
 
-	NoteModel notedb.Note
+	NoteModel notedata.Note
 }
 
 // GetPage 获取分页
 func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
-	entity := notedb.Entity{
+	entity := notedata.Entity{
 		Title:  param.Title,
 		Detail: param.Detail,
 	}
@@ -67,7 +67,7 @@ func (n *Note) AddOne(ctx context.Context) (id int, err error) {
 
 // Mod 修改
 func (n *Note) Mod(ctx context.Context, id int, p Param) (err error) {
-	if err = n.NoteModel.Mod(ctx, id, notedb.Entity{
+	if err = n.NoteModel.Mod(ctx, id, notedata.Entity{
 		Title:  p.Title,
 		Detail: p.Detail,
 	}); err != nil {

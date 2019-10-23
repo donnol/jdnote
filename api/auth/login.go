@@ -3,7 +3,7 @@ package auth
 import (
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/models/user"
-	"github.com/donnol/jdnote/models/user/userdb"
+	"github.com/donnol/jdnote/models/user/userdata"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -57,7 +57,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 // AddLogin 登录
 func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
-	p := userdb.Entity{}
+	p := userdata.Entity{}
 	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}
@@ -79,7 +79,7 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 // AddUser 添加用户
 func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
-	p := userdb.Entity{}
+	p := userdata.Entity{}
 	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}
@@ -99,7 +99,7 @@ func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Resul
 // GetUser 获取用户
 func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
-	p := userdb.Entity{}
+	p := userdata.Entity{}
 	if err = param.Parse(ctx, &p); err != nil {
 		return
 	}

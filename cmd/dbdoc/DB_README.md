@@ -2,7 +2,7 @@
 
 ![ER图](./db_cicada.svg)
 
-## t_userdb
+## t_userdata
 
 
 
@@ -21,7 +21,7 @@
 索引：
 
 
-## t_roledb
+## t_roledata
 
 
 
@@ -37,7 +37,7 @@
 索引：
 
 
-## t_userroledb
+## t_userroledata
 
 
 
@@ -54,7 +54,7 @@
 索引：
 
 
-## t_actiondb
+## t_actiondata
 
 
 
@@ -70,7 +70,7 @@
 索引：
 
 
-## t_roleactiondb
+## t_roleactiondata
 
 
 

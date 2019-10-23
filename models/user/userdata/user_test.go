@@ -1,4 +1,4 @@
-package userdb
+package userdata
 
 import (
 	"testing"

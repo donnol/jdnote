@@ -1,4 +1,4 @@
-package actiondb
+package actiondata
 
 // Entity 实体-对应数据库表
 type Entity struct {

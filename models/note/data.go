@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/note/notedb"
+	"github.com/donnol/jdnote/models/note/notedata"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -70,7 +70,7 @@ type Result struct {
 }
 
 // Init 初始化
-func (r Result) Init(single notedb.Entity) (Result, error) {
+func (r Result) Init(single notedata.Entity) (Result, error) {
 	tmp := r
 
 	tmp.NoteID = single.ID

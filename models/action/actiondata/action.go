@@ -1,4 +1,4 @@
-package roledb
+package actiondata
 
 import (
 	"github.com/donnol/jdnote/models"
@@ -6,18 +6,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DefaultRoleID 默认角色ID
-var DefaultRoleID = 1
-
-// Role 角色
-type Role struct {
+// Action 操作
+type Action struct {
 	models.Base
 }
 
 // GetByID 获取
-func (r *Role) GetByID(ctx context.Context, id int) (e Entity, err error) {
+func (a *Action) GetByID(ctx context.Context, id int) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `
-		SELECT * FROM t_role WHERE id = $1
+		SELECT * FROM t_action WHERE id = $1
 		`, id); err != nil {
 		err = errors.WithStack(err)
 		return
@@ -27,10 +24,10 @@ func (r *Role) GetByID(ctx context.Context, id int) (e Entity, err error) {
 }
 
 // Add 添加
-func (r *Role) Add(ctx context.Context, e Entity) (id int, err error) {
+func (a *Action) Add(ctx context.Context, e Entity) (id int, err error) {
 	if err = ctx.DB().GetContext(ctx, &id, `
-		INSERT INTO t_role (role)VALUES($1) RETURNING id
-		`, e.Role); err != nil {
+		INSERT INTO t_action (action)VALUES($1) RETURNING id
+		`, e.Action); err != nil {
 		err = errors.WithStack(err)
 		return
 	}

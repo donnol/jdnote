@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/models/user/userdb"
+	"github.com/donnol/jdnote/models/user/userdata"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
 )
@@ -29,7 +29,7 @@ func TestAddLogin(t *testing.T) {
 	)
 	var r struct {
 		errors.Error
-		Data userdb.Entity
+		Data userdata.Entity
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestAddLogin(t *testing.T) {
 		defer f.Close()
 
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&userdb.Entity{
+			SetParam(&userdata.Entity{
 				Name:     "jd",
 				Password: "jd",
 			}).
@@ -69,7 +69,7 @@ func TestAddLogin(t *testing.T) {
 
 	t.Run("Normal", func(t *testing.T) {
 		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
-			SetParam(&userdb.Entity{
+			SetParam(&userdata.Entity{
 				Name:     "jd",
 				Password: "jd",
 			}).
@@ -208,7 +208,7 @@ func TestGetUser(t *testing.T) {
 	)
 	var r struct {
 		errors.Error
-		Data userdb.Entity
+		Data userdata.Entity
 	}
 
 	t.Run("MakeDoc", func(t *testing.T) {
