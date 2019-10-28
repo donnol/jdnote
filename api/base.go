@@ -16,6 +16,10 @@ func (b Base) CheckLogin(ctx context.Context) error {
 	if ctx.UserID() == 0 {
 		return errors.Errorf("Please login")
 	}
+	err := b.AuthAo.CheckUserExist(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

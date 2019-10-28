@@ -1,6 +1,8 @@
 package userdata
 
 import (
+	"fmt"
+
 	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
@@ -15,7 +17,7 @@ type User struct {
 // GetByID 以id获取用户
 func (u *User) GetByID(ctx context.Context, id int) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE id = $1`, id); err != nil {
-		err = errors.WithStack(err)
+		err = errors.WithMessage(err, fmt.Sprintf("id: %d", id))
 		return
 	}
 
