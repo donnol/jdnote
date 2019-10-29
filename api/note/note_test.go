@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/note"
+	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
@@ -20,7 +22,12 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdd(t *testing.T) {
-	cookie, err := route.MakeCookie(119)
+	ctx := models.DefaultCtx()
+	u, err := (&user.User{}).GetFirst(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cookie, err := route.MakeCookie(u.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
