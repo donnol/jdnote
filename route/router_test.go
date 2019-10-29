@@ -2,14 +2,16 @@ package route
 
 import (
 	"testing"
+
+	"github.com/donnol/jdnote/utils/context"
 )
 
-func getUser(p Param) (r Result, err error) {
+func getUser(ctx context.Context, p Param) (r Result, err error) {
 
 	return
 }
 
-func getUserCurrent(p Param) (r Result, err error) {
+func getUserCurrent(ctx context.Context, p Param) (r Result, err error) {
 
 	return
 }
