@@ -45,6 +45,10 @@ func ResolveStruct(value interface{}) (Struct, error) {
 	}
 	s.Type = refType
 
+	if refType == nil {
+		return s, fmt.Errorf("nil refType")
+	}
+
 	if refType.Kind() == reflect.Ptr { // 指针
 		refType = refType.Elem()
 	}
