@@ -32,6 +32,11 @@ func (u *User) GetByName(ctx context.Context, name string) (e userdata.Entity, e
 	return u.UserModel.GetByName(ctx, name)
 }
 
+// GetFirst 获取首个用户
+func (u *User) GetFirst(ctx context.Context) (e userdata.Entity, err error) {
+	return u.UserModel.GetFirst(ctx)
+}
+
 // VerifyByNameAndPassword 校验用户密码
 func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e userdata.Entity, err error) {
 	return u.UserModel.VerifyByNameAndPassword(ctx, name, password)

@@ -34,6 +34,16 @@ func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error)
 	return
 }
 
+// GetFirst 获取首个用户
+func (u *User) GetFirst(ctx context.Context) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user ORDER BY id ASC LIMIT 1`); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	return
+}
+
 // VerifyByNameAndPassword 以名字和密码校验用户
 func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
