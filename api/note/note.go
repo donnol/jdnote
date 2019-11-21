@@ -16,6 +16,9 @@ type Note struct {
 	api.Base
 
 	NoteAo note.Note
+
+	// 频率限制
+	Limiter route.Limiter `rate:"Rate(0.25, 2)"`
 }
 
 // GetPage 获取分页
