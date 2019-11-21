@@ -21,6 +21,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
+	"golang.org/x/time/rate"
 )
 
 // 参数相关
@@ -86,6 +87,11 @@ func NewRouter() *Router {
 // 使用类型，不可以互相替换，需要转型，但是可以添加方法
 type HandlerFunc = func(context.Context, Param) (Result, error)
 
+type limiterOption struct {
+	rate float64 // 代表每秒可以向Token桶中产生多少token
+	b    int     // 代表Token桶的容量大小
+}
+
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
 func (r *Router) Register(v interface{}) {
@@ -112,30 +118,36 @@ func (r *Router) Register(v interface{}) {
 
 	// 找出attr field
 	const (
-		fileTagLeft     = "("
-		fileTagRight    = ")"
-		fileTagSep      = ","
-		fileTagName     = "file"
-		methodTxTagName = "tx"
+		fileTagLeft          = "("
+		fileTagRight         = ")"
+		fileTagSep           = ","
+		fileTagName          = "file"
+		methodTxTagName      = "tx"
+		limiterTagMethodName = "method"
+		limiterTagMethodSep  = ";"
+		limiterTagRateName   = "rate"
 	)
 	var groupName string
 	var fileMap = make(map[string]struct{})
 	var isFile bool
 	var methodTxMap = make(map[string]struct{})
 	var isTx bool
+	var limiterMap = make(map[string]limiterOption)
+	var methodLimiterMap = make(map[string]limiterOption)
 	groupType := reflect.TypeOf(Group{})
 	fileType := reflect.TypeOf(File{})
 	methodType := reflect.TypeOf(Method{})
+	limiterType := reflect.TypeOf(Limiter{})
 	for i := 0; i < refTypeRaw.NumField(); i++ {
 		field := refTypeRaw.Field(i)
 
+		switch field.Type {
 		// Group属性
-		if field.Type == groupType {
+		case groupType:
 			groupName = strings.ToLower(field.Name)
-		}
 
 		// File属性
-		if field.Type == fileType {
+		case fileType:
 			fileTag, ok := field.Tag.Lookup(fileTagName)
 			// 没有使用tag指定方法，则全部方法都是
 			if !ok {
@@ -147,10 +159,9 @@ func (r *Router) Register(v interface{}) {
 					fileMap[singleLower] = struct{}{}
 				}
 			}
-		}
 
 		// Method属性
-		if field.Type == methodType {
+		case methodType:
 			// 事务
 			methodTxTag, ok := field.Tag.Lookup(methodTxTagName)
 			if !ok {
@@ -159,6 +170,36 @@ func (r *Router) Register(v interface{}) {
 				methodTxTags := strings.Split(methodTxTag, fileTagSep)
 				for _, single := range methodTxTags {
 					methodTxMap[single] = struct{}{}
+				}
+			}
+
+		// Limiter属性
+		case limiterType:
+			if methodTag, ok := field.Tag.Lookup(limiterTagMethodName); ok { // 有指定方法
+				limiterTags := strings.Split(methodTag, limiterTagMethodSep)
+				for _, single := range limiterTags {
+					name, values, _, err := resolveCallExpr(single)
+					if err != nil {
+						panic(err)
+					}
+					rate := values[0].(float64)
+					b := values[1].(int)
+					methodLimiterMap[name] = limiterOption{
+						rate: rate,
+						b:    b,
+					}
+				}
+			}
+			if rateTag, ok := field.Tag.Lookup(limiterTagRateName); ok { // 全部指定
+				_, values, _, err := resolveCallExpr(rateTag)
+				if err != nil {
+					panic(err)
+				}
+				rate := values[0].(float64)
+				b := values[1].(int)
+				limiterMap[limiterTagRateName] = limiterOption{
+					rate: rate,
+					b:    b,
 				}
 			}
 		}
@@ -199,20 +240,38 @@ func (r *Router) Register(v interface{}) {
 			}
 		}
 
-		// 注册路由
 		handler := structHandlerFunc(method, valueFunc, ho)
 
-		// TODO:中间件：我要知道我要不要用，用什么，用的参数
+		// 添加中间件：我要知道我要不要用，用什么，用的参数
+		var handlerWithMiddleWare = handler
 
+		// 限流: 每个路径对应一个限流器
+		var limiter *rate.Limiter
+		if lo, ok := limiterMap[limiterTagRateName]; ok {
+			limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
+		} else if mlo, ok := methodLimiterMap[field.Name]; ok {
+			limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
+		}
+		if limiter != nil {
+			handlerWithMiddleWare = func(c *gin.Context) {
+				if !limiter.Allow() {
+					c.JSON(http.StatusTooManyRequests, "Too Many Requests")
+					return
+				}
+				handler(c)
+			}
+		}
+
+		// 注册路由
 		switch method {
 		case http.MethodPost:
-			r.Engine.POST(path, handler)
+			r.Engine.POST(path, handlerWithMiddleWare)
 		case http.MethodPut:
-			r.Engine.PUT(path, handler)
+			r.Engine.PUT(path, handlerWithMiddleWare)
 		case http.MethodGet:
-			r.Engine.GET(path, handler)
+			r.Engine.GET(path, handlerWithMiddleWare)
 		case http.MethodDelete:
-			r.Engine.DELETE(path, handler)
+			r.Engine.DELETE(path, handlerWithMiddleWare)
 		default:
 			panic("Not support method now.")
 		}
