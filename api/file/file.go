@@ -21,6 +21,9 @@ type File struct {
 
 	// 标志文件上传/下载属性
 	File route.File `file:"Add,get"` // 使用tag来指定方法
+
+	// 有tag则只对tag里的添加，没有则全部方法均添加(这时参数怎么指定呢？`rate:"Rate(0.25, 2)"`)
+	Limiter route.Limiter `method:"Add(0.25, 2);Get(0.25, 2)"` // 指定限流器，包括方法和参数; 多个方法使用分号分隔
 }
 
 // Add 上传文件

@@ -201,6 +201,9 @@ func (r *Router) Register(v interface{}) {
 
 		// 注册路由
 		handler := structHandlerFunc(method, valueFunc, ho)
+
+		// TODO:中间件：我要知道我要不要用，用什么，用的参数
+
 		switch method {
 		case http.MethodPost:
 			r.Engine.POST(path, handler)
