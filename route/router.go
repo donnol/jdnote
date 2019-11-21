@@ -264,14 +264,11 @@ func (r *Router) Register(v interface{}) {
 
 		// 注册路由
 		switch method {
-		case http.MethodPost:
-			r.Engine.POST(path, handlerWithMiddleWare)
-		case http.MethodPut:
-			r.Engine.PUT(path, handlerWithMiddleWare)
-		case http.MethodGet:
-			r.Engine.GET(path, handlerWithMiddleWare)
-		case http.MethodDelete:
-			r.Engine.DELETE(path, handlerWithMiddleWare)
+		case http.MethodPost,
+			http.MethodPut,
+			http.MethodGet,
+			http.MethodDelete:
+			r.Engine.Handle(method, path, handlerWithMiddleWare)
 		default:
 			panic("Not support method now.")
 		}
