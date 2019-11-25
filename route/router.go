@@ -157,10 +157,8 @@ func (r *Router) Register(v interface{}) {
 		handler := structHandlerFunc(method, valueFunc, ho)
 
 		// 添加中间件：我要知道我要不要用，用什么，用的参数
-		var handlerWithMiddleWare = handler
-
 		// 限流: 每个路径对应一个限流器
-		handlerWithMiddleWare = wrap(handler, routeAtrr, wrapOption{fieldName: field.Name})
+		handler = wrap(handler, routeAtrr, wrapOption{fieldName: field.Name})
 
 		// 注册路由
 		switch method {
@@ -168,7 +166,7 @@ func (r *Router) Register(v interface{}) {
 			http.MethodPut,
 			http.MethodGet,
 			http.MethodDelete:
-			r.Engine.Handle(method, path, handlerWithMiddleWare)
+			r.Engine.Handle(method, path, handler)
 		default:
 			panic("Not support method now.")
 		}
@@ -184,8 +182,6 @@ type wrapOption struct {
 }
 
 func wrap(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
-	var handlerWithMiddleWare = handler
-
 	var limiter *rate.Limiter
 	if lo, ok := routeAtrr.limiterMap[limiterTagRateName]; ok {
 		limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
@@ -193,18 +189,16 @@ func wrap(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.Handl
 		limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
 	}
 	if limiter == nil {
-		return handlerWithMiddleWare
+		return handler
 	}
 
-	handlerWithMiddleWare = func(c *gin.Context) {
+	return func(c *gin.Context) {
 		if !limiter.Allow() {
 			c.JSON(http.StatusTooManyRequests, "Too Many Requests")
 			return
 		}
 		handler(c)
 	}
-
-	return handlerWithMiddleWare
 }
 
 type routeAttr struct {
