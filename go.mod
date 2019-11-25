@@ -14,6 +14,7 @@ require (
 	github.com/fishedee/tools v0.3.0
 	github.com/gin-contrib/gzip v0.0.1
 	github.com/gin-gonic/gin v1.3.0
+	github.com/google/gops v0.3.6
 	github.com/gorilla/schema v1.1.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.0.0
