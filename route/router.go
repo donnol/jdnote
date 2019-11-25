@@ -116,17 +116,105 @@ func (r *Router) Register(v interface{}) {
 		structName = refType.Name()
 	}
 
-	// 找出attr field
-	const (
-		fileTagLeft          = "("
-		fileTagRight         = ")"
-		fileTagSep           = ","
-		fileTagName          = "file"
-		methodTxTagName      = "tx"
-		limiterTagMethodName = "method"
-		limiterTagMethodSep  = ";"
-		limiterTagRateName   = "rate"
-	)
+	// 找出路由属性
+	routeAtrr := getRouteAttr(refTypeRaw)
+
+	// 找出method field
+	var routeNum int
+	for i := 0; i < refType.NumMethod(); i++ {
+		field := refType.Method(i)
+		value := refValue.Method(i)
+
+		// 方法
+		valueFunc, ok := value.Interface().(HandlerFunc)
+		if !ok {
+			continue
+		}
+		routeNum++
+
+		// 路径
+		method, path := getMethodPath(field.Name)
+		path = addPathPrefix(path, structName)
+		path = addPathPrefix(path, routeAtrr.groupName)
+
+		// 处理器配置
+		var ho = handlerOption{}
+		if routeAtrr.isFile {
+			ho.isFile = true
+		} else {
+			if _, ok := routeAtrr.fileMap[strings.ToLower(field.Name)]; ok {
+				ho.isFile = true
+			}
+		}
+		if routeAtrr.isTx {
+			ho.useTx = true
+		} else {
+			if _, ok := routeAtrr.methodTxMap[field.Name]; ok {
+				ho.useTx = true
+			}
+		}
+
+		handler := structHandlerFunc(method, valueFunc, ho)
+
+		// 添加中间件：我要知道我要不要用，用什么，用的参数
+		var handlerWithMiddleWare = handler
+
+		// 限流: 每个路径对应一个限流器
+		var limiter *rate.Limiter
+		if lo, ok := routeAtrr.limiterMap[limiterTagRateName]; ok {
+			limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
+		} else if mlo, ok := routeAtrr.methodLimiterMap[field.Name]; ok {
+			limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
+		}
+		if limiter != nil {
+			handlerWithMiddleWare = func(c *gin.Context) {
+				if !limiter.Allow() {
+					c.JSON(http.StatusTooManyRequests, "Too Many Requests")
+					return
+				}
+				handler(c)
+			}
+		}
+
+		// 注册路由
+		switch method {
+		case http.MethodPost,
+			http.MethodPut,
+			http.MethodGet,
+			http.MethodDelete:
+			r.Engine.Handle(method, path, handlerWithMiddleWare)
+		default:
+			panic("Not support method now.")
+		}
+	}
+
+	// 计时结束
+	end := time.Now()
+	utillog.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
+}
+
+type routeAttr struct {
+	groupName        string
+	isFile           bool
+	fileMap          map[string]struct{}
+	isTx             bool
+	methodTxMap      map[string]struct{}
+	limiterMap       map[string]limiterOption
+	methodLimiterMap map[string]limiterOption
+}
+
+const (
+	fileTagLeft          = "("
+	fileTagRight         = ")"
+	fileTagSep           = ","
+	fileTagName          = "file"
+	methodTxTagName      = "tx"
+	limiterTagMethodName = "method"
+	limiterTagMethodSep  = ";"
+	limiterTagRateName   = "rate"
+)
+
+func getRouteAttr(refTypeRaw reflect.Type) (ra routeAttr) {
 	var groupName string
 	var fileMap = make(map[string]struct{})
 	var isFile bool
@@ -205,78 +293,15 @@ func (r *Router) Register(v interface{}) {
 		}
 	}
 
-	// 找出method field
-	var routeNum int
-	for i := 0; i < refType.NumMethod(); i++ {
-		field := refType.Method(i)
-		value := refValue.Method(i)
+	ra.groupName = groupName
+	ra.isFile = isFile
+	ra.fileMap = fileMap
+	ra.isTx = isTx
+	ra.methodTxMap = methodTxMap
+	ra.limiterMap = limiterMap
+	ra.methodLimiterMap = methodLimiterMap
 
-		// 方法
-		valueFunc, ok := value.Interface().(HandlerFunc)
-		if !ok {
-			continue
-		}
-		routeNum++
-
-		// 路径
-		method, path := getMethodPath(field.Name)
-		path = addPathPrefix(path, structName)
-		path = addPathPrefix(path, groupName)
-
-		// 处理器配置
-		var ho = handlerOption{}
-		if isFile {
-			ho.isFile = true
-		} else {
-			if _, ok := fileMap[strings.ToLower(field.Name)]; ok {
-				ho.isFile = true
-			}
-		}
-		if isTx {
-			ho.useTx = true
-		} else {
-			if _, ok := methodTxMap[field.Name]; ok {
-				ho.useTx = true
-			}
-		}
-
-		handler := structHandlerFunc(method, valueFunc, ho)
-
-		// 添加中间件：我要知道我要不要用，用什么，用的参数
-		var handlerWithMiddleWare = handler
-
-		// 限流: 每个路径对应一个限流器
-		var limiter *rate.Limiter
-		if lo, ok := limiterMap[limiterTagRateName]; ok {
-			limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
-		} else if mlo, ok := methodLimiterMap[field.Name]; ok {
-			limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
-		}
-		if limiter != nil {
-			handlerWithMiddleWare = func(c *gin.Context) {
-				if !limiter.Allow() {
-					c.JSON(http.StatusTooManyRequests, "Too Many Requests")
-					return
-				}
-				handler(c)
-			}
-		}
-
-		// 注册路由
-		switch method {
-		case http.MethodPost,
-			http.MethodPut,
-			http.MethodGet,
-			http.MethodDelete:
-			r.Engine.Handle(method, path, handlerWithMiddleWare)
-		default:
-			panic("Not support method now.")
-		}
-	}
-
-	// 计时结束
-	end := time.Now()
-	utillog.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
+	return
 }
 
 type handlerOption struct {
