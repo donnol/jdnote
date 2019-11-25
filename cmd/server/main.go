@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,7 +25,7 @@ import (
 
 func main() {
 	// 配置
-	port := config.Default().Server.Port
+	port := fmt.Sprintf(":%d", config.Default().Server.Port)
 
 	router := route.DefaultRouter()
 	// 静态文件

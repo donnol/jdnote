@@ -21,7 +21,7 @@ type Config struct {
 
 // Server 服务器配置
 type Server struct {
-	Port string // 端口，如：":8810"
+	Port int // 端口，如：8810
 }
 
 // DB 数据库配置

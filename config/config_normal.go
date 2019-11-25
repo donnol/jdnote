@@ -6,7 +6,7 @@ import (
 
 var normal = config.Config{
 	Server: config.Server{
-		Port: ":8810",
+		Port: 8810,
 	},
 	DB: config.DB{
 		Scheme:   "postgres",
