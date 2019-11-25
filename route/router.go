@@ -160,21 +160,7 @@ func (r *Router) Register(v interface{}) {
 		var handlerWithMiddleWare = handler
 
 		// 限流: 每个路径对应一个限流器
-		var limiter *rate.Limiter
-		if lo, ok := routeAtrr.limiterMap[limiterTagRateName]; ok {
-			limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
-		} else if mlo, ok := routeAtrr.methodLimiterMap[field.Name]; ok {
-			limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
-		}
-		if limiter != nil {
-			handlerWithMiddleWare = func(c *gin.Context) {
-				if !limiter.Allow() {
-					c.JSON(http.StatusTooManyRequests, "Too Many Requests")
-					return
-				}
-				handler(c)
-			}
-		}
+		handlerWithMiddleWare = wrap(handler, routeAtrr, wrapOption{fieldName: field.Name})
 
 		// 注册路由
 		switch method {
@@ -191,6 +177,34 @@ func (r *Router) Register(v interface{}) {
 	// 计时结束
 	end := time.Now()
 	utillog.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
+}
+
+type wrapOption struct {
+	fieldName string
+}
+
+func wrap(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
+	var handlerWithMiddleWare = handler
+
+	var limiter *rate.Limiter
+	if lo, ok := routeAtrr.limiterMap[limiterTagRateName]; ok {
+		limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
+	} else if mlo, ok := routeAtrr.methodLimiterMap[wo.fieldName]; ok {
+		limiter = rate.NewLimiter(rate.Limit(mlo.rate), mlo.b)
+	}
+	if limiter == nil {
+		return handlerWithMiddleWare
+	}
+
+	handlerWithMiddleWare = func(c *gin.Context) {
+		if !limiter.Allow() {
+			c.JSON(http.StatusTooManyRequests, "Too Many Requests")
+			return
+		}
+		handler(c)
+	}
+
+	return handlerWithMiddleWare
 }
 
 type routeAttr struct {
