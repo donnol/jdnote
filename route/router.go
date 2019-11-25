@@ -3,6 +3,7 @@ package route
 import (
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -21,6 +22,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/schema"
+	"github.com/rcrowley/go-metrics"
 	"golang.org/x/time/rate"
 )
 
@@ -158,7 +160,10 @@ func (r *Router) Register(v interface{}) {
 
 		// 添加中间件：我要知道我要不要用，用什么，用的参数
 		// 限流: 每个路径对应一个限流器
-		handler = wrap(handler, routeAtrr, wrapOption{fieldName: field.Name})
+		handler = wrapLimiter(handler, routeAtrr, wrapOption{fieldName: field.Name})
+
+		// 指标
+		handler = wrapMetrics(handler)
 
 		// 注册路由
 		switch method {
@@ -181,7 +186,7 @@ type wrapOption struct {
 	fieldName string
 }
 
-func wrap(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
+func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
 	var limiter *rate.Limiter
 	if lo, ok := routeAtrr.limiterMap[limiterTagRateName]; ok {
 		limiter = rate.NewLimiter(rate.Limit(lo.rate), lo.b)
@@ -198,6 +203,23 @@ func wrap(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.Handl
 			return
 		}
 		handler(c)
+	}
+}
+
+func wrapMetrics(handler gin.HandlerFunc) gin.HandlerFunc {
+	m := metrics.NewMeter()
+	metrics.Register("request", m)
+	m.Mark(57)
+
+	go metrics.Log(
+		metrics.DefaultRegistry,
+		5*time.Second,
+		log.New(os.Stdout, "metrics: ", log.Lmicroseconds),
+	)
+
+	return func(c *gin.Context) {
+		handler(c)
+		m.Mark(100)
 	}
 }
 
