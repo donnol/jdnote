@@ -158,12 +158,18 @@ func (r *Router) Register(v interface{}) {
 
 		handler := structHandlerFunc(method, valueFunc, ho)
 
+		wo := wrapOption{
+			fieldName: field.Name,
+			method:    method,
+			path:      path,
+		}
+
 		// 添加中间件：我要知道我要不要用，用什么，用的参数
 		// 限流: 每个路径对应一个限流器
-		handler = wrapLimiter(handler, routeAtrr, wrapOption{fieldName: field.Name})
+		handler = wrapLimiter(handler, routeAtrr, wo)
 
 		// 指标
-		handler = wrapMetrics(handler)
+		handler = wrapMetrics(handler, wo)
 
 		// 注册路由
 		switch method {
@@ -184,6 +190,8 @@ func (r *Router) Register(v interface{}) {
 
 type wrapOption struct {
 	fieldName string
+	method    string
+	path      string
 }
 
 func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
@@ -206,9 +214,9 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 	}
 }
 
-func wrapMetrics(handler gin.HandlerFunc) gin.HandlerFunc {
+func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	m := metrics.NewMeter()
-	metrics.Register("request", m)
+	metrics.Register(wo.method+" "+wo.path, m)
 	m.Mark(57)
 
 	go metrics.Log(
