@@ -15,6 +15,9 @@ const (
 
 // addPathPrefix 添加路径前缀
 func addPathPrefix(path, prefix string) string {
+	if prefix == "" {
+		return path
+	}
 	return pathSep + strings.ToLower(prefix) + path
 }
 
