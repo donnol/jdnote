@@ -217,7 +217,7 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	m := metrics.NewMeter()
 	metrics.Register(wo.method+" "+wo.path, m)
-	m.Mark(57)
+	m.Mark(0)
 
 	go metrics.Log(
 		metrics.DefaultRegistry,
@@ -227,7 +227,7 @@ func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		handler(c)
-		m.Mark(100)
+		m.Mark(1)
 	}
 }
 
