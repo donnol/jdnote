@@ -407,6 +407,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		}
 
 		// 注入上下文、用户和参数信息，并执行业务方法
+		// TODO:为确保测试既能利用数据库中已有数据，又能让测试过程产生的数据不污染数据库，当运行单元测试时（通过models.unitTestEnv判断），使用全局唯一事务，并在测试跑完后回滚
 		var r Result
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
