@@ -14,6 +14,7 @@ var (
 
 // DB 接口
 type DB interface {
+	// sqlx的方法
 	BindNamed(query string, arg interface{}) (string, []interface{}, error)
 	DriverName() string
 	Get(dest interface{}, query string, args ...interface{}) error
@@ -34,4 +35,7 @@ type DB interface {
 	Rebind(query string) string
 	Select(dest interface{}, query string, args ...interface{}) error
 	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
+
+	// database/sql的方法
+	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
 }
