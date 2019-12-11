@@ -1,6 +1,8 @@
 package models
 
 import (
+	"os"
+
 	"github.com/donnol/jdnote/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
@@ -25,24 +27,24 @@ var defaultDB = func() *sqlx.DB {
 	return db
 }()
 
-// // 这个值可以从环境变量获取
-// var isUnitTest = func() bool {
-// 	env, ok := os.LookupEnv(unitTestEnv)
-// 	if !ok || env == "" {
-// 		return false
-// 	}
-// 	return true
-// }()
+// 这个值可以从环境变量获取
+var isUnitTest = func() bool {
+	env, ok := os.LookupEnv(unitTestEnv)
+	if !ok || env == "" {
+		return false
+	}
+	return true
+}()
 
-// // 用于单元测试的全局事务
-// var globalTx = func() *sqlx.Tx {
-// 	if isUnitTest {
-// 		tx, err := defaultDB.Beginx()
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		return tx
-// 	}
+// 用于单元测试的全局事务
+var globalTx = func() *sqlx.Tx {
+	if isUnitTest {
+		tx, err := defaultDB.Beginx()
+		if err != nil {
+			panic(err)
+		}
+		return tx
+	}
 
-// 	return nil
-// }()
+	return nil
+}()
