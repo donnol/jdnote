@@ -17,6 +17,15 @@ type Context interface {
 	Logger() utillog.Logger
 	// 获取当前登录用户ID
 	UserID() int
+
+	// 设置Context
+	SetContext(context.Context)
+
+	// 设置用户ID
+	SetUserID(userID int)
+
+	// 返回一个新的Context，并设置tx
+	NewWithTx(db.DB) Context
 }
 
 // myContext myContext
@@ -40,6 +49,26 @@ func (mc *myContext) Logger() utillog.Logger {
 // UserID 获取当前登录用户ID
 func (mc *myContext) UserID() int {
 	return mc.userID
+}
+
+// SetContext 设置Context
+func (mc *myContext) SetContext(ctx context.Context) {
+	mc.Context = ctx
+}
+
+// SetUserID 设置用户ID
+func (mc *myContext) SetUserID(userID int) {
+	mc.userID = userID
+}
+
+// NewWithTx 返回一个新的Context，并设置tx
+func (mc *myContext) NewWithTx(tx db.DB) Context {
+	nmctx := new(myContext)
+	nmctx.Context = mc.Context
+	nmctx.db = tx
+	nmctx.logger = mc.logger
+	nmctx.userID = mc.userID
+	return nmctx
 }
 
 // New 新建
