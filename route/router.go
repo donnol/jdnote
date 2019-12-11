@@ -412,13 +412,14 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
 		dbBase := models.NewBase()
-		logger := utillog.Default()
+		ctx := models.DefaultCtx()
+		ctx.SetUserID(userID)
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
 			err = dbBase.WithTx(func(tx db.DB) error {
 				var err error
-				ctx := context.New(tx, logger, userID)
+				ctx := ctx.NewWithTx(tx)
 
 				r, err = f(ctx, p)
 				if err != nil {
@@ -428,8 +429,6 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				return nil
 			})
 		} else {
-			db := dbBase.DB()
-			ctx := context.New(db, logger, userID)
 			r, err = f(ctx, p)
 		}
 		// 处理错误
