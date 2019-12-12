@@ -17,12 +17,17 @@ type Context interface {
 	Logger() utillog.Logger
 	// 获取当前登录用户ID
 	UserID() int
+	// 获取请求ID
+	RequestID() string
 
 	// 设置Context
 	SetContext(context.Context)
 
 	// 设置用户ID
 	SetUserID(userID int)
+
+	// 设置请求ID
+	SetRequestID(string)
 
 	// 返回一个新的Context，并设置tx
 	NewWithTx(db.DB) Context
@@ -31,9 +36,10 @@ type Context interface {
 // myContext myContext
 type myContext struct {
 	context.Context
-	db     db.DB
-	logger utillog.Logger
-	userID int
+	db        db.DB
+	logger    utillog.Logger
+	userID    int
+	requestID string
 }
 
 // DB 获取DB实例
@@ -51,6 +57,11 @@ func (mc *myContext) UserID() int {
 	return mc.userID
 }
 
+// RequestID 获取请求ID
+func (mc *myContext) RequestID() string {
+	return ""
+}
+
 // SetContext 设置Context
 func (mc *myContext) SetContext(ctx context.Context) {
 	mc.Context = ctx
@@ -59,6 +70,10 @@ func (mc *myContext) SetContext(ctx context.Context) {
 // SetUserID 设置用户ID
 func (mc *myContext) SetUserID(userID int) {
 	mc.userID = userID
+}
+
+func (mc *myContext) SetRequestID(reqID string) {
+	mc.requestID = reqID
 }
 
 // NewWithTx 返回一个新的Context，并设置tx
