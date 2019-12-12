@@ -21,6 +21,7 @@ import (
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
 	"github.com/rcrowley/go-metrics"
 	"golang.org/x/time/rate"
@@ -354,6 +355,12 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 	return func(c *gin.Context) {
 		var err error
 
+		ctx := models.DefaultCtx()
+		reqID, err := uuid.NewV4()
+		if err != nil {
+			ctx.Logger().Errorf("New request id failed: %+v\n", err)
+		}
+
 		// 获取参数
 		var body []byte
 		var values url.Values
@@ -375,7 +382,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 			c.JSON(http.StatusNotAcceptable, Result{Error: utilerrors.Error{
 				Code: utilerrors.ErrorCodeRouter,
 				Msg:  fmt.Sprintf("%+v", err),
-			}})
+			}, RequestID: reqID.String()})
 			return
 		}
 
@@ -401,7 +408,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				c.JSON(http.StatusMethodNotAllowed, Result{Error: utilerrors.Error{
 					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
-				}})
+				}, RequestID: reqID.String()})
 				return
 			}
 		}
@@ -412,8 +419,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
 		dbBase := models.NewBase()
-		ctx := models.DefaultCtx()
 		ctx.SetUserID(userID)
+		ctx.SetRequestID(reqID.String())
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
@@ -444,10 +451,11 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				c.JSON(http.StatusForbidden, Result{Error: utilerrors.Error{
 					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
-				}})
+				}, RequestID: reqID.String()})
 				return
 			}
 		}
+		r.RequestID = reqID.String()
 
 		// 设置header
 		// 格式
@@ -462,7 +470,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
 					Code: utilerrors.ErrorCodeRouter,
 					Msg:  fmt.Sprintf("%+v", err),
-				}})
+				}, RequestID: reqID.String()})
 				return
 			}
 			c.Header(setCookieHeaderKey, cookie.String())

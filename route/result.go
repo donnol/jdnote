@@ -19,6 +19,9 @@ type Result struct {
 	// 给登陆接口使用
 	CookieAfterLogin int `json:"-"` // 登陆时需要设置登陆态的用户信息
 
+	// 请求ID，在请求到来时生成，处理过程传递，返回时一并返回
+	RequestID string `json:"requestID"` // uuid
+
 	// 下载内容时使用
 	Content
 }
