@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"log"
 	"sync"
 	"time"
 )
@@ -16,6 +17,8 @@ type memImpl struct {
 	// 2. 惰性删除 -- 键查询的时候查看过期时间，如已过期则删除；占用内存
 	// 3. 定时删除 -- 每隔一段时间执行一次删除操作，并通过限制删除操作执行的时长和频率，来减少删除操作对cpu的影响。另一方面定时删除也有效的减少了因惰性删除带来的内存浪费。
 	m map[string]memValue
+
+	delDuration time.Duration
 }
 
 type memValue struct {
@@ -25,9 +28,15 @@ type memValue struct {
 }
 
 func newMemImpl() *memImpl {
-	return &memImpl{
-		m: make(map[string]memValue),
+	mi := &memImpl{
+		m:           make(map[string]memValue),
+		delDuration: time.Second * 1,
 	}
+
+	// 开启定时删除
+	go mi.beginDelTask()
+
+	return mi
 }
 
 var _ Cache = &memImpl{}
@@ -94,6 +103,25 @@ func (i *memImpl) lookup(key string, now time.Time) (memValue, bool) {
 	if ok && (!v.haveExpired || now.Before(v.expiredAt)) {
 		return v, true
 	}
+	if ok {
+		return v, false
+	}
 
 	return memValue{}, false
+}
+
+func (i *memImpl) beginDelTask() {
+	tickChan := time.Tick(i.delDuration)
+	for {
+		select {
+		case <-tickChan:
+			now := time.Now()
+			for key, value := range i.m {
+				if value.haveExpired && !now.Before(value.expiredAt) {
+					delete(i.m, key)
+					log.Printf("delete %s from cache\n", key)
+				}
+			}
+		}
+	}
 }
