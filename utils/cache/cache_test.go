@@ -56,3 +56,26 @@ func TestMemImpl(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkMemImpl(b *testing.B) {
+	opt := Option{
+		Type: TypeMem,
+	}
+	c := New(opt)
+
+	cas := struct {
+		key   string
+		value interface{}
+	}{"key1", "value1"}
+	n := time.Duration(5)
+	expire := time.Second * n
+	for i := 0; i < b.N; i++ {
+		c.Set(cas.key, cas.value)
+
+		c.Get(cas.key)
+
+		c.Lookup(cas.key)
+
+		c.SetNX(cas.key, cas.value, expire)
+	}
+}
