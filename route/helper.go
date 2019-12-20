@@ -28,9 +28,9 @@ func resolveCallExpr(funcCall string) (name string, v []interface{}, t token.Tok
 
 	// 参数值和类型
 	for _, arg := range callExpr.Args {
-		switch arg.(type) {
+		switch arg := arg.(type) {
 		case *ast.BasicLit:
-			lit := arg.(*ast.BasicLit)
+			lit := arg
 			t = lit.Kind
 			var lv interface{}
 			switch t {
@@ -41,7 +41,7 @@ func resolveCallExpr(funcCall string) (name string, v []interface{}, t token.Tok
 			}
 			v = append(v, lv)
 		case *ast.Ident:
-			ident := arg.(*ast.Ident)
+			ident := arg
 			v = append(v, ident.Name)
 			t = token.STRING
 		}
