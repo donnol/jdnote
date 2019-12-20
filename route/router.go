@@ -217,7 +217,10 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 
 func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	m := metrics.NewMeter()
-	metrics.Register(wo.method+" "+wo.path, m)
+	if err := metrics.Register(wo.method+" "+wo.path, m); err != nil {
+		utillog.Warnf("Register metrics failed: %+v\n", err)
+		return handler
+	}
 	m.Mark(0)
 
 	go metrics.Log(
@@ -243,8 +246,6 @@ type routeAttr struct {
 }
 
 const (
-	fileTagLeft          = "("
-	fileTagRight         = ")"
 	fileTagSep           = ","
 	fileTagName          = "file"
 	methodTxTagName      = "tx"
