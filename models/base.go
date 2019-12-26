@@ -26,9 +26,31 @@ type ProcessOption struct {
 	Query string
 	Args  []interface{}
 
-	N    int                                                   // 批数量
-	Scan func(context.Context, *sql.Rows) (interface{}, error) // 扫描
-	Do   func(context.Context, []interface{}) error            // 处理
+	N int // 批数量
+
+	// 用函数的话就必须返回interface{}，然后再传进去Do方法里，这样就有点分裂了
+	// Scan func(context.Context, *sql.Rows) (interface{}, error) // 扫描
+	// Do   func(context.Context, []interface{}) error            // 处理
+
+	// 如果用接口呢？就可以不用将值返回，而是存在实体里，这样实体调用Do方法的时候就不需要传入Scan获取到的返回值
+	// 这样也不会有分裂出现
+	Entity func() Entity
+}
+
+// Entity 实体
+type Entity interface {
+	Scanner
+	Doer
+}
+
+// Scanner 扫描
+type Scanner interface {
+	Scan(context.Context, *sql.Rows) error
+}
+
+// Doer 处理
+type Doer interface {
+	Do(context.Context) error
 }
 
 // ProcessConcurrent 并发处理
@@ -47,20 +69,19 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	// 遍历结果
 	// 每找到n条记录，传入worker执行
 	var acNum int
-	var data = make([]interface{}, 0, opt.N)
+	entity := opt.Entity()
 	for rows.Next() {
-		tmp, err := opt.Scan(ctx, rows)
+		err := entity.Scan(ctx, rows)
 		if err != nil {
 			return err
 		}
-		data = append(data, tmp)
 		acNum++
 
+		// 够一批
 		if acNum == opt.N {
-			tmpData := data
 			w.Push(worker.MakeJob(worker.Do(func() error {
 				// 处理数据
-				if err := opt.Do(ctx, tmpData); err != nil {
+				if err := entity.Do(ctx); err != nil {
 					return err
 				}
 
@@ -69,9 +90,14 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 				utillog.Errorf("do failed, err is %+v", err)
 			})))
 
-			data = make([]interface{}, 0, opt.N)
 			acNum = 0
+			entity = opt.Entity()
 		}
+	}
+	// TODO:这里不好，要再调一次Do
+	// 或者最后几个
+	if err := entity.Do(ctx); err != nil {
+		return err
 	}
 
 	rerr := rows.Close()
