@@ -5,7 +5,7 @@ import (
 )
 
 // Register 注册
-func Register(Flow, []Hook) // 注册新类型，并绑定钩子
+func Register(Flow, []Hook) {} // 注册新类型，并绑定钩子
 
 // Flow 流
 type Flow interface {

@@ -2,8 +2,8 @@ package note
 
 import (
 	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/models/note"
 	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/services/note"
 	"github.com/donnol/jdnote/utils/context"
 )
 

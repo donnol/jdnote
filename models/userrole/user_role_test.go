@@ -1,4 +1,4 @@
-package userroledata
+package userrole
 
 import (
 	"testing"

@@ -1,68 +1,142 @@
 package note
 
 import (
-	"fmt"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/note/notedata"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 // Note 笔记
 type Note struct {
 	models.Base
-
-	NoteModel notedata.Note
 }
 
-// GetPage 获取分页
-func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
-	entity := notedata.Entity{
-		Title:  param.Title,
-		Detail: param.Detail,
-	}
-	res, total, err := n.NoteModel.GetPage(ctx, entity, param.CommonParam)
+// AddOne 添加一条记录，并返回它的id
+func (note *Note) AddOne(ctx context.Context) (id int, err error) {
+	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
+		VALUES($1, '', '')
+		RETURNING id`,
+		ctx.UserID(),
+	)
 	if err != nil {
-		return
-	}
-	r.Total = total
-
-	r.List = make([]Result, 0, len(res))
-	var tmp Result
-	for _, single := range res {
-		tmp = Result{}
-
-		tmp, err = tmp.Init(single)
-		if err != nil {
-			return
-		}
-
-		r.List = append(r.List, tmp)
-	}
-
-	return
-}
-
-// Get 获取
-func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
-	e, err := n.NoteModel.Get(ctx, id)
-	if err != nil {
-		return
-	}
-	r, err = r.Init(e)
-	if err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
 	return
 }
 
-// AddOne 添加
-func (n *Note) AddOne(ctx context.Context) (id int, err error) {
-	id, err = n.NoteModel.AddOne(ctx)
+// Add 添加笔记
+func (note *Note) Add(ctx context.Context, entity Entity) (id int, err error) {
+	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
+		VALUES($1, $2, $3)
+		RETURNING id
+		`,
+		entity.UserID,
+		entity.Title,
+		entity.Detail,
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
+// Mod 修改笔记
+func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
+	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
+		title = :title,
+		detail = :detail
+		Where id = :id
+		`,
+		map[string]interface{}{
+			"title":  entity.Title,
+			"detail": entity.Detail,
+			"id":     id,
+		},
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
+// Del 删除笔记
+func (note *Note) Del(ctx context.Context, id int) (err error) {
+	_, err = ctx.DB().NamedExecContext(ctx, `Delete FROM t_note
+		Where id = :id
+		`,
+		map[string]interface{}{
+			"id": id,
+		},
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
+// GetPage 获取笔记分页
+func (note *Note) GetPage(ctx context.Context, entity Entity, param models.CommonParam) (
+	res []Entity,
+	total int,
+	err error,
+) {
+
+	var dbr Pages
+	err = ctx.DB().SelectContext(ctx, &dbr, `
+		SELECT 
+			id,
+			title,
+			detail,
+			created_at,
+			COUNT(*) OVER () AS total
+		FROM t_note
+		WHERE true
+		
+		AND CASE WHEN $3 <> '' THEN
+			title ~* $3
+		ELSE true END
+		AND CASE WHEN $4 <> 0 THEN
+			id = $4
+		ELSE true END
+		AND CASE WHEN $5 <> '' THEN
+			detail ~* $5
+		ELSE true END
+		AND CASE WHEN $6 THEN
+			created_at >= $7::timestamp
+		ELSE true END
+		AND CASE WHEN $8 THEN
+			created_at <= $9::timestamp
+		ELSE true END
+
+		ORDER BY id DESC
+		LIMIT $1
+		OFFSET $2
+		`,
+		param.PageSize,
+		param.PageIndex,
+		entity.Title,
+		entity.ID,
+		entity.Detail,
+
+		param.BeginTime != 0,
+		time.Unix(param.BeginTime, 0),
+		param.EndTime != 0,
+		time.Unix(param.EndTime, 0),
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	res, total, err = dbr.Transfer()
 	if err != nil {
 		return
 	}
@@ -70,113 +144,35 @@ func (n *Note) AddOne(ctx context.Context) (id int, err error) {
 	return
 }
 
-// Mod 修改
-func (n *Note) Mod(ctx context.Context, id int, p Param) (err error) {
-	if err = n.NoteModel.Mod(ctx, id, notedata.Entity{
-		Title:  p.Title,
-		Detail: p.Detail,
-	}); err != nil {
+// Get 获取笔记
+func (note *Note) Get(ctx context.Context, id int) (entity Entity, err error) {
+	err = ctx.DB().GetContext(ctx, &entity, `
+		SELECT id, user_id, title, detail, created_at
+		FROM t_note
+		WHERE id = $1
+		`,
+		id,
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
+// GetList 获取笔记列表
+func (note *Note) GetList(ctx context.Context, ids []int64) (entitys []Entity, err error) {
+	if err = ctx.DB().SelectContext(ctx, &entitys, `
+		SELECT id, user_id, title, detail, created_at
+		FROM t_note
+		WHERE id = any($1)
+		ORDER BY id DESC
+		`,
+		pq.Int64Array(ids),
+	); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 
 	return
-}
-
-// Del 删除
-func (n *Note) Del(ctx context.Context, id int) (err error) {
-	err = n.NoteModel.Del(ctx, id)
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-// Publish 发布
-func (n *Note) Publish(ctx context.Context, id int) error {
-	// 获取内容
-	data, err := n.NoteModel.Get(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	// 生成md文件
-	now := time.Now()
-	content := n.getHugoContent(data.Title, data.Detail, now.Format("2006-01-02 15:04:05"), true, []string{}, []string{}, []string{})
-
-	// 重新生成网页
-	filename := strings.ReplaceAll(data.Title, " ", "_")
-	filename += ".md"
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.WriteString(content)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (n *Note) getHugoContent(title, detail, date string, isDraft bool, categories, tags, keywords []string) string {
-	var content string
-
-	headFormat := `---
-title: "%s"
-date: %s
-draft: %s`
-	var draftStr string
-	if isDraft {
-		draftStr = "true"
-	} else {
-		draftStr = "false"
-	}
-	content += fmt.Sprintf(headFormat, title, date, draftStr)
-
-	for i, single := range categories {
-		if i == 0 {
-			content += `
-categories:`
-		}
-
-		content += fmt.Sprintf(`
-- %s`, single)
-	}
-
-	for i, single := range tags {
-		if i == 0 {
-			content += `
-tags:`
-		}
-
-		content += fmt.Sprintf(`
-- %s`, single)
-	}
-
-	for i, single := range keywords {
-		if i == 0 {
-			content += `
-keywords:`
-		}
-
-		content += fmt.Sprintf(`
-- %s`, single)
-	}
-
-	content += fmt.Sprintf(`
----
-
-%s
-`, detail)
-
-	return content
-}
-
-// Hide TODO:隐藏
-func (n *Note) Hide(ctx context.Context, id int) error {
-
-	return nil
 }

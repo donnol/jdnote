@@ -1,61 +1,81 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/role/roledata"
-	"github.com/donnol/jdnote/models/user/userdata"
-	"github.com/donnol/jdnote/models/userrole/userroledata"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User 用户
 type User struct {
 	models.Base
-
-	UserModel     userdata.User
-	UserRoleModel userroledata.UserRole
 }
 
-// Check 检查
-func (u *User) Check(ctx context.Context) error {
-
-	return nil
-}
-
-// GetByID 获取
-func (u *User) GetByID(ctx context.Context, id int) (e userdata.Entity, err error) {
-	return u.UserModel.GetByID(ctx, id)
-}
-
-// GetByName 获取
-func (u *User) GetByName(ctx context.Context, name string) (e userdata.Entity, err error) {
-	return u.UserModel.GetByName(ctx, name)
-}
-
-// GetFirst 获取首个用户
-func (u *User) GetFirst(ctx context.Context) (e userdata.Entity, err error) {
-	return u.UserModel.GetFirst(ctx)
-}
-
-// VerifyByNameAndPassword 校验用户密码
-func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e userdata.Entity, err error) {
-	return u.UserModel.VerifyByNameAndPassword(ctx, name, password)
-}
-
-// Add 添加
-func (u *User) Add(ctx context.Context, e userdata.Entity) (id int, err error) {
-
-	// 用户模块添加
-	if id, err = u.UserModel.Add(ctx, e); err != nil {
+// GetByID 以id获取用户
+func (u *User) GetByID(ctx context.Context, id int) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE id = $1`, id); err != nil {
+		err = errors.WithMessage(err, fmt.Sprintf("id: %d", id))
 		return
 	}
 
-	// 用户角色模块添加
-	ure := userroledata.Entity{
-		UserID: id,
-		RoleID: roledata.DefaultRoleID,
+	return
+}
+
+// GetByName 以名字获取用户
+func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
+		err = errors.WithStack(err)
+		return
 	}
-	if _, err = u.UserRoleModel.Add(ctx, ure); err != nil {
+
+	return
+}
+
+// GetFirst 获取首个用户
+func (u *User) GetFirst(ctx context.Context) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user ORDER BY id ASC LIMIT 1`); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	return
+}
+
+// VerifyByNameAndPassword 以名字和密码校验用户
+func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
+	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	// 校验用户和密码
+	if err = bcrypt.CompareHashAndPassword([]byte(e.Password), []byte(password)); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	return
+}
+
+// Add 添加
+func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
+	hashedPassword, err := u.hashPassword(e.Password)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+
+	if err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_user (name, phone, email, password)
+	VALUES($1, $2, $3, $4) RETURNING id`,
+		e.Name,
+		e.Phone,
+		e.Email,
+		hashedPassword,
+	); err != nil {
+		err = errors.WithStack(err)
 		return
 	}
 

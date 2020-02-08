@@ -1,4 +1,4 @@
-package userdata
+package user
 
 // Entity 实体-对应表结构
 type Entity struct {

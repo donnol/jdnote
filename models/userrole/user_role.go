@@ -1,4 +1,4 @@
-package userroledata
+package userrole
 
 import (
 	"github.com/donnol/jdnote/models"

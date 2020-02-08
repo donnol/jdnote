@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/donnol/jdnote/models/auth"
+	"github.com/donnol/jdnote/services/auth"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
 )

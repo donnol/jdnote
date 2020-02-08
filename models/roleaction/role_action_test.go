@@ -1,4 +1,4 @@
-package roleactiondata
+package roleaction
 
 import (
 	"testing"

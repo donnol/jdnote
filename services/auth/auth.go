@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/roleaction/roleactiondata"
-	"github.com/donnol/jdnote/models/user/userdata"
+	"github.com/donnol/jdnote/models/roleaction"
+	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -11,8 +11,8 @@ import (
 type Auth struct {
 	models.Base
 
-	RoleActionModel roleactiondata.RoleAction
-	UserModel       userdata.User
+	RoleActionModel roleaction.RoleAction
+	UserModel       user.User
 }
 
 // CheckUserExist 检查用户是否存在

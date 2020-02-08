@@ -1,4 +1,4 @@
-package notedata
+package note
 
 import (
 	"strings"

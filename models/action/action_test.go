@@ -1,4 +1,4 @@
-package actiondata
+package action
 
 import (
 	"testing"

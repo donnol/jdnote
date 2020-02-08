@@ -8,9 +8,9 @@ import (
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/models"
-	"github.com/donnol/jdnote/models/note"
-	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/services/note"
+	"github.com/donnol/jdnote/services/user"
 	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
 )
