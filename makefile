@@ -10,6 +10,15 @@ server_start:db_start
 db_start:
 	sudo service postgresql start
 
+dir=.
+testName=TestXXX
+server_unit_test:install
+	go clean -testcache && \
+	gotest $(dir) -v -timeout=1200s -run $(testName)
+
+install:
+	go install ./...
+
 # 压力测试，看情况决定是否加'-k'标志
 usekflag=false
 ifeq ($(usekflag), true)
