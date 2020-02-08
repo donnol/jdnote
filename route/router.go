@@ -3,7 +3,6 @@ package route
 import (
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -223,11 +222,12 @@ func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	}
 	m.Mark(0)
 
-	go metrics.Log(
-		metrics.DefaultRegistry,
-		5*time.Second,
-		log.New(os.Stdout, "metrics: ", log.Lmicroseconds),
-	)
+	// TODO:改为存储到时序数据库
+	// go metrics.Log(
+	// 	metrics.DefaultRegistry,
+	// 	5*time.Second,
+	// 	log.New(os.Stdout, "metrics: ", log.Lmicroseconds),
+	// )
 
 	return func(c *gin.Context) {
 		handler(c)
