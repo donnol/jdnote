@@ -60,10 +60,9 @@ func TestBaseProcess(t *testing.T) {
 	ctx := context.New(defaultDB, utillog.New(os.Stdout, "", log.LstdFlags), 0)
 	base := NewBase()
 
-	// FIXME:有些数据没有修改
 	entity := &entityImpl{}
 	opt := ProcessOption{
-		Query: "SELECT id, title FROM t_note ORDER BY id ASC",
+		Query: "SELECT id, title FROM t_note",
 		Args:  []interface{}{},
 
 		N: 10, // 批数量 2(60s) 100(25s) 200(25s) 300(23s) 400(25s) 500(24s)

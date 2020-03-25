@@ -2,11 +2,12 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/donnol/jdnote/utils/context"
-	utillog "github.com/donnol/jdnote/utils/log"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/jdnote/utils/worker"
+	"github.com/pkg/errors"
 )
 
 // Base 基底
@@ -79,25 +80,21 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 
 		// 够一批
 		if acNum == opt.N {
-			w.Push(worker.MakeJob(worker.Do(func() error {
-				// 处理数据
-				if err := entity.Do(ctx); err != nil {
-					return err
-				}
+			// 推入任务队列
+			if err := w.Push(makeWorkerJob(ctx, entity)); err != nil {
+				return err
+			}
 
-				return nil
-			}), 0, worker.ErrorHandler(func(err error) {
-				utillog.Errorf("do failed, err is %+v", err)
-			})))
-
+			// 重置
 			acNum = 0
 			entity = opt.Entity()
 		}
 	}
-	// TODO:这里不好，要再调一次Do
-	// 或者最后几个
-	if err := entity.Do(ctx); err != nil {
-		return err
+	// 剩下还有，但不足一批：需要额外执行一次
+	if acNum != 0 && acNum < opt.N {
+		if err := w.Push(makeWorkerJob(ctx, entity)); err != nil {
+			return err
+		}
 	}
 
 	rerr := rows.Close()
@@ -114,6 +111,32 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	w.Stop()
 
 	return nil
+}
+
+func makeWorkerJob(ctx context.Context, entity Entity) worker.Job {
+	return worker.MakeJob(
+		newWorkerDo(ctx, entity),
+		0,
+		newWorkerErrorHandler(ctx),
+	)
+}
+
+// 参数传递时会复制一个，在任务里使用
+func newWorkerDo(ctx context.Context, entity Entity) worker.Do {
+	return func() error {
+		// 处理数据
+		if err := entity.Do(ctx); err != nil {
+			return errors.WithMessage(err, fmt.Sprintf("entity: %+v", entity))
+		}
+
+		return nil
+	}
+}
+
+func newWorkerErrorHandler(ctx context.Context) worker.ErrorHandler {
+	return func(err error) {
+		ctx.Logger().Errorf("do failed, err is %+v", err)
+	}
 }
 
 // DB DB接口
