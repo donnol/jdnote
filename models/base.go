@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"runtime"
 
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/store/db"
@@ -35,7 +36,7 @@ type ProcessOption struct {
 
 	// 如果用接口呢？就可以不用将值返回，而是存在实体里，这样实体调用Do方法的时候就不需要传入Scan获取到的返回值
 	// 这样也不会有分裂出现
-	Entity func() Entity
+	NewEntity func() Entity
 }
 
 // Entity 实体
@@ -57,7 +58,9 @@ type Doer interface {
 // ProcessConcurrent 并发处理
 func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	// 启动worker
-	w := worker.New(8)
+	numCPU := runtime.NumCPU()
+	ctx.Logger().Debugf("== numCPU: %d\n", numCPU)
+	w := worker.New(numCPU)
 	w.Start()
 
 	// 语句查询
@@ -70,7 +73,7 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	// 遍历结果
 	// 每找到n条记录，传入worker执行
 	var acNum int
-	entity := opt.Entity()
+	entity := opt.NewEntity()
 	for rows.Next() {
 		err := entity.Scan(ctx, rows)
 		if err != nil {
@@ -87,7 +90,7 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 
 			// 重置
 			acNum = 0
-			entity = opt.Entity()
+			entity = opt.NewEntity()
 		}
 	}
 	// 剩下还有，但不足一批：需要额外执行一次
@@ -95,11 +98,6 @@ func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 		if err := w.Push(makeWorkerJob(ctx, entity)); err != nil {
 			return err
 		}
-	}
-
-	rerr := rows.Close()
-	if rerr != nil {
-		return err
 	}
 
 	// Rows.Err will report the last error encountered by Rows.Scan.

@@ -8,6 +8,8 @@ import (
 
 	"github.com/donnol/jdnote/utils/context"
 	utillog "github.com/donnol/jdnote/utils/log"
+	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 )
 
 type rowStruct struct {
@@ -27,7 +29,6 @@ func (ei *entityImpl) Scan(ctx context.Context, rows *sql.Rows) error {
 	if err := rows.Scan(&row.ID, &row.Title); err != nil {
 		return err
 	}
-	// ctx.Logger().Debugf("scan: %+v\n", row)
 
 	ei.rows = append(ei.rows, row)
 
@@ -36,45 +37,55 @@ func (ei *entityImpl) Scan(ctx context.Context, rows *sql.Rows) error {
 
 // Do 处理
 func (ei *entityImpl) Do(ctx context.Context) error {
-	// 处理数据，这里需要用到ctx
-	// 比如在标题后添加后缀
-	// suffix := "_hah"
-
 	// 这里换成批量操作，会更快
+	ids := make([]int, 0, len(ei.rows))
 	for _, single := range ei.rows {
-		// title := single.Title+suffix
-		title := "title4"
-		res := ctx.DB().MustExecContext(ctx, "UPDATE t_note SET title = $1 WHERE id = $2", title, single.ID)
-		afNum, err := res.RowsAffected()
-		if err != nil {
-			return err
-		}
-		_ = afNum
-		// ctx.Logger().Debugf("affected row is %d, id is %v\n", afNum, single.ID)
+		ids = append(ids, single.ID)
+	}
+
+	title := "title4"
+	query, args, err := sqlx.In("UPDATE t_note SET title = ? WHERE id IN (?)", title, ids)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	query = ctx.DB().Rebind(query)
+	res := ctx.DB().MustExecContext(ctx, query, args...)
+	_, err = res.RowsAffected()
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func TestBaseProcess(t *testing.T) {
-	ctx := context.New(defaultDB, utillog.New(os.Stdout, "", log.LstdFlags), 0)
-	base := NewBase()
+var (
+	ctx  = context.New(defaultDB, utillog.New(os.Stdout, "", log.LstdFlags), 0)
+	base = NewBase()
 
-	entity := &entityImpl{}
-	opt := ProcessOption{
+	entity = &entityImpl{}
+	opt    = ProcessOption{
 		Query: "SELECT id, title FROM t_note",
 		Args:  []interface{}{},
 
-		N: 10, // 批数量 2(60s) 100(25s) 200(25s) 300(23s) 400(25s) 500(24s)
-		Entity: func() Entity {
+		N: 100, // 批数量 2(60s) 100(25s) 200(25s) 300(23s) 400(25s) 500(24s)
+		NewEntity: func() Entity {
 			return &entityImpl{
 				rows: make([]rowStruct, 0),
 			}
 		},
 	}
+)
+
+func TestBaseProcess(t *testing.T) {
 	if err := base.ProcessConcurrent(ctx, opt); err != nil {
 		t.Fatal(err)
 	}
 
 	t.Logf("entity: %+v\n", entity)
+}
+
+func BenchmarkBaseProcess(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		base.ProcessConcurrent(ctx, opt)
+	}
 }
