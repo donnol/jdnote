@@ -5,34 +5,42 @@ require (
 	github.com/RoaringBitmap/roaring v0.4.18 // indirect
 	github.com/Smerity/govarint v0.0.0-20150407073650-7265e41f48f1 // indirect
 	github.com/blevesearch/bleve v0.7.0
+	github.com/blevesearch/blevex v0.0.0-20190916190636-152f0fe5c040 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.2 // indirect
 	github.com/blevesearch/segment v0.0.0-20160915185041-762005e7a34f // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
-	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/brianvoe/gofakeit/v4 v4.1.0
 	github.com/couchbase/vellum v0.0.0-20190610201045-ec7b775d247f // indirect
+	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
+	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
+	github.com/cznic/strutil v0.0.0-20181122101858-275e90344537 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
-	github.com/fishedee/tools v0.3.0
+	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
+	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
+	github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 // indirect
 	github.com/gin-contrib/gzip v0.0.1
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-redis/redis/v7 v7.0.0-beta.4
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/google/gops v0.3.6
 	github.com/gorilla/schema v1.1.0
+	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.0.0
-	github.com/mdempsky/gocode v0.0.0-20181226182234-be056ad32a5e // indirect
 	github.com/nsqio/go-nsq v1.0.7
-	github.com/nsqio/nsq v1.1.0 // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v1.0.0
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563
+	github.com/remyoudompheng/bigfft v0.0.0-20190728182440-6a916e37a237 // indirect
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
 	github.com/steveyen/gtreap v0.0.0-20150807155958-0abe01ef9be2 // indirect
+	github.com/syndtr/goleveldb v1.0.0 // indirect
+	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/ugorji/go/codec v0.0.0-20181209151446-772ced7fd4c2 // indirect
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
 
