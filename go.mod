@@ -24,6 +24,7 @@ require (
 	github.com/go-redis/redis/v7 v7.0.0-beta.4
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/google/gops v0.3.6
+	github.com/google/wire v0.4.0
 	github.com/gorilla/schema v1.1.0
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0

@@ -15,7 +15,7 @@ import (
 type Note struct {
 	models.Base
 
-	NoteModel note.Note
+	NoteModel note.Noter
 }
 
 // GetPage 获取分页

@@ -9,13 +9,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Note 笔记
-type Note struct {
-	models.Base
+// note 笔记
+type note struct {
+}
+
+var _ Noter = &note{}
+
+// New 新建
+func New() Noter {
+	return &note{}
 }
 
 // AddOne 添加一条记录，并返回它的id
-func (note *Note) AddOne(ctx context.Context) (id int, err error) {
+func (note *note) AddOne(ctx context.Context) (id int, err error) {
 	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, '', '')
 		RETURNING id`,
@@ -30,7 +36,7 @@ func (note *Note) AddOne(ctx context.Context) (id int, err error) {
 }
 
 // Add 添加笔记
-func (note *Note) Add(ctx context.Context, entity Entity) (id int, err error) {
+func (note *note) Add(ctx context.Context, entity Entity) (id int, err error) {
 	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, $2, $3)
 		RETURNING id
@@ -47,7 +53,7 @@ func (note *Note) Add(ctx context.Context, entity Entity) (id int, err error) {
 }
 
 // Mod 修改笔记
-func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
+func (note *note) Mod(ctx context.Context, id int, entity Entity) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
 		title = :title,
 		detail = :detail
@@ -67,7 +73,7 @@ func (note *Note) Mod(ctx context.Context, id int, entity Entity) (err error) {
 }
 
 // Del 删除笔记
-func (note *Note) Del(ctx context.Context, id int) (err error) {
+func (note *note) Del(ctx context.Context, id int) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Delete FROM t_note
 		Where id = :id
 		`,
@@ -83,8 +89,8 @@ func (note *Note) Del(ctx context.Context, id int) (err error) {
 }
 
 // GetPage 获取笔记分页
-func (note *Note) GetPage(ctx context.Context, entity Entity, param models.CommonParam) (
-	res []Entity,
+func (note *note) GetPage(ctx context.Context, entity Entity, param models.CommonParam) (
+	res EntityList,
 	total int,
 	err error,
 ) {
@@ -145,7 +151,7 @@ func (note *Note) GetPage(ctx context.Context, entity Entity, param models.Commo
 }
 
 // Get 获取笔记
-func (note *Note) Get(ctx context.Context, id int) (entity Entity, err error) {
+func (note *note) Get(ctx context.Context, id int) (entity Entity, err error) {
 	err = ctx.DB().GetContext(ctx, &entity, `
 		SELECT id, user_id, title, detail, created_at
 		FROM t_note
@@ -161,7 +167,7 @@ func (note *Note) Get(ctx context.Context, id int) (entity Entity, err error) {
 }
 
 // GetList 获取笔记列表
-func (note *Note) GetList(ctx context.Context, ids []int64) (entitys []Entity, err error) {
+func (note *note) GetList(ctx context.Context, ids []int64) (entitys EntityList, err error) {
 	if err = ctx.DB().SelectContext(ctx, &entitys, `
 		SELECT id, user_id, title, detail, created_at
 		FROM t_note

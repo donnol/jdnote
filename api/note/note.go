@@ -1,6 +1,8 @@
 package note
 
 import (
+	stdctx "context"
+
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/services/note"
@@ -8,7 +10,15 @@ import (
 )
 
 func init() {
-	route.Register(&Note{})
+	// TODO:
+	// 手动初始化，后续结合wire实现更深入更高层次注入
+	note := &Note{}
+	var err error
+	note.NoteAo.NoteModel, err = InitNote(stdctx.Background())
+	if err != nil {
+		panic(err)
+	}
+	route.Register(note)
 }
 
 // Note 笔记

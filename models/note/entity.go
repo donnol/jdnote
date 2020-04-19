@@ -15,6 +15,9 @@ type Entity struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`           // 创建时间
 }
 
+// EntityList 列表
+type EntityList []Entity
+
 // Process 处理
 func (e Entity) Process() Entity {
 	ne := e

@@ -254,6 +254,13 @@ const (
 	limiterTagRateName   = "rate"
 )
 
+var (
+	groupType   = reflect.TypeOf(Group{})
+	fileType    = reflect.TypeOf(File{})
+	methodType  = reflect.TypeOf(Method{})
+	limiterType = reflect.TypeOf(Limiter{})
+)
+
 func getRouteAttr(refTypeRaw reflect.Type) (ra routeAttr) {
 	var groupName string
 	var fileMap = make(map[string]struct{})
@@ -262,10 +269,6 @@ func getRouteAttr(refTypeRaw reflect.Type) (ra routeAttr) {
 	var isTx bool
 	var limiterMap = make(map[string]limiterOption)
 	var methodLimiterMap = make(map[string]limiterOption)
-	groupType := reflect.TypeOf(Group{})
-	fileType := reflect.TypeOf(File{})
-	methodType := reflect.TypeOf(Method{})
-	limiterType := reflect.TypeOf(Limiter{})
 	for i := 0; i < refTypeRaw.NumField(); i++ {
 		field := refTypeRaw.Field(i)
 
