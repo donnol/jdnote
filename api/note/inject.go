@@ -6,11 +6,12 @@ package note
 import (
 	"context"
 
-	"github.com/donnol/jdnote/models/note"
+	notemodel "github.com/donnol/jdnote/models/note"
+	"github.com/donnol/jdnote/services/note"
 	"github.com/google/wire"
 )
 
 // InitNote 初始化
-func InitNote(ctx context.Context) (note.Noter, error) {
-	panic(wire.Build(wire.NewSet(note.New)))
+func InitNote(ctx context.Context) (*Note, error) {
+	panic(wire.Build(wire.NewSet(notemodel.New, note.New, New)))
 }

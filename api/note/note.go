@@ -10,11 +10,8 @@ import (
 )
 
 func init() {
-	// TODO:
 	// 手动初始化，后续结合wire实现更深入更高层次注入
-	note := &Note{}
-	var err error
-	note.NoteAo.NoteModel, err = InitNote(stdctx.Background())
+	note, err := InitNote(stdctx.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -25,10 +22,19 @@ func init() {
 type Note struct {
 	api.Base
 
-	NoteAo note.Note
+	NoteAo note.Noter
 
 	// 频率限制
 	Limiter route.Limiter `rate:"Rate(0.25, 2)"`
+}
+
+func New(
+	noteAo note.Noter,
+) *Note {
+	return &Note{
+		Base:   api.Base{},
+		NoteAo: noteAo,
+	}
 }
 
 // GetPage 获取分页

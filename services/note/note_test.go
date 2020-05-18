@@ -7,7 +7,7 @@ import (
 )
 
 func TestNoteGetHugoContent(t *testing.T) {
-	n := &Note{}
+	n := &noteImpl{}
 	content := n.getHugoContent("hah", "# hahahah", "2019-12-15", true, []string{}, []string{}, []string{})
 	t.Logf("%s\n", content)
 	content = n.getHugoContent("hah", "# hahahah", "2019-12-15", false, []string{"Go"}, []string{"Go"}, []string{"Go"})
@@ -15,7 +15,7 @@ func TestNoteGetHugoContent(t *testing.T) {
 }
 
 func TestPublish(t *testing.T) {
-	n := &Note{}
+	n := &noteImpl{}
 	ctx := models.DefaultCtx()
 	if err := n.Publish(ctx, 45); err != nil {
 		t.Fatal(err)

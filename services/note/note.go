@@ -6,25 +6,32 @@ import (
 	"strings"
 	"time"
 
-	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/note"
 	"github.com/donnol/jdnote/utils/context"
 )
 
-// Note 笔记
-type Note struct {
-	models.Base
+// noteImpl 笔记
+type noteImpl struct {
+	noteModel note.Noter
+}
 
-	NoteModel note.Noter
+var _ Noter = &noteImpl{}
+
+func New(
+	nm note.Noter,
+) Noter {
+	return &noteImpl{
+		noteModel: nm,
+	}
 }
 
 // GetPage 获取分页
-func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
+func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
 	entity := note.Entity{
 		Title:  param.Title,
 		Detail: param.Detail,
 	}
-	res, total, err := n.NoteModel.GetPage(ctx, entity, param.CommonParam)
+	res, total, err := n.noteModel.GetPage(ctx, entity, param.CommonParam)
 	if err != nil {
 		return
 	}
@@ -47,8 +54,8 @@ func (n *Note) GetPage(ctx context.Context, param PageParam) (r PageResult, err 
 }
 
 // Get 获取
-func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
-	e, err := n.NoteModel.Get(ctx, id)
+func (n *noteImpl) Get(ctx context.Context, id int) (r Result, err error) {
+	e, err := n.noteModel.Get(ctx, id)
 	if err != nil {
 		return
 	}
@@ -61,8 +68,8 @@ func (n *Note) Get(ctx context.Context, id int) (r Result, err error) {
 }
 
 // AddOne 添加
-func (n *Note) AddOne(ctx context.Context) (id int, err error) {
-	id, err = n.NoteModel.AddOne(ctx)
+func (n *noteImpl) AddOne(ctx context.Context) (id int, err error) {
+	id, err = n.noteModel.AddOne(ctx)
 	if err != nil {
 		return
 	}
@@ -71,8 +78,8 @@ func (n *Note) AddOne(ctx context.Context) (id int, err error) {
 }
 
 // Mod 修改
-func (n *Note) Mod(ctx context.Context, id int, p Param) (err error) {
-	if err = n.NoteModel.Mod(ctx, id, note.Entity{
+func (n *noteImpl) Mod(ctx context.Context, id int, p Param) (err error) {
+	if err = n.noteModel.Mod(ctx, id, note.Entity{
 		Title:  p.Title,
 		Detail: p.Detail,
 	}); err != nil {
@@ -83,8 +90,8 @@ func (n *Note) Mod(ctx context.Context, id int, p Param) (err error) {
 }
 
 // Del 删除
-func (n *Note) Del(ctx context.Context, id int) (err error) {
-	err = n.NoteModel.Del(ctx, id)
+func (n *noteImpl) Del(ctx context.Context, id int) (err error) {
+	err = n.noteModel.Del(ctx, id)
 	if err != nil {
 		return
 	}
@@ -93,9 +100,9 @@ func (n *Note) Del(ctx context.Context, id int) (err error) {
 }
 
 // Publish 发布
-func (n *Note) Publish(ctx context.Context, id int) error {
+func (n *noteImpl) Publish(ctx context.Context, id int) error {
 	// 获取内容
-	data, err := n.NoteModel.Get(ctx, id)
+	data, err := n.noteModel.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -121,7 +128,7 @@ func (n *Note) Publish(ctx context.Context, id int) error {
 	return nil
 }
 
-func (n *Note) getHugoContent(title, detail, date string, isDraft bool, categories, tags, keywords []string) string {
+func (n *noteImpl) getHugoContent(title, detail, date string, isDraft bool, categories, tags, keywords []string) string {
 	var content string
 
 	headFormat := `---
@@ -176,7 +183,7 @@ keywords:`
 }
 
 // Hide TODO:隐藏
-func (n *Note) Hide(ctx context.Context, id int) error {
+func (n *noteImpl) Hide(ctx context.Context, id int) error {
 
 	return nil
 }
