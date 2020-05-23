@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -165,7 +166,7 @@ func TestAddUser(t *testing.T) {
 					r.Data != 0, true,
 				).
 				Err(); err != nil {
-				t.Fatal(err)
+				log.Fatal(err)
 			}
 		}()
 
