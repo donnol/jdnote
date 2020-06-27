@@ -20,6 +20,9 @@ type Context interface {
 	// 获取请求ID
 	RequestID() string
 
+	// 取消
+	Cancel()
+
 	// 设置Context
 	SetContext(context.Context)
 
@@ -40,6 +43,8 @@ type myContext struct {
 	logger    utillog.Logger
 	userID    int
 	requestID string
+
+	cancel context.CancelFunc
 }
 
 // DB 获取DB实例
@@ -62,6 +67,11 @@ func (mc *myContext) RequestID() string {
 	return ""
 }
 
+// Cancel 取消
+func (mc *myContext) Cancel() {
+	mc.cancel()
+}
+
 // SetContext 设置Context
 func (mc *myContext) SetContext(ctx context.Context) {
 	mc.Context = ctx
@@ -78,18 +88,16 @@ func (mc *myContext) SetRequestID(reqID string) {
 
 // NewWithTx 返回一个新的Context，并设置tx
 func (mc *myContext) NewWithTx(tx db.DB) Context {
-	nmctx := new(myContext)
-	nmctx.Context = mc.Context
-	nmctx.db = tx
-	nmctx.logger = mc.logger
-	nmctx.userID = mc.userID
-	return nmctx
+	return New(tx, mc.logger, mc.userID)
 }
 
 // New 新建
 func New(db db.DB, logger utillog.Logger, userID int) Context {
 	mctx := new(myContext)
-	mctx.Context = context.Background()
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	mctx.Context = ctx
+	mctx.cancel = cancel
 	mctx.db = db
 	mctx.logger = logger
 	mctx.userID = userID
