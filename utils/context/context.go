@@ -88,18 +88,29 @@ func (mc *myContext) SetRequestID(reqID string) {
 
 // NewWithTx 返回一个新的Context，并设置tx
 func (mc *myContext) NewWithTx(tx db.DB) Context {
-	return New(tx, mc.logger, mc.userID)
+	mctx := newCtx(mc.Context, mc.cancel, tx, mc.logger, mc.userID)
+	return mctx
 }
 
 // New 新建
 func New(db db.DB, logger utillog.Logger, userID int) Context {
-	mctx := new(myContext)
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
+
+	mctx := newCtx(ctx, cancel, db, logger, userID)
+
+	return mctx
+}
+
+func newCtx(ctx context.Context, cancel context.CancelFunc, db db.DB, logger utillog.Logger, userID int) Context {
+	mctx := new(myContext)
+
 	mctx.Context = ctx
 	mctx.cancel = cancel
+
 	mctx.db = db
 	mctx.logger = logger
 	mctx.userID = userID
+
 	return mctx
 }
