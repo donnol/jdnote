@@ -8,7 +8,7 @@ import (
 
 var wg = new(sync.WaitGroup)
 
-func main() {
+func main3() {
 	ch := make(chan struct{})
 	ch1 := make(chan struct{})
 
