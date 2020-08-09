@@ -13,14 +13,11 @@ import (
 
 // Base 基底
 type Base struct {
-	*db.Base
 }
 
 // NewBase 新建
 func NewBase() *Base {
-	return &Base{
-		Base: db.New(defaultDB),
-	}
+	return &Base{}
 }
 
 // ProcessOption 选项

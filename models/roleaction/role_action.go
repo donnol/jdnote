@@ -1,19 +1,16 @@
 package roleaction
 
 import (
-	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
-// RoleAction 角色动作
-type RoleAction struct {
-	models.Base
+type roleActionImpl struct {
 }
 
 // Add 添加
-func (ra *RoleAction) Add(ctx context.Context, e Entity) (id int, err error) {
+func (ra *roleActionImpl) Add(ctx context.Context, e Entity) (id int, err error) {
 	if err = ctx.DB().GetContext(ctx, &id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
@@ -26,7 +23,7 @@ func (ra *RoleAction) Add(ctx context.Context, e Entity) (id int, err error) {
 }
 
 // CheckPerm 检查权限
-func (ra *RoleAction) CheckPerm(ctx context.Context, perms []string) error {
+func (ra *roleActionImpl) CheckPerm(ctx context.Context, perms []string) error {
 	var exist bool
 	if err := ctx.DB().GetContext(ctx, &exist, `
 		select exists(

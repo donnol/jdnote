@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetByUserID(t *testing.T) {
-	ur := &UserRole{}
+	ur := &userRoleImpl{}
 	ctx := models.DefaultCtx()
 	if r, err := ur.GetByUserID(ctx, 38); err != nil {
 		t.Fatal(err)

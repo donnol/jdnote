@@ -2,7 +2,7 @@ package user
 
 import "golang.org/x/crypto/bcrypt"
 
-func (u *User) hashPassword(password string) ([]byte, error) {
+func (u *userImpl) hashPassword(password string) ([]byte, error) {
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(password),

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetByName(t *testing.T) {
-	u := &User{}
+	u := &userImpl{}
 	ctx := models.DefaultCtx()
 	if e, err := u.GetByName(ctx, "jd"); err != nil {
 		t.Fatal(err)
@@ -19,7 +19,7 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	u := &User{}
+	u := &userImpl{}
 	e := Entity{
 		Name:     "jd",
 		Phone:    "jd",

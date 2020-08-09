@@ -7,7 +7,7 @@ import (
 )
 
 func TestAddNote(t *testing.T) {
-	note := &note{}
+	note := &noteImpl{}
 	ctx := models.DefaultCtx()
 
 	// 加
@@ -58,7 +58,7 @@ func TestAddNote(t *testing.T) {
 }
 
 func TestGetPage(t *testing.T) {
-	note := &note{}
+	note := &noteImpl{}
 	ctx := models.DefaultCtx()
 
 	// 分页
@@ -70,7 +70,7 @@ func TestGetPage(t *testing.T) {
 }
 
 func TestAddOne(t *testing.T) {
-	note := &note{}
+	note := &noteImpl{}
 	ctx := models.DefaultCtx()
 
 	id, err := note.AddOne(ctx)

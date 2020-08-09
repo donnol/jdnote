@@ -3,19 +3,16 @@ package user
 import (
 	"fmt"
 
-	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User 用户
-type User struct {
-	models.Base
+type userImpl struct {
 }
 
 // GetByID 以id获取用户
-func (u *User) GetByID(ctx context.Context, id int) (e Entity, err error) {
+func (u *userImpl) GetByID(ctx context.Context, id int) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE id = $1`, id); err != nil {
 		err = errors.WithMessage(err, fmt.Sprintf("id: %d", id))
 		return
@@ -25,7 +22,7 @@ func (u *User) GetByID(ctx context.Context, id int) (e Entity, err error) {
 }
 
 // GetByName 以名字获取用户
-func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error) {
+func (u *userImpl) GetByName(ctx context.Context, name string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user WHERE name = $1`, name); err != nil {
 		err = errors.WithStack(err)
 		return
@@ -35,7 +32,7 @@ func (u *User) GetByName(ctx context.Context, name string) (e Entity, err error)
 }
 
 // GetFirst 获取首个用户
-func (u *User) GetFirst(ctx context.Context) (e Entity, err error) {
+func (u *userImpl) GetFirst(ctx context.Context) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name FROM t_user ORDER BY id ASC LIMIT 1`); err != nil {
 		err = errors.WithStack(err)
 		return
@@ -45,7 +42,7 @@ func (u *User) GetFirst(ctx context.Context) (e Entity, err error) {
 }
 
 // VerifyByNameAndPassword 以名字和密码校验用户
-func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
+func (u *userImpl) VerifyByNameAndPassword(ctx context.Context, name, password string) (e Entity, err error) {
 	if err = ctx.DB().GetContext(ctx, &e, `SELECT id, name, password FROM t_user WHERE name = $1`, name); err != nil {
 		err = errors.WithStack(err)
 		return
@@ -61,7 +58,7 @@ func (u *User) VerifyByNameAndPassword(ctx context.Context, name, password strin
 }
 
 // Add 添加
-func (u *User) Add(ctx context.Context, e Entity) (id int, err error) {
+func (u *userImpl) Add(ctx context.Context, e Entity) (id int, err error) {
 	hashedPassword, err := u.hashPassword(e.Password)
 	if err != nil {
 		err = errors.WithStack(err)

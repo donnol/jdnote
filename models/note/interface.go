@@ -3,6 +3,7 @@ package note
 import (
 	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/inject"
 )
 
 // Noter 笔记接口
@@ -18,4 +19,13 @@ type Noter interface {
 	)
 	Get(ctx context.Context, id int) (entity Entity, err error)
 	GetList(ctx context.Context, ids []int64) (entitys EntityList, err error)
+}
+
+// New 新建
+func New() Noter {
+	return &noteImpl{}
+}
+
+func init() {
+	inject.MustRegisterProvider(New)
 }

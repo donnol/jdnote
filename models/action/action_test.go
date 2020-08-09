@@ -7,7 +7,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	a := &Action{}
+	a := &actionImpl{}
 	e := Entity{
 		Action: "ALL",
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestCheckPerm(t *testing.T) {
-	ra := &RoleAction{}
+	ra := &roleActionImpl{}
 	ctx := models.DefaultCtx()
 
 	if err := ra.CheckPerm(ctx, []string{"ALL"}); err != nil {
