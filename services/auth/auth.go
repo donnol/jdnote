@@ -1,22 +1,20 @@
 package auth
 
 import (
-	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/models/roleaction"
 	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/pkg/errors"
 )
 
-// Auth 认证
-type Auth struct {
-	models.Base
-
-	RoleActionModel roleaction.RoleAction
-	UserModel       user.User
+// authImpl 认证
+type authImpl struct {
+	RoleActionModel roleaction.IRoleAction
+	UserModel       user.IUser
 }
 
 // CheckUserExist 检查用户是否存在
-func (a *Auth) CheckUserExist(ctx context.Context) error {
+func (a *authImpl) CheckUserExist(ctx context.Context) error {
 	_, err := a.UserModel.GetByID(ctx, ctx.UserID())
 	if err != nil {
 		return err
@@ -26,8 +24,35 @@ func (a *Auth) CheckUserExist(ctx context.Context) error {
 }
 
 // CheckPerm 检查用户是否拥有指定权限
-func (a *Auth) CheckPerm(ctx context.Context, perms []string) error {
+func (a *authImpl) CheckPerm(ctx context.Context, perms []string) error {
 	if err := a.RoleActionModel.CheckPerm(ctx, perms); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CheckLogin 检查登录态
+func (a *authImpl) CheckLogin(ctx context.Context) error {
+	if ctx.UserID() == 0 {
+		return errors.Errorf("Please login")
+	}
+	err := a.CheckUserExist(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CheckUserPerm 检查用户权限
+func (a *authImpl) CheckUserPerm(ctx context.Context, perms []string) error {
+	// 先要登录
+	if err := a.CheckLogin(ctx); err != nil {
+		return err
+	}
+
+	// 检查权限
+	if err := a.CheckPerm(ctx, perms); err != nil {
 		return err
 	}
 

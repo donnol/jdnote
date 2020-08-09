@@ -15,16 +15,6 @@ type noteImpl struct {
 	noteModel note.Noter
 }
 
-var _ Noter = &noteImpl{}
-
-func New(
-	nm note.Noter,
-) Noter {
-	return &noteImpl{
-		noteModel: nm,
-	}
-}
-
 // GetPage 获取分页
 func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
 	entity := note.Entity{
