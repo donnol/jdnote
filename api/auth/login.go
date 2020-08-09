@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/services/user"
 	"github.com/donnol/jdnote/utils/context"
@@ -13,13 +12,11 @@ func init() {
 
 // Auth 认证
 type Auth struct {
-	api.Base
-
 	// 方法配置-多个方法用逗号分隔
 	Tx route.Method `tx:"AddUser"`
 
 	// 使用的model
-	UserAo user.User
+	UserAo user.IUser
 }
 
 // LoginUser 登录用户

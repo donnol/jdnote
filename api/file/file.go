@@ -3,7 +3,6 @@ package file
 import (
 	"bytes"
 
-	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -14,8 +13,6 @@ func init() {
 
 // File 文件
 type File struct {
-	api.Base
-
 	// 所属的Group
 	V1 route.Group // 属于v1分组
 

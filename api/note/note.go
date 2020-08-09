@@ -1,40 +1,24 @@
 package note
 
 import (
-	stdctx "context"
-
-	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/services/auth"
 	"github.com/donnol/jdnote/services/note"
 	"github.com/donnol/jdnote/utils/context"
 )
 
 func init() {
-	// 手动初始化，后续结合wire实现更深入更高层次注入
-	note, err := InitNote(stdctx.Background())
-	if err != nil {
-		panic(err)
-	}
-	route.Register(note)
+	route.Register(&Note{})
 }
 
 // Note 笔记
 type Note struct {
-	api.Base
+	authAo auth.IAuth
 
-	NoteAo note.Noter
+	noteAo note.INote
 
 	// 频率限制
 	Limiter route.Limiter `rate:"Rate(0.25, 2)"`
-}
-
-func New(
-	noteAo note.Noter,
-) *Note {
-	return &Note{
-		Base:   api.Base{},
-		NoteAo: noteAo,
-	}
 }
 
 // GetPage 获取分页
@@ -46,12 +30,12 @@ func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, er
 	}
 
 	// 权限
-	if err = n.CheckLogin(ctx); err != nil {
+	if err = n.authAo.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	result, err := n.NoteAo.GetPage(ctx, param)
+	result, err := n.noteAo.GetPage(ctx, param)
 	if err != nil {
 		return
 	}
@@ -73,12 +57,12 @@ func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.CheckLogin(ctx); err != nil {
+	if err = n.authAo.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	mres, err := n.NoteAo.Get(ctx, param.NoteID)
+	mres, err := n.noteAo.Get(ctx, param.NoteID)
 	if err != nil {
 		return
 	}
@@ -94,18 +78,18 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result, err er
 	// 参数
 
 	// 权限
-	if err = n.CheckLogin(ctx); err != nil {
+	if err = n.authAo.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	id, err := n.NoteAo.AddOne(ctx)
+	id, err := n.noteAo.AddOne(ctx)
 	if err != nil {
 		return
 	}
 
 	// 返回
-	res.Data = api.AddResult{
+	res.Data = route.AddResult{
 		ID: id,
 	}
 
@@ -121,12 +105,12 @@ func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.CheckLogin(ctx); err != nil {
+	if err = n.authAo.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	err = n.NoteAo.Mod(ctx, param.NoteID, param.Param)
+	err = n.noteAo.Mod(ctx, param.NoteID, param.Param)
 	if err != nil {
 		return
 	}
@@ -147,12 +131,12 @@ func (n *Note) Del(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.CheckLogin(ctx); err != nil {
+	if err = n.authAo.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	err = n.NoteAo.Del(ctx, param.NoteID)
+	err = n.noteAo.Del(ctx, param.NoteID)
 	if err != nil {
 		return
 	}
