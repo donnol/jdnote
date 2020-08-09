@@ -25,7 +25,7 @@ func initdb() error {
 	re := role.Entity{
 		Role: "ALL",
 	}
-	r := &role.Role{}
+	r := role.New()
 	if re.ID, err = r.Add(ctx, re); err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func initdb() error {
 	ae := action.Entity{
 		Action: "ALL",
 	}
-	a := &action.Action{}
+	a := action.New()
 	if ae.ID, err = a.Add(ctx, ae); err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func initdb() error {
 		RoleID:   re.ID,
 		ActionID: ae.ID,
 	}
-	ra := &roleaction.RoleAction{}
+	ra := roleaction.New()
 	if rae.ID, err = ra.Add(ctx, rae); err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func initdb() error {
 		Email:    "jdlau@126.com",
 		Password: "jd",
 	}
-	u := &user.User{}
+	u := user.New()
 	if ue.ID, err = u.Add(ctx, ue); err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func initdb() error {
 		UserID: ue.ID,
 		RoleID: re.ID,
 	}
-	ur := &userrole.UserRole{}
+	ur := userrole.New()
 	if _, err = ur.Add(ctx, ure); err != nil {
 		return err
 	}

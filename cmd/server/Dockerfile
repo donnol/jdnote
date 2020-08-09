@@ -1,5 +1,5 @@
 # 构建
-FROM golang:1.12rc1 AS builder
+FROM golang:1.14 AS builder
 
 ARG PROJECT_PATH=Projects/jdnote
 
