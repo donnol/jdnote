@@ -15,9 +15,9 @@ import (
 	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
+	"github.com/donnol/jdnote/utils/inject"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/jdnote/utils/log"
-	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -101,10 +101,7 @@ func (r *Router) Register(v interface{}) {
 	start := time.Now()
 
 	// 初始化
-	// 如果有实现New方法，则调用
-	if vv, ok := v.(Newer); ok {
-		v = vv.New()
-	}
+	inject.MustInject(v)
 
 	// 反射获取Type
 	var structName string
@@ -422,15 +419,13 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var r Result
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
-		dbBase := models.NewBase()
 		ctx.SetUserID(userID)
 		ctx.SetRequestID(reqID.String())
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
-			err = dbBase.WithTx(func(tx db.DB) error {
+			err = context.WithTx(ctx, func(ctx context.Context) error {
 				var err error
-				ctx := ctx.NewWithTx(tx)
 
 				r, err = f(ctx, p)
 				if err != nil {

@@ -64,3 +64,8 @@ func (r *Result) PresentData(v interface{}) error {
 
 	return nil
 }
+
+// AddResult 添加记录后的结果
+type AddResult struct {
+	ID int `json:"id"` // 新纪录ID
+}
