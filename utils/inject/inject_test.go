@@ -59,7 +59,7 @@ type M struct {
 
 func TestInject(t *testing.T) {
 	// 新建ioc
-	ioc := NewIoc()
+	ioc := NewIoc(false)
 
 	// 注册
 	if err := ioc.RegisterProvider(NewI); err != nil {

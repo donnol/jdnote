@@ -3,10 +3,13 @@ package inject
 import (
 	"fmt"
 	"reflect"
+	"unsafe"
 )
 
 // Ioc 控制反转，Inversion of Control
 type Ioc struct {
+	enableUnexportedFieldSetValue bool // 开启对非导出字段设置值
+
 	providerMap map[reflect.Type]typeInfo
 	cache       map[reflect.Type]reflect.Value
 }
@@ -16,10 +19,13 @@ type typeInfo struct {
 	provider reflect.Value
 }
 
-func NewIoc() *Ioc {
+func NewIoc(
+	enableUnexportedFieldSetValue bool,
+) *Ioc {
 	return &Ioc{
-		providerMap: make(map[reflect.Type]typeInfo),
-		cache:       make(map[reflect.Type]reflect.Value),
+		enableUnexportedFieldSetValue: enableUnexportedFieldSetValue,
+		providerMap:                   make(map[reflect.Type]typeInfo),
+		cache:                         make(map[reflect.Type]reflect.Value),
 	}
 }
 
@@ -84,17 +90,35 @@ func (ioc *Ioc) Inject(v interface{}) (err error) {
 			return
 		}
 
-		// 赋值到字段
-		field.Set(value)
+		// 赋值到字段，哪怕是非导出字段
+		if ioc.enableUnexportedFieldSetValue {
+			rf := reflect.NewAt(field.Type(), unsafe.Pointer(field.UnsafeAddr())).Elem()
+			rf.Set(value)
+		} else {
+			field.Set(value)
+		}
 	}
 
 	return
 }
 
+var (
+	emptyStruct         = reflect.TypeOf((*struct{})(nil))
+	emptyStructValue    = reflect.New(emptyStruct.Elem()).Elem()
+	emptyStructPtrValue = reflect.New(emptyStruct).Elem()
+)
+
 func (ioc *Ioc) find(typ reflect.Type) (r reflect.Value, err error) {
 	// 在provider里寻找初始化函数
 	provider, ok := ioc.providerMap[typ]
 	if !ok {
+		// 检查类型是否是struct{}
+		if typ.ConvertibleTo(emptyStruct.Elem()) {
+			return emptyStructValue, nil
+		}
+		if typ.ConvertibleTo(emptyStruct) {
+			return emptyStructPtrValue, nil
+		}
 		return r, fmt.Errorf("can't find provider of %+v", typ)
 	}
 
@@ -121,4 +145,29 @@ func (ioc *Ioc) find(typ reflect.Type) (r reflect.Value, err error) {
 	ioc.cache[typ] = newValue
 
 	return newValue, nil
+}
+
+// 内置ioc
+var (
+	defaultIoc = NewIoc(true)
+)
+
+func RegisterProvider(v interface{}) (err error) {
+	return defaultIoc.RegisterProvider(v)
+}
+
+func Inject(v interface{}) (err error) {
+	return defaultIoc.Inject(v)
+}
+
+func MustRegisterProvider(v interface{}) {
+	if err := defaultIoc.RegisterProvider(v); err != nil {
+		panic(err)
+	}
+}
+
+func MustInject(v interface{}) {
+	if err := defaultIoc.Inject(v); err != nil {
+		panic(err)
+	}
 }
