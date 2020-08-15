@@ -10,8 +10,8 @@ import (
 
 	"github.com/donnol/jdnote/api"
 	"github.com/donnol/jdnote/models/user"
-	"github.com/donnol/jdnote/utils/apitest"
 	"github.com/donnol/jdnote/utils/errors"
+	"github.com/donnol/tools/apitest"
 )
 
 func TestMain(m *testing.M) {

@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/donnol/jdnote/utils/context"
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 )
 
 // DefaultCtx 默认

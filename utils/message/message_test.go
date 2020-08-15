@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 	nsq "github.com/nsqio/go-nsq"
 )
 

@@ -10,7 +10,7 @@ import (
 	"github.com/donnol/jdnote/models/roleaction"
 	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/models/userrole"
-	"github.com/donnol/jdnote/utils/dbdoc"
+	"github.com/donnol/tools/dbdoc"
 )
 
 func main() {

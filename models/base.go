@@ -7,7 +7,7 @@ import (
 
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/store/db"
-	"github.com/donnol/jdnote/utils/worker"
+	"github.com/donnol/tools/worker"
 	"github.com/pkg/errors"
 )
 

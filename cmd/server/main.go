@@ -12,7 +12,7 @@ import (
 
 	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/route"
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	_ "net/http/pprof"

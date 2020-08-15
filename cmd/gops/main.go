@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/config"
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 	"github.com/google/gops/agent"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 	"github.com/robfig/cron"
 )
 

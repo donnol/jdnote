@@ -17,7 +17,7 @@ import (
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/inject"
 	"github.com/donnol/jdnote/utils/jwt"
-	utillog "github.com/donnol/jdnote/utils/log"
+	utillog "github.com/donnol/tools/log"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
