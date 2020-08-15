@@ -1,8 +1,8 @@
 package userrole
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type IUserRole interface {
@@ -15,5 +15,5 @@ func New() IUserRole {
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

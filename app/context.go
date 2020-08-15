@@ -7,5 +7,9 @@ import (
 
 // DefaultCtx 默认
 func DefaultCtx() context.Context {
-	return context.New(defaultDB, utillog.Default(), 0)
+	return defaultCtx
 }
+
+var (
+	defaultCtx = context.New(defaultDB, utillog.Default(), 0)
+)

@@ -1,8 +1,8 @@
 package roleaction
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type IRoleAction interface {
@@ -15,5 +15,5 @@ func New() IRoleAction {
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

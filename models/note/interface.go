@@ -3,7 +3,6 @@ package note
 import (
 	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 // Noter 笔记接口
@@ -27,5 +26,5 @@ func New() Noter {
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

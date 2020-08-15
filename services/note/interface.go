@@ -1,9 +1,9 @@
 package note
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/note"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type INote interface {
@@ -25,5 +25,5 @@ func New(
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

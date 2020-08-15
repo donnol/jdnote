@@ -1,8 +1,8 @@
 package user
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type IUser interface {
@@ -20,5 +20,5 @@ func New() IUser {
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

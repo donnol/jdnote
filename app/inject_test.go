@@ -1,4 +1,4 @@
-package inject
+package app
 
 import "testing"
 

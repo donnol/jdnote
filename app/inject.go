@@ -1,4 +1,4 @@
-package inject
+package app
 
 import (
 	"github.com/donnol/tools/inject"

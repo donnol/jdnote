@@ -15,7 +15,6 @@ import (
 	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
-	"github.com/donnol/jdnote/utils/inject"
 	"github.com/donnol/jdnote/utils/jwt"
 	utillog "github.com/donnol/tools/log"
 	"github.com/gin-contrib/gzip"
@@ -101,7 +100,7 @@ func (r *Router) Register(v interface{}) {
 	start := time.Now()
 
 	// 初始化
-	inject.MustInject(v)
+	app.MustInject(v)
 
 	// 反射获取Type
 	var structName string

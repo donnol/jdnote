@@ -1,8 +1,8 @@
 package role
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type IRole interface {
@@ -15,5 +15,5 @@ func New() IRole {
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }

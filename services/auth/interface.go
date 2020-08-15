@@ -1,10 +1,10 @@
 package auth
 
 import (
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/roleaction"
 	"github.com/donnol/jdnote/models/user"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/inject"
 )
 
 type IAuth interface {
@@ -25,5 +25,5 @@ func New(
 }
 
 func init() {
-	inject.MustRegisterProvider(New)
+	app.MustRegisterProvider(New)
 }
