@@ -3,7 +3,7 @@ package action
 import (
 	"testing"
 
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 )
 
 func TestGet(t *testing.T) {
@@ -13,7 +13,7 @@ func TestGet(t *testing.T) {
 	}
 	var err error
 	var id int
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 	if id, err = a.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {

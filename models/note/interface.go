@@ -1,7 +1,7 @@
 package note
 
 import (
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/inject"
 )
@@ -12,7 +12,7 @@ type Noter interface {
 	Add(ctx context.Context, entity Entity) (id int, err error)
 	Mod(ctx context.Context, id int, entity Entity) (err error)
 	Del(ctx context.Context, id int) (err error)
-	GetPage(ctx context.Context, entity Entity, param models.CommonParam) (
+	GetPage(ctx context.Context, entity Entity, param app.CommonParam) (
 		res EntityList,
 		total int,
 		err error,

@@ -1,4 +1,4 @@
-package models
+package app
 
 import (
 	"os"
@@ -48,3 +48,5 @@ var globalTx = func() *sqlx.Tx {
 
 	return nil
 }()
+
+var _ = globalTx

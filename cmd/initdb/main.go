@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/action"
 	"github.com/donnol/jdnote/models/role"
 	"github.com/donnol/jdnote/models/roleaction"
@@ -19,7 +19,7 @@ func main() {
 func initdb() error {
 	var err error
 
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 
 	// 角色
 	re := role.Entity{

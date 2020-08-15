@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/note"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -51,7 +51,7 @@ type PageParam struct {
 	Title  string `json:"title"`  // 标题
 	Detail string `json:"detail"` // 详情
 
-	models.CommonParam
+	app.CommonParam
 }
 
 // PageResult 分页结果

@@ -1,4 +1,4 @@
-package models
+package app
 
 // CommonParam 通用参数
 type CommonParam struct {

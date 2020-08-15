@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/config"
-	"github.com/donnol/jdnote/models"
 	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/inject"
@@ -356,7 +356,7 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 	return func(c *gin.Context) {
 		var err error
 
-		ctx := models.DefaultCtx()
+		ctx := app.DefaultCtx()
 		reqID, err := uuid.NewV4()
 		if err != nil {
 			ctx.Logger().Errorf("New request id failed: %+v\n", err)

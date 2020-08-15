@@ -3,12 +3,12 @@ package userrole
 import (
 	"testing"
 
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 )
 
 func TestGetByUserID(t *testing.T) {
 	ur := &userRoleImpl{}
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 	if r, err := ur.GetByUserID(ctx, 38); err != nil {
 		t.Fatal(err)
 	} else {

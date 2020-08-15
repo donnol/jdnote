@@ -1,4 +1,4 @@
-package models
+package app
 
 import (
 	"database/sql"
@@ -86,6 +86,6 @@ func TestBaseProcess(t *testing.T) {
 
 func BenchmarkBaseProcess(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		base.ProcessConcurrent(ctx, opt)
+		_ = base.ProcessConcurrent(ctx, opt)
 	}
 }

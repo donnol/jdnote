@@ -3,12 +3,12 @@ package note
 import (
 	"testing"
 
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 )
 
 func TestAddNote(t *testing.T) {
 	note := &noteImpl{}
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 
 	// 加
 	id, err := note.Add(ctx, Entity{
@@ -29,7 +29,7 @@ func TestAddNote(t *testing.T) {
 	t.Log(detail)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, models.DefaultCommonParam)
+	r, total, err := note.GetPage(ctx, Entity{}, app.DefaultCommonParam)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,10 +59,10 @@ func TestAddNote(t *testing.T) {
 
 func TestGetPage(t *testing.T) {
 	note := &noteImpl{}
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, models.CommonParam{PageSize: 5})
+	r, total, err := note.GetPage(ctx, Entity{}, app.CommonParam{PageSize: 5})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func TestGetPage(t *testing.T) {
 
 func TestAddOne(t *testing.T) {
 	note := &noteImpl{}
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 
 	id, err := note.AddOne(ctx)
 	if err != nil {

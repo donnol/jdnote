@@ -3,7 +3,7 @@ package note
 import (
 	"testing"
 
-	"github.com/donnol/jdnote/models"
+	"github.com/donnol/jdnote/app"
 )
 
 func TestNoteGetHugoContent(t *testing.T) {
@@ -16,7 +16,7 @@ func TestNoteGetHugoContent(t *testing.T) {
 
 func TestPublish(t *testing.T) {
 	n := &noteImpl{}
-	ctx := models.DefaultCtx()
+	ctx := app.DefaultCtx()
 	if err := n.Publish(ctx, 45); err != nil {
 		t.Fatal(err)
 	}
