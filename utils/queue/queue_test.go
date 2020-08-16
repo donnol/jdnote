@@ -1,4 +1,4 @@
-package message
+package queue
 
 import (
 	"testing"

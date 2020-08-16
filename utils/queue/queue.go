@@ -1,4 +1,4 @@
-package message
+package queue
 
 // 主题定义
 const (
