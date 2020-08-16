@@ -1,9 +1,14 @@
 package note
 
 import (
+	"reflect"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/models/note"
+	"github.com/donnol/jdnote/utils/context"
 )
 
 func TestNoteGetHugoContent(t *testing.T) {
@@ -19,5 +24,62 @@ func TestPublish(t *testing.T) {
 	ctx := app.DefaultCtx()
 	if err := n.Publish(ctx, 45); err != nil {
 		t.Fatal(err)
+	}
+}
+
+var (
+	noteEntity = note.Entity{
+		ID:        1,
+		Detail:    "mock",
+		Title:     "title",
+		UserID:    1,
+		CreatedAt: time.Now(),
+	}
+	mock = note.Mock{
+		AddOneHandler: func(ctx context.Context) (id int, err error) {
+			return noteEntity.ID, nil
+		},
+		AddHandler: func(ctx context.Context, entity note.Entity) (id int, err error) {
+			return noteEntity.ID, nil
+		},
+		ModHandler: func(ctx context.Context, id int, entity note.Entity) (err error) {
+			return
+		},
+		DelHandler: func(ctx context.Context, id int) (err error) {
+			return
+		},
+		GetPageHandler: func(ctx context.Context, entity note.Entity, param app.CommonParam) (
+			res note.EntityList,
+			total int,
+			err error,
+		) {
+			return
+		},
+		GetHandler: func(ctx context.Context, id int) (entity note.Entity, err error) {
+			return noteEntity, nil
+		},
+		GetListHandler: func(ctx context.Context, ids []int64) (entitys note.EntityList, err error) {
+			return note.EntityList{noteEntity}, nil
+		},
+	}
+)
+
+func TestGet(t *testing.T) {
+	ctx := app.DefaultCtx()
+
+	v := New(mock)
+	want := Result{
+		NoteID:    noteEntity.ID,
+		UserName:  strconv.Itoa(noteEntity.ID),
+		Title:     noteEntity.Title,
+		Detail:    noteEntity.Detail,
+		CreatedAt: noteEntity.CreatedAt.Unix(),
+	}
+	r, err := v.Get(ctx, noteEntity.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(r, want) {
+		t.Fatalf("Bad result: %+v != %+v\n", r, noteEntity)
 	}
 }
