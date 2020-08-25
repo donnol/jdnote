@@ -15,7 +15,11 @@ type authImpl struct {
 
 // CheckUserExist 检查用户是否存在
 func (a *authImpl) CheckUserExist(ctx context.Context) error {
-	_, err := a.UserModel.GetByID(ctx, ctx.UserID())
+	userID, err := context.GetUserValue(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = a.UserModel.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -34,10 +38,14 @@ func (a *authImpl) CheckPerm(ctx context.Context, perms []string) error {
 
 // CheckLogin 检查登录态
 func (a *authImpl) CheckLogin(ctx context.Context) error {
-	if ctx.UserID() == 0 {
+	userID, err := context.GetUserValue(ctx)
+	if err != nil {
+		return err
+	}
+	if userID == 0 {
 		return errors.Errorf("Please login")
 	}
-	err := a.CheckUserExist(ctx)
+	err = a.CheckUserExist(ctx)
 	if err != nil {
 		return err
 	}

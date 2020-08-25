@@ -31,13 +31,17 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 	// 参数
 
 	// 权限
-	if ctx.UserID() == 0 {
+	userID, err := context.GetUserValue(ctx)
+	if err != nil {
+		return
+	}
+	if userID == 0 {
 		r.Data = LoginUser{}
 		return
 	}
 
 	// 业务
-	u, err := auth.UserAo.GetByID(ctx, ctx.UserID())
+	u, err := auth.UserAo.GetByID(ctx, userID)
 	if err != nil {
 		return
 	}
@@ -59,7 +63,6 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 	}
 
 	// 权限
-	_ = ctx.UserID()
 
 	// 业务
 	re, err := auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password)
@@ -101,7 +104,6 @@ func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Resul
 	}
 
 	// 权限
-	_ = ctx.UserID()
 
 	// 业务
 	re, err := auth.UserAo.GetByName(ctx, p.Name)

@@ -45,7 +45,6 @@ func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, e
 	}
 
 	// 权限
-	_ = ctx.UserID()
 
 	// 业务
 	filename := "test.md"

@@ -37,7 +37,7 @@ func (ra *roleActionImpl) CheckPerm(ctx context.Context, perms []string) error {
 			and a.action = any($2)
 		)
 		`,
-		ctx.UserID(),
+		context.MustGetUserValue(ctx),
 		pq.StringArray(perms),
 	); err != nil {
 		err = errors.WithStack(err)

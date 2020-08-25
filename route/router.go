@@ -418,8 +418,8 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		var r Result
 		var statusCode = http.StatusOK
 		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
-		ctx.SetUserID(userID)
-		ctx.SetRequestID(reqID.String())
+		ctx = context.WithValue(ctx, context.UserKey, userID)
+		ctx = context.WithValue(ctx, context.RequestKey, reqID.String())
 		if ho.useTx {
 			// 事务-统一从这里开启。ao和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的

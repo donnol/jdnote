@@ -5,6 +5,12 @@ import (
 
 	"github.com/donnol/jdnote/utils/store/db"
 	utillog "github.com/donnol/tools/log"
+	"github.com/pkg/errors"
+)
+
+const (
+	UserKey    = "UserID"
+	RequestKey = "RequestID"
 )
 
 // Context 上下文
@@ -15,23 +21,12 @@ type Context interface {
 	DB() db.DB
 	// 获取日志实例
 	Logger() utillog.Logger
-	// 获取当前登录用户ID
-	UserID() int
-	// 获取请求ID
-	RequestID() string
 
 	// 取消
 	Cancel()
 
 	// 设置Context
 	SetContext(context.Context)
-
-	// 设置用户ID
-	SetUserID(userID int)
-
-	// 设置请求ID
-	SetRequestID(string)
-
 	// 返回一个新的Context，并设置tx
 	NewWithTx(db.DB) Context
 }
@@ -39,10 +34,9 @@ type Context interface {
 // myContext myContext
 type myContext struct {
 	context.Context
-	db        db.DB
-	logger    utillog.Logger
-	userID    int
-	requestID string
+
+	db     db.DB
+	logger utillog.Logger
 
 	cancel context.CancelFunc
 }
@@ -57,16 +51,6 @@ func (mc *myContext) Logger() utillog.Logger {
 	return mc.logger
 }
 
-// UserID 获取当前登录用户ID
-func (mc *myContext) UserID() int {
-	return mc.userID
-}
-
-// RequestID 获取请求ID
-func (mc *myContext) RequestID() string {
-	return ""
-}
-
 // Cancel 取消
 func (mc *myContext) Cancel() {
 	mc.cancel()
@@ -77,18 +61,9 @@ func (mc *myContext) SetContext(ctx context.Context) {
 	mc.Context = ctx
 }
 
-// SetUserID 设置用户ID
-func (mc *myContext) SetUserID(userID int) {
-	mc.userID = userID
-}
-
-func (mc *myContext) SetRequestID(reqID string) {
-	mc.requestID = reqID
-}
-
 // NewWithTx 返回一个新的Context，并设置tx
 func (mc *myContext) NewWithTx(tx db.DB) Context {
-	mctx := newCtx(mc.Context, mc.cancel, tx, mc.logger, mc.userID)
+	mctx := newCtx(mc.Context, mc.cancel, tx, mc.logger)
 	return mctx
 }
 
@@ -97,12 +72,12 @@ func New(db db.DB, logger utillog.Logger, userID int) Context {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	mctx := newCtx(ctx, cancel, db, logger, userID)
+	mctx := newCtx(ctx, cancel, db, logger)
 
 	return mctx
 }
 
-func newCtx(ctx context.Context, cancel context.CancelFunc, db db.DB, logger utillog.Logger, userID int) Context {
+func newCtx(ctx context.Context, cancel context.CancelFunc, db db.DB, logger utillog.Logger) Context {
 	mctx := new(myContext)
 
 	mctx.Context = ctx
@@ -110,7 +85,49 @@ func newCtx(ctx context.Context, cancel context.CancelFunc, db db.DB, logger uti
 
 	mctx.db = db
 	mctx.logger = logger
-	mctx.userID = userID
 
 	return mctx
+}
+
+func WithValue(ctx Context, key, value interface{}) Context {
+	nctx := context.WithValue(ctx, key, value)
+	return newCtx(nctx, ctx.Cancel, ctx.DB(), ctx.Logger())
+}
+
+func GetValue(ctx Context, key interface{}) interface{} {
+	return ctx.Value(key)
+}
+
+func GetUserValue(ctx Context) (int, error) {
+	v := GetValue(ctx, UserKey)
+	vv, ok := v.(int)
+	if !ok {
+		return 0, errors.Errorf("get %s failed, got %v", UserKey, v)
+	}
+	return vv, nil
+}
+
+func GetRequestValue(ctx Context) (string, error) {
+	v := GetValue(ctx, RequestKey)
+	vv, ok := v.(string)
+	if !ok {
+		return "", errors.Errorf("get %s failed, got %v", RequestKey, v)
+	}
+	return vv, nil
+}
+
+func MustGetUserValue(ctx Context) int {
+	v, err := GetUserValue(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func MustGetRequestValue(ctx Context) string {
+	v, err := GetRequestValue(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }

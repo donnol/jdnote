@@ -17,7 +17,7 @@ func (note *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, '', '')
 		RETURNING id`,
-		ctx.UserID(),
+		context.MustGetUserValue(ctx),
 	)
 	if err != nil {
 		err = errors.WithStack(err)
