@@ -6,7 +6,7 @@ title = "jdnote project"
 name = "jdlau"
 
 [server]
-port = ":8810"
+port = 8810
 
 [database]
 scheme = "postgres"

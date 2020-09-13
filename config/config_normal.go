@@ -1,14 +1,10 @@
 package config
 
-import (
-	"github.com/donnol/jdnote/utils/config"
-)
-
-var normal = config.Config{
-	Server: config.Server{
+var normal = Config{
+	Server: Server{
 		Port: 8810,
 	},
-	DB: config.DB{
+	DB: DB{
 		Scheme:   "postgres",
 		Host:     "127.0.0.1",
 		Port:     5432,
@@ -16,7 +12,7 @@ var normal = config.Config{
 		Password: "jd",
 		Name:     "cicada",
 	},
-	JWT: config.JWT{
+	JWT: JWT{
 		Secret: "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039",
 	},
 }
