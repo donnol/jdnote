@@ -36,4 +36,4 @@ docker_build:
 
 # 运行
 docker_run:
-	sudo docker run -it --net=host jdnote-server 
+	sudo docker run -d --net=host jdnote-server 

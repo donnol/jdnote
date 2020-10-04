@@ -1,5 +1,5 @@
 # 构建
-FROM golang:1.14 AS builder
+FROM golang:1.15.2-alpine AS builder
 
 ARG PROJECT_PATH=Projects/jdnote
 
@@ -15,5 +15,8 @@ FROM centurylink/ca-certs
 
 COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 COPY --from=builder /server .
+
+# 静态文件夹
+ADD cmd/server/dist ./dist
 
 ENTRYPOINT ["./server"]
