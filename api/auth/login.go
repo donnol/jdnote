@@ -1,14 +1,10 @@
 package auth
 
 import (
-	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/services/user"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/route"
 )
-
-func init() {
-	route.Register(&Auth{})
-}
 
 // Auth 认证
 type Auth struct {

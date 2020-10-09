@@ -6,7 +6,7 @@ import (
 	"runtime"
 
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/donnol/jdnote/utils/store/db"
+	"github.com/donnol/tools/log"
 	"github.com/donnol/tools/worker"
 	"github.com/pkg/errors"
 )
@@ -56,7 +56,7 @@ type Doer interface {
 func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	// 启动worker
 	numCPU := runtime.NumCPU()
-	ctx.Logger().Debugf("== numCPU: %d\n", numCPU)
+	log.Default().Debugf("== numCPU: %d\n", numCPU)
 	w := worker.New(numCPU)
 	w.Start()
 
@@ -130,9 +130,6 @@ func newWorkerDo(ctx context.Context, entity Entity) worker.Do {
 
 func newWorkerErrorHandler(ctx context.Context) worker.ErrorHandler {
 	return func(err error) {
-		ctx.Logger().Errorf("do failed, err is %+v", err)
+		log.Default().Errorf("do failed, err is %+v", err)
 	}
 }
-
-// DB DB接口
-type DB = db.DB

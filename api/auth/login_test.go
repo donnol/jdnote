@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,14 +9,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/donnol/jdnote/api"
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/services/user"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/tools/apitest"
 )
 
+var port = 8820
+
 func TestMain(m *testing.M) {
-	api.TestMain()
+	ctx := context.Background()
+	appObj, cctx := app.New(ctx)
+	appObj.Register(cctx, &Auth{})
+
+	go func() {
+		if err := appObj.StartServer(port); err != nil {
+			panic(err)
+		}
+	}()
 
 	os.Exit(m.Run())
 }
@@ -44,7 +55,7 @@ func TestAddLogin(t *testing.T) {
 		}
 		defer f.Close()
 
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&user.Entity{
 				Name:     "jd",
 				Password: "jd",
@@ -69,7 +80,7 @@ func TestAddLogin(t *testing.T) {
 	})
 
 	t.Run("Normal", func(t *testing.T) {
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&user.Entity{
 				Name:     "jd",
 				Password: "jd",
@@ -117,7 +128,7 @@ func TestAddUser(t *testing.T) {
 		}
 		defer f.Close()
 
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct {
 				Name     string
 				Password string
@@ -145,7 +156,7 @@ func TestAddUser(t *testing.T) {
 
 	t.Run("Tx", func(t *testing.T) {
 		go func() {
-			if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+			if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 				SetParam(&struct {
 					Name     string
 					Password string
@@ -173,7 +184,7 @@ func TestAddUser(t *testing.T) {
 		// 休眠两秒，然后新建一个请求
 		time.Sleep(2 * time.Second)
 
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct {
 				Name     string
 				Password string
@@ -223,7 +234,7 @@ func TestGetUser(t *testing.T) {
 		}
 		defer f.Close()
 
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct {
 				Name string
 			}{
@@ -251,7 +262,7 @@ func TestGetUser(t *testing.T) {
 	})
 
 	t.Run("Normal", func(t *testing.T) {
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct {
 				Name string
 			}{
@@ -278,7 +289,7 @@ func TestGetUser(t *testing.T) {
 	})
 
 	t.Run("PressureRun", func(t *testing.T) {
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct {
 				Name string
 			}{

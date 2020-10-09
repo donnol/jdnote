@@ -8,13 +8,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/donnol/jdnote/config"
 	utillog "github.com/donnol/tools/log"
 	"github.com/google/gops/agent"
 )
 
 func main() {
-	addr := fmt.Sprintf(":%d", config.Default().Server.Port+1)
+	addr := fmt.Sprintf(":%d", 9091)
 
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})

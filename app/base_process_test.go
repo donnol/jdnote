@@ -1,13 +1,11 @@
 package app
 
 import (
+	stdctx "context"
 	"database/sql"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/donnol/jdnote/utils/context"
-	utillog "github.com/donnol/tools/log"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
@@ -59,8 +57,9 @@ func (ei *entityImpl) Do(ctx context.Context) error {
 }
 
 var (
-	ctx  = context.New(defaultDB, utillog.New(os.Stdout, "", log.LstdFlags), 0)
-	base = NewBase()
+	sctx   = stdctx.Background()
+	_, ctx = New(sctx)
+	base   = NewBase()
 
 	entity = &entityImpl{}
 	opt    = ProcessOption{

@@ -1,6 +1,7 @@
 package note
 
 import (
+	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
@@ -8,7 +9,8 @@ import (
 
 func TestAddNote(t *testing.T) {
 	note := &noteImpl{}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 
 	// 加
 	id, err := note.Add(ctx, Entity{
@@ -59,7 +61,8 @@ func TestAddNote(t *testing.T) {
 
 func TestGetPage(t *testing.T) {
 	note := &noteImpl{}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 
 	// 分页
 	r, total, err := note.GetPage(ctx, Entity{}, app.CommonParam{PageSize: 5})
@@ -71,7 +74,8 @@ func TestGetPage(t *testing.T) {
 
 func TestAddOne(t *testing.T) {
 	note := &noteImpl{}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 
 	id, err := note.AddOne(ctx)
 	if err != nil {

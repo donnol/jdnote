@@ -1,15 +1,11 @@
 package note
 
 import (
-	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/services/auth"
 	"github.com/donnol/jdnote/services/note"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/route"
 )
-
-func init() {
-	route.Register(&Note{})
-}
 
 // Note 笔记
 type Note struct {

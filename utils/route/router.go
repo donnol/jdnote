@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/donnol/jdnote/app"
-	"github.com/donnol/jdnote/config"
 	"github.com/donnol/jdnote/utils/context"
 	utilerrors "github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
@@ -20,25 +18,12 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/gorilla/schema"
 	"github.com/rcrowley/go-metrics"
 	"golang.org/x/time/rate"
 )
 
-// 参数相关
-var (
-	decoder = schema.NewDecoder()
-)
-
-// cookie相关
-var (
-	sessionKey = "jd_session"
-
-	jwtToken = jwt.New([]byte(config.Default().JWT.Secret))
-)
-
 // header相关
-var (
+const (
 	ContentDispositionHeaderKey         = "Content-Disposition"
 	ContentDispositionHeaderValueFormat = `attachment; filename="%s"`
 
@@ -52,26 +37,21 @@ var (
 	accessCreadentialsHeaderValue = "true"
 )
 
-// defaultRouter 默认路由
-var defaultRouter = NewRouter()
-
-// DefaultRouter 获取默认路由
-func DefaultRouter() *Router {
-	return defaultRouter
-}
-
-// Register 注册
-func Register(v interface{}) {
-	defaultRouter.Register(v)
-}
-
 // Router 路由
 type Router struct {
 	*gin.Engine
+
+	sessionKey string
+	jwtToken   *jwt.Token
+}
+
+type Option struct {
+	SessionKey string
+	JwtToken   *jwt.Token
 }
 
 // NewRouter 新建路由
-func NewRouter() *Router {
+func NewRouter(opt Option) *Router {
 	router := gin.Default()
 
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
@@ -80,6 +60,9 @@ func NewRouter() *Router {
 
 	return &Router{
 		Engine: router,
+
+		sessionKey: opt.SessionKey,
+		jwtToken:   opt.JwtToken,
 	}
 }
 
@@ -95,12 +78,9 @@ type limiterOption struct {
 
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
-func (r *Router) Register(v interface{}) {
+func (r *Router) Register(ctx context.Context, v interface{}) {
 	// 计时开始
 	start := time.Now()
-
-	// 初始化
-	app.MustInject(v)
 
 	// 反射获取Type
 	var structName string
@@ -136,7 +116,10 @@ func (r *Router) Register(v interface{}) {
 		path = addPathPrefix(path, routeAtrr.groupName)
 
 		// 处理器配置
-		var ho = handlerOption{}
+		var ho = handlerOption{
+			sessionKey: r.sessionKey,
+			jwtToken:   r.jwtToken,
+		}
 		if routeAtrr.isFile {
 			ho.isFile = true
 		} else {
@@ -152,7 +135,7 @@ func (r *Router) Register(v interface{}) {
 			}
 		}
 
-		handler := structHandlerFunc(method, valueFunc, ho)
+		handler := structHandlerFunc(ctx, method, valueFunc, ho)
 
 		wo := wrapOption{
 			fieldName: field.Name,
@@ -344,21 +327,22 @@ func getRouteAttr(refTypeRaw reflect.Type) (ra routeAttr) {
 }
 
 type handlerOption struct {
-	isFile bool // 是否文件上传/下载接口
-	useTx  bool // 是否使用事务
+	isFile     bool // 是否文件上传/下载接口
+	useTx      bool // 是否使用事务
+	sessionKey string
+	jwtToken   *jwt.Token
 }
 
 // structHandlerFunc 结构体处理函数
-func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
+func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
 	utillog.Debugf("handler option: %+v\n", ho)
 
 	return func(c *gin.Context) {
 		var err error
 
-		ctx := app.DefaultCtx()
 		reqID, err := uuid.NewV4()
 		if err != nil {
-			ctx.Logger().Errorf("New request id failed: %+v\n", err)
+			utillog.Default().Errorf("New request id failed: %+v\n", err)
 		}
 
 		// 获取参数
@@ -388,9 +372,9 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 
 		// 获取用户信息
 		var userID int
-		cookie, err := c.Cookie(sessionKey)
+		cookie, err := c.Cookie(ho.sessionKey)
 		if err == nil {
-			verifyUserID, err := jwtToken.Verify(cookie)
+			verifyUserID, err := ho.jwtToken.Verify(cookie)
 			if err != nil {
 				utillog.Warnf("Verify cookie failed: %+v\n", err)
 			} else {
@@ -463,7 +447,10 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 		c.Header(accessCreadentialsHeaderKey, accessCreadentialsHeaderValue)
 		// cookie
 		if r.CookieAfterLogin != 0 {
-			cookie, err := MakeCookie(r.CookieAfterLogin)
+			cookie, err := MakeCookie(r.CookieAfterLogin, CookieOption{
+				SessionKey: ho.sessionKey,
+				JwtToken:   ho.jwtToken,
+			})
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
 					Code: utilerrors.ErrorCodeRouter,
@@ -490,9 +477,14 @@ func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.Handl
 	}
 }
 
+type CookieOption struct {
+	SessionKey string
+	JwtToken   *jwt.Token
+}
+
 // MakeCookie 新建令牌
-func MakeCookie(userID int) (cookie http.Cookie, err error) {
-	session, err := jwtToken.Sign(userID)
+func MakeCookie(userID int, co CookieOption) (cookie http.Cookie, err error) {
+	session, err := co.JwtToken.Sign(userID)
 	if err != nil {
 		return
 	}
@@ -500,7 +492,7 @@ func MakeCookie(userID int) (cookie http.Cookie, err error) {
 	days := 7
 	var maxAge = 3600 * 24 * days
 
-	cookie.Name = sessionKey
+	cookie.Name = co.SessionKey
 	cookie.Value = session
 	cookie.MaxAge = maxAge
 	cookie.Expires = time.Now().AddDate(0, 0, days)

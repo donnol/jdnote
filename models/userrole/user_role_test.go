@@ -1,6 +1,7 @@
 package userrole
 
 import (
+	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
@@ -8,7 +9,8 @@ import (
 
 func TestGetByUserID(t *testing.T) {
 	ur := &userRoleImpl{}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 	if r, err := ur.GetByUserID(ctx, 38); err != nil {
 		t.Fatal(err)
 	} else {

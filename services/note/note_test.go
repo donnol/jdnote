@@ -1,6 +1,7 @@
 package note
 
 import (
+	stdctx "context"
 	"reflect"
 	"strconv"
 	"testing"
@@ -21,7 +22,8 @@ func TestNoteGetHugoContent(t *testing.T) {
 
 func TestPublish(t *testing.T) {
 	n := &noteImpl{}
-	ctx := app.DefaultCtx()
+	sctx := stdctx.Background()
+	_, ctx := app.New(sctx)
 	if err := n.Publish(ctx, 45); err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +67,8 @@ var (
 )
 
 func TestGet(t *testing.T) {
-	ctx := app.DefaultCtx()
+	sctx := stdctx.Background()
+	_, ctx := app.New(sctx)
 
 	v := New(mock)
 	want := Result{

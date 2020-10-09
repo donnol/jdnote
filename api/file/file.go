@@ -3,13 +3,10 @@ package file
 import (
 	"bytes"
 
-	"github.com/donnol/jdnote/route"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/route"
+	"github.com/donnol/tools/log"
 )
-
-func init() {
-	route.Register(&File{})
-}
 
 // File 文件
 type File struct {
@@ -32,7 +29,7 @@ func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, e
 	if err != nil {
 		return
 	}
-	ctx.Logger().Debugf("%+v, %d\n", p, len(body))
+	log.Default().Debugf("%+v, %d\n", p, len(body))
 
 	return
 }
@@ -56,7 +53,7 @@ func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, e
 		return
 	}
 	r.Content = route.MakeContentFromBuffer(filename, buf)
-	ctx.Logger().Debugf("r: %+v\n", r)
+	log.Default().Debugf("r: %+v\n", r)
 
 	return
 }

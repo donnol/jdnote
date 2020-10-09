@@ -1,26 +1,40 @@
 package note
 
 import (
+	stdctx "context"
 	"fmt"
 	"net/http"
 	"os"
 	"testing"
 
-	"github.com/donnol/jdnote/api"
-	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/services/note"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
+	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/tools/apitest"
 )
 
+var appObj *app.App
+var port = 8820
+
 func TestMain(m *testing.M) {
-	api.TestMain()
+	ctx := stdctx.Background()
+	var cctx context.Context
+	appObj, cctx = app.New(ctx)
+	appObj.Register(cctx, &Note{})
+
+	go func() {
+		if err := appObj.StartServer(port); err != nil {
+			panic(err)
+		}
+	}()
 
 	os.Exit(m.Run())
 }
 
 func TestAdd(t *testing.T) {
-	cookie, err := route.MakeCookie(1)
+	cookie, err := appObj.MakeCookie(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +94,7 @@ func TestAdd(t *testing.T) {
 		}
 		defer f.Close()
 
-		if err := at.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := at.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&struct{}{}).
 			Debug().
 			Run().
@@ -100,7 +114,7 @@ func TestAdd(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := modAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := modAT.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&note.ModParam{
 				NoteID: r.Data.ID,
 				Param: note.Param{
@@ -126,7 +140,7 @@ func TestAdd(t *testing.T) {
 
 		pageParam := note.PageParam{}
 		pageParam.PageSize = 10
-		if err := pageAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := pageAT.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&pageParam).
 			Debug().
 			Run().
@@ -149,7 +163,7 @@ func TestAdd(t *testing.T) {
 		}{
 			NoteID: r.Data.ID,
 		}
-		if err := detailAT.New().SetPort(fmt.Sprintf(":%d", api.TestPort)).
+		if err := detailAT.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&detailParam).
 			Debug().
 			Run().

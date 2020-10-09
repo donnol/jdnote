@@ -10,28 +10,36 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/donnol/jdnote/config"
-	"github.com/donnol/jdnote/route"
+	"github.com/donnol/jdnote/app"
 	utillog "github.com/donnol/tools/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	_ "net/http/pprof"
 
 	// 注入路由
-	_ "github.com/donnol/jdnote/api/auth"
-	_ "github.com/donnol/jdnote/api/file"
-	_ "github.com/donnol/jdnote/api/note"
+	"github.com/donnol/jdnote/api/auth"
+	"github.com/donnol/jdnote/api/file"
+	"github.com/donnol/jdnote/api/note"
 )
 
 func main() {
-	// 配置
-	port := fmt.Sprintf(":%d", config.Default().Server.Port)
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	router := route.DefaultRouter()
+	appObj, cctx := app.New(ctx)
+
+	// 注册路由
+	appObj.Register(cctx, &auth.Auth{})
+	appObj.Register(cctx, &file.File{})
+	appObj.Register(cctx, &note.Note{})
+	router := appObj.Router()
+
 	// 静态文件
 	router.StaticFS("/static", http.Dir("dist"))
 
-	// 新建server
+	// 服务器
+	port := fmt.Sprintf(":%d", appObj.GetConfig().Server.Port)
 	srv := &http.Server{
 		Addr:    port,
 		Handler: router,

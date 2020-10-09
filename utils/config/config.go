@@ -7,18 +7,6 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// defaultConfig 默认配置
-var defaultConfig Config
-
-// Default 默认值
-func Default() Config {
-	return defaultConfig
-}
-
-func init() {
-	defaultConfig = normal
-}
-
 // Config 配置
 type Config struct {
 	// 服务器配置

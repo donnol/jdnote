@@ -9,7 +9,13 @@ import (
 	"net/url"
 
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/gorilla/schema"
 	"github.com/pkg/errors"
+)
+
+// 参数相关
+var (
+	decoder = schema.NewDecoder()
 )
 
 // Param 参数

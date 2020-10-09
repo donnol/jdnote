@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
@@ -8,7 +9,8 @@ import (
 
 func TestGetByName(t *testing.T) {
 	u := &userImpl{}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 	if e, err := u.GetByName(ctx, "jd"); err != nil {
 		t.Fatal(err)
 	} else if e.ID == 0 {
@@ -26,7 +28,8 @@ func TestAdd(t *testing.T) {
 		Email:    "jdlau@126.com",
 		Password: "jd",
 	}
-	ctx := app.DefaultCtx()
+	sctx := context.Background()
+	_, ctx := app.New(sctx)
 	if id, err := u.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {
