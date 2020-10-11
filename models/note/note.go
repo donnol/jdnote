@@ -3,7 +3,7 @@ package note
 import (
 	"time"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -81,7 +81,7 @@ func (note *noteImpl) Del(ctx context.Context, id int) (err error) {
 }
 
 // GetPage 获取笔记分页
-func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param app.CommonParam) (
+func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.Param) (
 	res EntityList,
 	total int,
 	err error,

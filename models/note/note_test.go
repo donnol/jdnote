@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/utils/common"
 )
 
 func TestAddNote(t *testing.T) {
@@ -31,7 +32,7 @@ func TestAddNote(t *testing.T) {
 	t.Log(detail)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, app.DefaultCommonParam)
+	r, total, err := note.GetPage(ctx, Entity{}, common.DefaultParam)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +66,7 @@ func TestGetPage(t *testing.T) {
 	_, ctx := app.New(sctx)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, app.CommonParam{PageSize: 5})
+	r, total, err := note.GetPage(ctx, Entity{}, common.Param{PageSize: 5})
 	if err != nil {
 		t.Fatal(err)
 	}

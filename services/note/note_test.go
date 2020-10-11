@@ -9,6 +9,7 @@ import (
 
 	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/note"
+	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -50,7 +51,7 @@ var (
 		DelHandler: func(ctx context.Context, id int) (err error) {
 			return
 		},
-		GetPageHandler: func(ctx context.Context, entity note.Entity, param app.CommonParam) (
+		GetPageHandler: func(ctx context.Context, entity note.Entity, param common.Param) (
 			res note.EntityList,
 			total int,
 			err error,

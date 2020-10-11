@@ -1,7 +1,7 @@
 package note
 
 import (
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -16,7 +16,7 @@ type Mock struct {
 	AddHandler     func(ctx context.Context, entity Entity) (id int, err error)
 	ModHandler     func(ctx context.Context, id int, entity Entity) (err error)
 	DelHandler     func(ctx context.Context, id int) (err error)
-	GetPageHandler func(ctx context.Context, entity Entity, param app.CommonParam) (
+	GetPageHandler func(ctx context.Context, entity Entity, param common.Param) (
 		res EntityList,
 		total int,
 		err error,
@@ -41,7 +41,7 @@ func (m Mock) Del(ctx context.Context, id int) (err error) {
 	return m.DelHandler(ctx, id)
 }
 
-func (m Mock) GetPage(ctx context.Context, entity Entity, param app.CommonParam) (
+func (m Mock) GetPage(ctx context.Context, entity Entity, param common.Param) (
 	res EntityList,
 	total int,
 	err error,

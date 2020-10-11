@@ -21,7 +21,7 @@ func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, 
 		Title:  param.Title,
 		Detail: param.Detail,
 	}
-	res, total, err := n.noteModel.GetPage(ctx, entity, param.CommonParam)
+	res, total, err := n.noteModel.GetPage(ctx, entity, param.Param)
 	if err != nil {
 		return
 	}
