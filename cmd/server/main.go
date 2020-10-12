@@ -13,6 +13,7 @@ import (
 	"github.com/donnol/jdnote/api/fileapi"
 	"github.com/donnol/jdnote/api/noteapi"
 	"github.com/donnol/jdnote/models/actionmodel"
+	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/models/roleactionmodel"
 	"github.com/donnol/jdnote/models/rolemodel"
 	"github.com/donnol/jdnote/models/usermodel"
@@ -43,6 +44,7 @@ func main() {
 		rolemodel.New,
 		actionmodel.New,
 		roleactionmodel.New,
+		notemodel.New,
 	)
 	// service
 	appObj.MustRegisterProvider(

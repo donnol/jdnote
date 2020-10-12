@@ -41,7 +41,7 @@ func (e Entity) Filter() interface{} {
 }
 
 // Join 连接
-// 这里又怎么会知道要跟谁join呢？所以只能在ao里做，这里做是没意义的
+// 这里又怎么会知道要跟谁join呢？所以只能在srv里做，这里做是没意义的
 func (e Entity) Join(f func(Entity) Entity) Entity {
 	ne := f(e)
 	return ne

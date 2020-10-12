@@ -12,7 +12,7 @@ type Auth struct {
 	Tx route.Method `tx:"AddUser"`
 
 	// 使用的model
-	UserAo usersrv.IUser
+	UserSrv usersrv.IUser
 }
 
 // LoginUser 登录用户
@@ -37,7 +37,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 	}
 
 	// 业务
-	u, err := auth.UserAo.GetByID(ctx, userID)
+	u, err := auth.UserSrv.GetByID(ctx, userID)
 	if err != nil {
 		return
 	}
@@ -61,7 +61,7 @@ func (auth *Auth) AddLogin(ctx context.Context, param route.Param) (r route.Resu
 	// 权限
 
 	// 业务
-	re, err := auth.UserAo.VerifyByNameAndPassword(ctx, p.Name, p.Password)
+	re, err := auth.UserSrv.VerifyByNameAndPassword(ctx, p.Name, p.Password)
 	if err != nil {
 		return
 	}
@@ -82,7 +82,7 @@ func (auth *Auth) AddUser(ctx context.Context, param route.Param) (r route.Resul
 	// 权限
 
 	// 业务
-	id, err := auth.UserAo.Add(ctx, p)
+	id, err := auth.UserSrv.Add(ctx, p)
 	if err != nil {
 		return
 	}
@@ -102,7 +102,7 @@ func (auth *Auth) GetUser(ctx context.Context, param route.Param) (r route.Resul
 	// 权限
 
 	// 业务
-	re, err := auth.UserAo.GetByName(ctx, p.Name)
+	re, err := auth.UserSrv.GetByName(ctx, p.Name)
 	if err != nil {
 		return
 	}

@@ -9,9 +9,9 @@ import (
 
 // Note 笔记
 type Note struct {
-	authAo authsrv.IAuth
+	authSrv authsrv.IAuth
 
-	noteAo notesrv.INote
+	noteSrv notesrv.INote
 
 	// 频率限制
 	Limiter route.Limiter `rate:"Rate(0.25, 2)"`
@@ -26,12 +26,12 @@ func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, er
 	}
 
 	// 权限
-	if err = n.authAo.CheckLogin(ctx); err != nil {
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	result, err := n.noteAo.GetPage(ctx, param)
+	result, err := n.noteSrv.GetPage(ctx, param)
 	if err != nil {
 		return
 	}
@@ -53,12 +53,12 @@ func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.authAo.CheckLogin(ctx); err != nil {
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	mres, err := n.noteAo.Get(ctx, param.NoteID)
+	mres, err := n.noteSrv.Get(ctx, param.NoteID)
 	if err != nil {
 		return
 	}
@@ -74,12 +74,12 @@ func (n *Note) Add(ctx context.Context, p route.Param) (res route.Result, err er
 	// 参数
 
 	// 权限
-	if err = n.authAo.CheckLogin(ctx); err != nil {
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	id, err := n.noteAo.AddOne(ctx)
+	id, err := n.noteSrv.AddOne(ctx)
 	if err != nil {
 		return
 	}
@@ -101,12 +101,12 @@ func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.authAo.CheckLogin(ctx); err != nil {
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	err = n.noteAo.Mod(ctx, param.NoteID, param.Param)
+	err = n.noteSrv.Mod(ctx, param.NoteID, param.Param)
 	if err != nil {
 		return
 	}
@@ -127,12 +127,12 @@ func (n *Note) Del(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 权限
-	if err = n.authAo.CheckLogin(ctx); err != nil {
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
 		return
 	}
 
 	// 业务
-	err = n.noteAo.Del(ctx, param.NoteID)
+	err = n.noteSrv.Del(ctx, param.NoteID)
 	if err != nil {
 		return
 	}

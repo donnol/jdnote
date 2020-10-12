@@ -10,8 +10,8 @@ type Model struct {
 	Base
 }
 
-// Ao Ao
-type Ao struct {
+// Srv Srv
+type Srv struct {
 	Base
 
 	AM Model

@@ -8,7 +8,15 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/models/actionmodel"
+	"github.com/donnol/jdnote/models/notemodel"
+	"github.com/donnol/jdnote/models/roleactionmodel"
+	"github.com/donnol/jdnote/models/rolemodel"
+	"github.com/donnol/jdnote/models/usermodel"
+	"github.com/donnol/jdnote/models/userrolemodel"
+	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/notesrv"
+	"github.com/donnol/jdnote/services/usersrv"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/route"
@@ -22,6 +30,20 @@ func TestMain(m *testing.M) {
 	ctx := stdctx.Background()
 	var cctx context.Context
 	appObj, cctx = app.New(ctx)
+	appObj.MustRegisterProvider(
+		usermodel.New,
+		userrolemodel.New,
+		rolemodel.New,
+		actionmodel.New,
+		roleactionmodel.New,
+		notemodel.New,
+	)
+	// service
+	appObj.MustRegisterProvider(
+		usersrv.New,
+		authsrv.New,
+		notesrv.New,
+	)
 	appObj.Register(cctx, &Note{})
 
 	go func() {
