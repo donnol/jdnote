@@ -186,7 +186,10 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 
 	return func(c *gin.Context) {
 		if !limiter.Allow() {
-			c.JSON(http.StatusTooManyRequests, "Too Many Requests")
+			c.JSON(http.StatusTooManyRequests, Result{Error: utilerrors.Error{
+				Code: utilerrors.ErrorCodeRouter,
+				Msg:  "Too Many Requests",
+			}})
 			return
 		}
 		handler(c)
