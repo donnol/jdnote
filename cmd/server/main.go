@@ -35,6 +35,7 @@ func main() {
 	defer cancel()
 
 	appObj, cctx := app.New(ctx)
+	defer appObj.Cancel()
 
 	// 注入provider
 	// model

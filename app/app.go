@@ -139,3 +139,9 @@ func (app *App) StartServer(port int) error {
 
 	return nil
 }
+
+func (app *App) Cancel() {
+	if idb, ok := app.db.(*sqlx.DB); ok {
+		idb.Close()
+	}
+}
