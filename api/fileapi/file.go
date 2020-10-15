@@ -23,13 +23,16 @@ type File struct {
 // Add 上传文件
 func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, err error) {
 	p := struct {
-		FileName string `json:"fileName"`
+		FieldFileName string `json:"fieldFileName"`
 	}{}
 	body, err := param.ParseMultipartForm(64*1024*1024, &p)
 	if err != nil {
 		return
 	}
 	log.Default().Debugf("%+v, %d\n", p, len(body))
+	for name, one := range body {
+		log.Default().Debugf("name: %s, content: %s\n", name, one)
+	}
 
 	return
 }

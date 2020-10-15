@@ -9,6 +9,7 @@ import (
 	"net/url"
 
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/tools/log"
 	"github.com/gorilla/schema"
 	"github.com/pkg/errors"
 )
@@ -61,41 +62,43 @@ func (p *Param) Parse(ctx context.Context, v interface{}) error {
 }
 
 // ParseMultipartForm 解析内容
-func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) ([]byte, error) {
-	var body []byte
-
+func (p *Param) ParseMultipartForm(maxFileSize int64, v interface{}) (map[string][]byte, error) {
 	if p.multipartReader == nil {
-		return body, fmt.Errorf("Bad multipart reader")
+		return nil, fmt.Errorf("Bad multipart reader")
 	}
 
 	// 使用ReadForm
 	form, err := p.multipartReader.ReadForm(maxFileSize)
 	if err != nil {
-		return body, err
+		return nil, err
 	}
 
 	// 获取参数
 	if err := decoder.Decode(v, form.Value); err != nil {
-		return body, err
+		return nil, err
 	}
 
 	// 获取内容
+	body := make(map[string][]byte)
 	buf := new(bytes.Buffer)
-	for _, single := range form.File {
-		for _, one := range single {
+	for name, single := range form.File {
+		for i, one := range single {
 			file, err := one.Open()
 			if err != nil {
-				return body, err
+				return nil, err
 			}
 			defer file.Close()
 
 			_, err = buf.ReadFrom(file)
 			if err != nil {
-				return body, err
+				return nil, err
 			}
+			log.Default().Debugf("No.%d, name: %s, content: %s\n", i, name, buf.Bytes())
 		}
+		body[name] = buf.Bytes()
+
+		buf = new(bytes.Buffer) // 不能用 buf.Reset()，因为在下次写入的数据长度比本次的长度小时，会复用之前的内存，导致内容错误
 	}
-	body = buf.Bytes()
 
 	return body, nil
 }

@@ -30,20 +30,48 @@ func TestAddFile(t *testing.T) {
 	}
 	defer file.Close()
 
+	fileName2 := "testdata/testcsv.csv"
+	filePath2 := path.Join(fileDir, fileName2)
+
+	// 打开文件
+	file2, err := os.Open(filePath2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file2.Close()
+
 	// 新建multipart writer，将文件内容赋值到body里
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+
+	// 第一个文件
+	part, err := writer.CreateFormFile("file_md", filepath.Base(file.Name()))
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = io.Copy(part, file)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// 第二个文件
+	part2, err := writer.CreateFormFile("file_csv", filepath.Base(file2.Name()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = io.Copy(part2, file2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	// 写入参数
-	err = writer.WriteField("fileName", filepath.Base(file.Name()))
+	err = writer.WriteField("fieldFileName", filepath.Base(file.Name()))
 	if err != nil {
 		t.Fatal(err)
 	}
 	writer.Close()
+
+	t.Logf("%s\n", body.Bytes())
 
 	// 新建请求
 	r, err := http.NewRequest("POST", "http://127.0.0.1:8810/v1/file", body)
@@ -62,15 +90,16 @@ func TestAddFile(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	// 结果打印
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Bad status code")
-	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%s\n", data)
+
+	// 结果打印
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Bad status code: %d\n", resp.StatusCode)
+	}
 }
 
 func TestGetFile(t *testing.T) {
