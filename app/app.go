@@ -12,6 +12,7 @@ import (
 	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/tools/inject"
+	"github.com/donnol/tools/log"
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
@@ -28,6 +29,7 @@ type App struct {
 	jwtToken *jwt.Token
 	ioc      *inject.Ioc
 	router   *route.Router
+	server   *http.Server
 }
 
 func New(ctx stdctx.Context) (*App, context.Context) {
@@ -126,18 +128,38 @@ func (app *App) Register(ctx context.Context, v interface{}) {
 	app.router.Register(ctx, v)
 }
 
-func (app *App) Run() {
-
+func (app *App) StaticFS(relativePath string, fs http.FileSystem) {
+	app.router.StaticFS(relativePath, fs)
 }
 
-// StartServer 开启服务
-func (app *App) StartServer(port int) error {
-	addr := fmt.Sprintf(":%d", port)
-	if err := app.router.Run(addr); err != nil {
+func (app *App) Run() error {
+	port := app.config.Server.Port
+
+	if err := app.StartServer(port); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// StartServer 开启服务
+func (app *App) StartServer(port int) error {
+	log.Debugf("Server start at %v. Listening '%v'", time.Now().Format("2006-01-02 15:04:05"), port)
+
+	addr := fmt.Sprintf(":%d", port)
+	app.server = &http.Server{
+		Addr:    addr,
+		Handler: app.router,
+	}
+	if err := app.server.ListenAndServe(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (app *App) ShutdownServer(ctx stdctx.Context) error {
+	return app.server.Shutdown(ctx)
 }
 
 func (app *App) Cancel() {

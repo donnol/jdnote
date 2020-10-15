@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/donnol/jdnote/api/authapi"
 	"github.com/donnol/jdnote/api/fileapi"
@@ -60,15 +58,7 @@ func main() {
 	appObj.Register(cctx, &noteapi.Note{})
 
 	// 静态文件
-	router := appObj.Router()
-	router.StaticFS("/static", http.Dir("dist"))
-
-	// 服务器
-	port := fmt.Sprintf(":%d", appObj.GetConfig().Server.Port)
-	srv := &http.Server{
-		Addr:    port,
-		Handler: router,
-	}
+	appObj.StaticFS("/static", http.Dir("dist"))
 
 	// 启动pprof
 	go func() {
@@ -101,9 +91,8 @@ func main() {
 			log.Debugf("Recv terminal signal.")
 		}
 
-		// 优雅关闭
-		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Debugf("HTTP server Shutdown: %v", err)
+		if err := appObj.ShutdownServer(ctx); err != nil {
+			log.Errorf("ShutdownServer failed: %+v\n", err)
 		}
 
 		// 关闭管道，让进程能顺利停止
@@ -111,9 +100,8 @@ func main() {
 	}()
 
 	// 开启服务器
-	log.Debugf("Server start at %v. Listening '%s'", time.Now().Format("2006-01-02 15:04:05"), port)
-	if err := srv.ListenAndServe(); err != nil {
-		log.Debugf("HTTP server ListenAndServe: %v", err)
+	if err := appObj.Run(); err != nil {
+		log.Errorf("Server err: %+v\n", err)
 	}
 
 	// 放在最后，确保前面的工作已完成
