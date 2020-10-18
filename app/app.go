@@ -11,6 +11,7 @@ import (
 	"github.com/donnol/jdnote/utils/config"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/jwt"
+	"github.com/donnol/jdnote/utils/queue"
 	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/tools/inject"
@@ -26,6 +27,7 @@ type App struct {
 	config   config.Config
 	db       db.DB
 	logger   log.Logger
+	trigger  queue.Trigger
 	jwtToken *jwt.Token
 	ioc      *inject.Ioc
 	router   *route.Router
@@ -57,6 +59,9 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 
 	// logger
 	app.logger = log.New(os.Stdout, "", stdlog.LstdFlags|stdlog.Lshortfile)
+
+	// trigger
+	app.trigger = queue.NewTrigger(queue.Option{})
 
 	// ctx
 	cusCtx := context.New(ctx, app.db, 0)
@@ -110,6 +115,10 @@ func (app *App) MakeCookie(userID int) (cookie http.Cookie, err error) {
 
 func (app *App) Logger() log.Logger {
 	return app.logger
+}
+
+func (app *App) Trigger() queue.Trigger {
+	return app.trigger
 }
 
 func (app *App) Router() *route.Router {

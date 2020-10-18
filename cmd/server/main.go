@@ -21,6 +21,8 @@ import (
 	"github.com/donnol/jdnote/services/usersrv"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/utils/queue"
+
 	"github.com/donnol/tools/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -35,11 +37,15 @@ func main() {
 	appObj, cctx := app.New(ctx)
 	defer appObj.Cancel()
 	logger := appObj.Logger()
+	trigger := appObj.Trigger()
 
 	// 注入provider
 	appObj.MustRegisterProvider(
 		func() log.Logger {
 			return logger
+		},
+		func() queue.Trigger {
+			return trigger
 		},
 	)
 	// model
