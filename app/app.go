@@ -3,7 +3,9 @@ package app
 import (
 	stdctx "context"
 	"fmt"
+	stdlog "log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/donnol/jdnote/utils/config"
@@ -18,14 +20,12 @@ import (
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
 )
 
-// DB DB接口
-type DB = db.DB
-
 type App struct {
 	*Base
 
 	config   config.Config
-	db       DB
+	db       db.DB
+	logger   log.Logger
 	jwtToken *jwt.Token
 	ioc      *inject.Ioc
 	router   *route.Router
@@ -54,6 +54,9 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 
 		return db
 	}()
+
+	// logger
+	app.logger = log.New(os.Stdout, "", stdlog.LstdFlags|stdlog.Lshortfile)
 
 	// ctx
 	cusCtx := context.New(ctx, app.db, 0)
@@ -105,7 +108,10 @@ func (app *App) MakeCookie(userID int) (cookie http.Cookie, err error) {
 	return
 }
 
-// Router 获取默认路由
+func (app *App) Logger() log.Logger {
+	return app.logger
+}
+
 func (app *App) Router() *route.Router {
 	return app.router
 }
@@ -144,7 +150,7 @@ func (app *App) Run() error {
 
 // StartServer 开启服务
 func (app *App) StartServer(port int) error {
-	log.Debugf("Server start at %v. Listening '%v'", time.Now().Format("2006-01-02 15:04:05"), port)
+	app.logger.Debugf("Server start at %v. Listening '%v'", time.Now().Format("2006-01-02 15:04:05"), port)
 
 	addr := fmt.Sprintf(":%d", port)
 	app.server = &http.Server{

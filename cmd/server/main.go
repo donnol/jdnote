@@ -34,8 +34,14 @@ func main() {
 
 	appObj, cctx := app.New(ctx)
 	defer appObj.Cancel()
+	logger := appObj.Logger()
 
 	// 注入provider
+	appObj.MustRegisterProvider(
+		func() log.Logger {
+			return logger
+		},
+	)
 	// model
 	appObj.MustRegisterProvider(
 		usermodel.New,
@@ -62,15 +68,15 @@ func main() {
 
 	// 启动pprof
 	go func() {
-		log.Debugf("Pprof server start\n")
-		log.Errorf("pprof ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6060", nil))
+		logger.Debugf("Pprof server start\n")
+		logger.Errorf("pprof ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6060", nil))
 	}()
 
 	// 启动prometheus
 	go func() {
-		log.Debugf("Prometheus server start\n")
+		logger.Debugf("Prometheus server start\n")
 		http.Handle("/metrics", promhttp.Handler())
-		log.Errorf("prometheus ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6660", nil))
+		logger.Errorf("prometheus ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6660", nil))
 	}()
 
 	// 监听终止信号
@@ -86,13 +92,13 @@ func main() {
 
 		select {
 		case <-sigint:
-			log.Debugf("Recv interrupt signal.")
+			logger.Debugf("Recv interrupt signal.")
 		case <-sigterm:
-			log.Debugf("Recv terminal signal.")
+			logger.Debugf("Recv terminal signal.")
 		}
 
 		if err := appObj.ShutdownServer(ctx); err != nil {
-			log.Errorf("ShutdownServer failed: %+v\n", err)
+			logger.Errorf("ShutdownServer failed: %+v\n", err)
 		}
 
 		// 关闭管道，让进程能顺利停止
@@ -101,7 +107,7 @@ func main() {
 
 	// 开启服务器
 	if err := appObj.Run(); err != nil {
-		log.Errorf("Server err: %+v\n", err)
+		logger.Errorf("Server err: %+v\n", err)
 	}
 
 	// 放在最后，确保前面的工作已完成
