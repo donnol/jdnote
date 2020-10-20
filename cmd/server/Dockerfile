@@ -1,6 +1,8 @@
 # 构建
 FROM golang:1.15.2-alpine AS builder
 
+RUN go env -w GOPROXY=https://goproxy.io,https://goproxy.cn,direct
+
 ARG PROJECT_PATH=Projects/jdnote
 
 RUN mkdir -p /$PROJECT_PATH
