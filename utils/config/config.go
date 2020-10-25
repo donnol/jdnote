@@ -12,6 +12,9 @@ type Config struct {
 	// 服务器配置
 	Server Server `toml:"server"`
 
+	Pprof      Pprof      `toml:"pprof"`
+	Prometheus Prometheus `toml:"prometheus"`
+
 	// 数据库配置
 	DB DB `toml:"database"`
 
@@ -19,9 +22,31 @@ type Config struct {
 	JWT JWT `toml:"jwt"`
 }
 
+type Pprof struct {
+	Server
+}
+
+type Prometheus struct {
+	Server
+}
+
+type Port int
+
+func (port Port) Raw() int {
+	return int(port)
+}
+
+func (port Port) String() string {
+	return fmt.Sprintf("'%d'", port)
+}
+
+func (port Port) ToAddr() string {
+	return fmt.Sprintf(":%d", port)
+}
+
 // Server 服务器配置
 type Server struct {
-	Port int // 端口，如：8810
+	Port Port // 端口，如：8810
 }
 
 // DB 数据库配置

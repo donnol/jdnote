@@ -17,6 +17,9 @@ import (
 	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	_ "net/http/pprof"
 
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
 )
@@ -147,10 +150,37 @@ func (app *App) StaticFS(relativePath string, fs http.FileSystem) {
 	app.router.StaticFS(relativePath, fs)
 }
 
+func (app *App) RunPprof() error {
+	addr := app.config.Pprof.Port.ToAddr()
+
+	// 启动pprof
+	go func() {
+		app.logger.Debugf("Pprof server start: %s\n", addr)
+
+		app.logger.Errorf("pprof ListenAndServe err: %+v\n", http.ListenAndServe(addr, nil))
+	}()
+
+	return nil
+}
+
+func (app *App) RunPrometheus() error {
+	addr := app.config.Prometheus.Port.ToAddr()
+
+	// 启动prometheus
+	go func() {
+		app.logger.Debugf("Prometheus server start: %s\n", addr)
+
+		http.Handle("/metrics", promhttp.Handler())
+		app.logger.Errorf("prometheus ListenAndServe err: %+v\n", http.ListenAndServe(addr, nil))
+	}()
+
+	return nil
+}
+
 func (app *App) Run() error {
 	port := app.config.Server.Port
 
-	if err := app.StartServer(port); err != nil {
+	if err := app.StartServer(port.Raw()); err != nil {
 		return err
 	}
 

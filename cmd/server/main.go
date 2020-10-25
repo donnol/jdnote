@@ -24,9 +24,6 @@ import (
 	"github.com/donnol/jdnote/utils/queue"
 
 	"github.com/donnol/tools/log"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	_ "net/http/pprof"
 )
 
 func main() {
@@ -72,36 +69,14 @@ func main() {
 	// 静态文件
 	appObj.StaticFS("/static", http.Dir("dist"))
 
-	// 启动pprof
-	go func() {
-		logger.Debugf("Pprof server start\n")
-		logger.Errorf("pprof ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6060", nil))
-	}()
-
-	// 启动prometheus
-	go func() {
-		logger.Debugf("Prometheus server start\n")
-		http.Handle("/metrics", promhttp.Handler())
-		logger.Errorf("prometheus ListenAndServe err: %+v\n", http.ListenAndServe("localhost:6660", nil))
-	}()
-
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})
 	go func() {
-		// ctrl+c停止
 		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 
-		// docker stop会发这个信号给进程
-		sigterm := make(chan os.Signal, 1)
-		signal.Notify(sigterm, syscall.SIGTERM)
-
-		select {
-		case <-sigint:
-			logger.Debugf("Recv interrupt signal.")
-		case <-sigterm:
-			logger.Debugf("Recv terminal signal.")
-		}
+		sig := <-sigint
+		logger.Debugf("Recv interrupt signal, %v", sig)
 
 		if err := appObj.ShutdownServer(ctx); err != nil {
 			logger.Errorf("ShutdownServer failed: %+v\n", err)
@@ -111,10 +86,20 @@ func main() {
 		close(idleConnsClosed)
 	}()
 
+	if err := appObj.RunPprof(); err != nil {
+		logger.Errorf("Pprof err: %+v\n", err)
+	}
+
+	if err := appObj.RunPrometheus(); err != nil {
+		logger.Errorf("Prometheus err: %+v\n", err)
+	}
+
 	// 开启服务器
 	if err := appObj.Run(); err != nil {
 		logger.Errorf("Server err: %+v\n", err)
 	}
+
+	logger.Infof("All finish.\n")
 
 	// 放在最后，确保前面的工作已完成
 	<-idleConnsClosed
