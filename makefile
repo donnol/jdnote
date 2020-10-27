@@ -1,10 +1,12 @@
 .PHONY:server_start
 
-unitTest=true
-server_start:db_start
+server_install:
 	go clean -cache && \
 	cd cmd/server/ && \
-	go install && \
+	go install
+
+unitTest=true
+server_start:db_start server_install
 	env UNIT_TEST_ENV=$(unitTest) $(GOBIN)/server
 
 db_start:
