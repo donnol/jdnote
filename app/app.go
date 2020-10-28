@@ -57,6 +57,12 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 			panic(err)
 		}
 
+		// 设置db最大连接数，最大空闲连接，最大可用时间，最大空闲时间
+		db.SetMaxOpenConns(100)
+		db.SetMaxIdleConns(100)
+		db.SetConnMaxLifetime(1 * time.Hour)
+		db.SetConnMaxIdleTime(30 * time.Minute)
+
 		return db
 	}()
 
