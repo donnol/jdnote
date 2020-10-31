@@ -39,3 +39,52 @@ docker_build:
 # 运行
 docker_run:
 	sudo docker run -d --net=host --restart=unless-stopped jdnote-server 
+
+# === k8s ===
+deployName=jdnote
+#
+
+# 在microk8s的registry里构建镜像
+registry_docker_build:
+	sudo docker build -t localhost:32000/jdnote-server -f cmd/server/Dockerfile .
+
+# k8s create deploy
+kubectl_create_deploy:
+	sudo microk8s.kubectl create deployment $(deployName) --image=localhost:32000/jdnote-server
+
+# k8s delete deploy
+kubectl_delete_deploy:
+	sudo microk8s.kubectl delete deployment $(deployName)
+
+# 获取k8s deploy配置
+kubectl_get_deploy_config:
+	sudo microk8s.kubectl get deploy $(deployName) -o yaml > zeus/data/deployment.yml
+
+# k8s scale deploy
+kubectl_scale_deploy:
+	sudo microk8s.kubectl scale deployment $(deployName) --replicas=2
+
+# k8s deploy service
+kubectl_expose_service:
+	sudo microk8s.kubectl expose deployment $(deployName) --type=NodePort --port=80 --name=jdnote-service
+
+# k8s delete service
+kubectl_delete_service:
+	sudo microk8s.kubectl delete services/jdnote-service
+
+# k8s get all namespaces
+kubectl_get_all_namespaces:
+	sudo microk8s.kubectl get all --all-namespaces | less
+
+podName=jdnote-76db6f897c-kgvvq
+
+# k8s pod log
+kubectl_get_pod_logs:
+	sudo microk8s.kubectl logs $(podName) -p
+
+yamlFile=zeus/data/postgresql.yaml
+
+# k8s apply -f
+kubectl_apply_byfile:
+	sudo microk8s.kubectl apply -f $(yamlFile)
+
