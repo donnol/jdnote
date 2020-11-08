@@ -38,7 +38,7 @@ docker_build:
 
 # 运行
 docker_run:
-	sudo docker run -d --net=host --restart=unless-stopped jdnote-server 
+	sudo docker run -d --net=host --restart=unless-stopped -e="PROJECT_ENV=PROJECT_ENV_PROD" jdnote-server 
 
 # === k8s ===
 deployName=jdnote
