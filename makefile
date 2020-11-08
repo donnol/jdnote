@@ -7,7 +7,7 @@ server_install:
 
 unitTest=true
 server_start:db_start server_install
-	env UNIT_TEST_ENV=$(unitTest) $(GOBIN)/server
+	env PROJECT_ENV=PROJECT_ENV_DEV UNIT_TEST_ENV=$(unitTest) $(GOBIN)/server
 
 db_start:
 	sudo service postgresql start

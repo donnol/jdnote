@@ -33,8 +33,24 @@ type App struct {
 	trigger  queue.Trigger
 	jwtToken *jwt.Token
 	ioc      *inject.Ioc
+	proxy    inject.Proxy
 	router   *route.Router
 	server   *http.Server
+}
+
+const (
+	ProjectEnv = "PROJECT_ENV"
+
+	ProjectEnvDev = "PROJECT_ENV_DEV"
+
+	ProjectEnvProd = "PROJECT_ENV_PROD"
+)
+
+func GetProjectEnv() string {
+	if v, ok := os.LookupEnv(ProjectEnv); ok && v == ProjectEnvProd {
+		return ProjectEnvProd
+	}
+	return ProjectEnvDev
 }
 
 func New(ctx stdctx.Context) (*App, context.Context) {
@@ -44,7 +60,12 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 
 	// 配置,来自文件或acm
 	// defaultConfig 默认配置
-	app.config = normal
+	switch GetProjectEnv() {
+	case ProjectEnvProd:
+		app.config = normal
+	default:
+		app.config = dev
+	}
 
 	// 数据库: mysql或pg,redis
 	// defaultDB 默认db
@@ -83,6 +104,9 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 
 	// ioc
 	app.ioc = inject.NewIoc(true)
+
+	// proxy
+	app.proxy = inject.NewProxy()
 
 	// defaultRouter 默认路由
 	app.router = route.NewRouter(route.Option{
@@ -134,8 +158,15 @@ func (app *App) Router() *route.Router {
 	return app.router
 }
 
-func (app *App) MustRegisterProvider(vs ...interface{}) {
-	for _, v := range vs {
+type ProviderOption struct {
+	Provider interface{}
+	Mock     interface{}
+	Hooks    []inject.Hook
+}
+
+func (app *App) MustRegisterProvider(opts ...ProviderOption) {
+	for _, opt := range opts {
+		v := app.proxy.Wrap(opt.Provider, opt.Mock, opt.Hooks...)
 		if err := app.ioc.RegisterProvider(v); err != nil {
 			panic(err)
 		}

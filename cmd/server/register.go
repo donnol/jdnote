@@ -23,6 +23,7 @@ import (
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/queue"
 
+	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"
 )
 
@@ -32,28 +33,56 @@ func appRegister(cctx context.Context, appObj *app.App) {
 
 	// 注入provider
 	appObj.MustRegisterProvider(
-		func() log.Logger {
-			return logger
+		app.ProviderOption{
+			Provider: func() log.Logger {
+				return logger
+			},
 		},
-		func() queue.Trigger {
-			return trigger
+		app.ProviderOption{
+			Provider: func() queue.Trigger {
+				return trigger
+			},
 		},
 	)
 	// model
 	appObj.MustRegisterProvider(
-		usermodel.New,
-		userrolemodel.New,
-		rolemodel.New,
-		actionmodel.New,
-		roleactionmodel.New,
-		notemodel.New,
+		app.ProviderOption{
+			Provider: usermodel.New,
+			Mock:     &usermodel.UserMock{},
+			Hooks: []inject.Hook{
+				&app.TimeHook{},
+			},
+		},
+		app.ProviderOption{
+			Provider: userrolemodel.New,
+		},
+		app.ProviderOption{
+			Provider: rolemodel.New,
+		},
+		app.ProviderOption{
+			Provider: actionmodel.New,
+		},
+		app.ProviderOption{
+			Provider: roleactionmodel.New,
+		},
+		app.ProviderOption{
+			Provider: notemodel.New,
+		},
 	)
 	// service
 	appObj.MustRegisterProvider(
-		usersrv.New,
-		authsrv.New,
-		notesrv.New,
-		timesrv.New,
+		app.ProviderOption{
+			Provider: usersrv.New,
+		},
+		app.ProviderOption{
+			Provider: authsrv.New,
+		},
+		app.ProviderOption{
+			Provider: notesrv.New,
+		},
+		app.ProviderOption{
+			Provider: timesrv.New,
+		},
 	)
 
 	// 注入依赖，并注册路由
