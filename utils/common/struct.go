@@ -7,6 +7,8 @@ type Param struct {
 
 	PageIndex int `json:"pageIndex"` // 分页开始
 	PageSize  int `json:"pageSize"`  // 分页大小
+
+	OnlyPublish bool `json:"-"` // 只展示发布记录
 }
 
 // DefaultParam 默认值

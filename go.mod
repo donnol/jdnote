@@ -19,6 +19,7 @@ require (
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/google/go-cmp v0.5.3 // indirect
 	github.com/google/gops v0.3.10
 	github.com/gorilla/schema v1.1.0
 	github.com/jmhodges/levigo v1.0.0 // indirect
@@ -34,8 +35,8 @@ require (
 	github.com/tinylib/msgp v1.1.2 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
-	golang.org/x/sys v0.0.0-20200808120158-1030fc2bf1d9 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
+	golang.org/x/tools v0.0.0-20201112185108-eeaa07dd7696 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect

@@ -45,9 +45,7 @@ func (n *Note) GetPage(ctx context.Context, p route.Param) (res route.Result, er
 // Get 获取
 func (n *Note) Get(ctx context.Context, p route.Param) (res route.Result, err error) {
 	// 参数
-	param := struct {
-		NoteID int `json:"noteID"`
-	}{}
+	param := notesrv.GetParam{}
 	if err = p.Parse(ctx, &param); err != nil {
 		return
 	}
@@ -107,6 +105,52 @@ func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err er
 
 	// 业务
 	err = n.noteSrv.Mod(ctx, param.NoteID, param.Param)
+	if err != nil {
+		return
+	}
+
+	// 返回
+
+	return
+}
+
+func (n *Note) ModPublish(ctx context.Context, p route.Param) (res route.Result, err error) {
+	// 参数
+	param := notesrv.GetParam{}
+	if err = p.Parse(ctx, &param); err != nil {
+		return
+	}
+
+	// 权限
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
+		return
+	}
+
+	// 业务
+	err = n.noteSrv.Publish(ctx, param.NoteID)
+	if err != nil {
+		return
+	}
+
+	// 返回
+
+	return
+}
+
+func (n *Note) ModHide(ctx context.Context, p route.Param) (res route.Result, err error) {
+	// 参数
+	param := notesrv.GetParam{}
+	if err = p.Parse(ctx, &param); err != nil {
+		return
+	}
+
+	// 权限
+	if err = n.authSrv.CheckLogin(ctx); err != nil {
+		return
+	}
+
+	// 业务
+	err = n.noteSrv.Hide(ctx, param.NoteID)
 	if err != nil {
 		return
 	}

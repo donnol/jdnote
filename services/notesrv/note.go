@@ -8,6 +8,7 @@ import (
 
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/pkg/errors"
 )
 
 // noteImpl 笔记
@@ -57,6 +58,23 @@ func (n *noteImpl) Get(ctx context.Context, id int) (r Result, err error) {
 	return
 }
 
+func (n *noteImpl) GetPublish(ctx context.Context, id int) (r Result, err error) {
+	e, err := n.noteModel.Get(ctx, id)
+	if err != nil {
+		return
+	}
+	// 检查是否publish状态
+	if !e.Status.IsPublish() {
+		return r, errors.Errorf("不存在该笔记")
+	}
+	r, err = r.Init(e)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // AddOne 添加
 func (n *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 	id, err = n.noteModel.AddOne(ctx)
@@ -92,11 +110,19 @@ func (n *noteImpl) Del(ctx context.Context, id int) (err error) {
 // Publish 发布
 func (n *noteImpl) Publish(ctx context.Context, id int) error {
 	// 获取内容
-	data, err := n.noteModel.Get(ctx, id)
+	_, err := n.noteModel.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
+	if err := n.noteModel.ModStatus(ctx, id, notemodel.StatusPublish); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (n *noteImpl) makeContent(data notemodel.Entity) error {
 	// 生成md文件
 	now := time.Now()
 	content := n.getHugoContent(data.Title, data.Detail, now.Format("2006-01-02 15:04:05"), true, []string{}, []string{}, []string{})
@@ -172,8 +198,17 @@ keywords:`
 	return content
 }
 
-// Hide TODO:隐藏
+// Hide 隐藏
 func (n *noteImpl) Hide(ctx context.Context, id int) error {
+	// 获取内容
+	_, err := n.noteModel.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := n.noteModel.ModStatus(ctx, id, notemodel.StatusDraft); err != nil {
+		return err
+	}
 
 	return nil
 }

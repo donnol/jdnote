@@ -89,5 +89,6 @@ func appRegister(cctx context.Context, appObj *app.App) {
 	appObj.Register(cctx, &authapi.Auth{})
 	appObj.Register(cctx, &fileapi.File{})
 	appObj.Register(cctx, &noteapi.Note{})
+	appObj.Register(cctx, &noteapi.Front{})
 	appObj.Register(cctx, &timeapi.Time{})
 }

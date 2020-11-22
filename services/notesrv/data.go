@@ -28,9 +28,13 @@ func (p Param) Check(ctx context.Context) error {
 	return nil
 }
 
+type GetParam struct {
+	NoteID int `json:"noteID"` // 记录ID
+}
+
 // ModParam 修改参数
 type ModParam struct {
-	NoteID int `json:"noteID"` // 记录ID
+	GetParam
 	Param
 }
 
@@ -62,11 +66,12 @@ type PageResult struct {
 
 // Result 结果
 type Result struct {
-	NoteID    int    `json:"noteID"`    // 笔记ID
-	UserName  string `json:"userName"`  // 用户名
-	Title     string `json:"title"`     // 标题
-	Detail    string `json:"detail"`    // 详情
-	CreatedAt int64  `json:"createdAt"` // 创建时间
+	NoteID    int              `json:"noteID"`    // 笔记ID
+	UserName  string           `json:"userName"`  // 用户名
+	Title     string           `json:"title"`     // 标题
+	Detail    string           `json:"detail"`    // 详情
+	Status    notemodel.Status `json:"status"`    // 状态
+	CreatedAt int64            `json:"createdAt"` // 创建时间
 }
 
 // Init 初始化
@@ -77,6 +82,7 @@ func (r Result) Init(single notemodel.Entity) (Result, error) {
 	tmp.UserName = strconv.Itoa(single.UserID)
 	tmp.Title = single.Title
 	tmp.Detail = single.Detail
+	tmp.Status = single.Status
 	tmp.CreatedAt = single.CreatedAt.Unix()
 
 	return tmp, nil

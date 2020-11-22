@@ -31,18 +31,36 @@ func TestMain(m *testing.M) {
 	var cctx context.Context
 	appObj, cctx = app.New(ctx)
 	appObj.MustRegisterProvider(
-		usermodel.New,
-		userrolemodel.New,
-		rolemodel.New,
-		actionmodel.New,
-		roleactionmodel.New,
-		notemodel.New,
+		app.ProviderOption{
+			Provider: usermodel.New,
+		},
+		app.ProviderOption{
+			Provider: userrolemodel.New,
+		},
+		app.ProviderOption{
+			Provider: rolemodel.New,
+		},
+		app.ProviderOption{
+			Provider: actionmodel.New,
+		},
+		app.ProviderOption{
+			Provider: roleactionmodel.New,
+		},
+		app.ProviderOption{
+			Provider: notemodel.New,
+		},
 	)
 	// service
 	appObj.MustRegisterProvider(
-		usersrv.New,
-		authsrv.New,
-		notesrv.New,
+		app.ProviderOption{
+			Provider: usersrv.New,
+		},
+		app.ProviderOption{
+			Provider: authsrv.New,
+		},
+		app.ProviderOption{
+			Provider: notesrv.New,
+		},
 	)
 	appObj.Register(cctx, &Note{})
 
@@ -138,7 +156,9 @@ func TestAdd(t *testing.T) {
 
 		if err := modAT.New().SetPort(fmt.Sprintf(":%d", port)).
 			SetParam(&notesrv.ModParam{
-				NoteID: r.Data.ID,
+				GetParam: notesrv.GetParam{
+					NoteID: r.Data.ID,
+				},
 				Param: notesrv.Param{
 					Title:  "mod title",
 					Detail: "mod detail",

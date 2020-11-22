@@ -3,13 +3,14 @@ package notesrv
 import "github.com/donnol/jdnote/utils/context"
 
 type Mock struct {
-	GetPageHandler func(ctx context.Context, param PageParam) (r PageResult, err error)
-	GetHandler     func(ctx context.Context, id int) (r Result, err error)
-	AddOneHandler  func(ctx context.Context) (id int, err error)
-	ModHandler     func(ctx context.Context, id int, p Param) (err error)
-	DelHandler     func(ctx context.Context, id int) (err error)
-	PublishHandler func(ctx context.Context, id int) error
-	HideHandler    func(ctx context.Context, id int) error
+	GetPageHandler    func(ctx context.Context, param PageParam) (r PageResult, err error)
+	GetHandler        func(ctx context.Context, id int) (r Result, err error)
+	GetPublishHandler func(ctx context.Context, id int) (r Result, err error)
+	AddOneHandler     func(ctx context.Context) (id int, err error)
+	ModHandler        func(ctx context.Context, id int, p Param) (err error)
+	DelHandler        func(ctx context.Context, id int) (err error)
+	PublishHandler    func(ctx context.Context, id int) error
+	HideHandler       func(ctx context.Context, id int) error
 }
 
 var (
@@ -22,6 +23,10 @@ func (m Mock) GetPage(ctx context.Context, param PageParam) (r PageResult, err e
 
 func (m Mock) Get(ctx context.Context, id int) (r Result, err error) {
 	return m.GetHandler(ctx, id)
+}
+
+func (m Mock) GetPublish(ctx context.Context, id int) (r Result, err error) {
+	return m.GetPublishHandler(ctx, id)
 }
 
 func (m Mock) AddOne(ctx context.Context) (id int, err error) {

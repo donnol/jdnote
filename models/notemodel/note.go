@@ -64,6 +64,23 @@ func (note *noteImpl) Mod(ctx context.Context, id int, entity Entity) (err error
 	return
 }
 
+func (note *noteImpl) ModStatus(ctx context.Context, id int, status Status) (err error) {
+	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
+		status = :status
+		Where id = :id
+		`,
+		map[string]interface{}{
+			"status": status,
+			"id":     id,
+		},
+	)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
+}
+
 // Del 删除笔记
 func (note *noteImpl) Del(ctx context.Context, id int) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Delete FROM t_note
@@ -94,6 +111,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.P
 			title,
 			detail,
 			created_at,
+			status,
 			COUNT(*) OVER () AS total
 		FROM t_note
 		WHERE true
@@ -113,6 +131,9 @@ func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.P
 		AND CASE WHEN $8 THEN
 			created_at <= $9::timestamp
 		ELSE true END
+		AND CASE WHEN $10 THEN
+			status = 2
+		ELSE true END
 
 		ORDER BY id DESC
 		LIMIT $1
@@ -128,6 +149,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.P
 		time.Unix(param.BeginTime, 0),
 		param.EndTime != 0,
 		time.Unix(param.EndTime, 0),
+		param.OnlyPublish,
 	)
 	if err != nil {
 		err = errors.WithStack(err)
@@ -145,7 +167,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.P
 // Get 获取笔记
 func (note *noteImpl) Get(ctx context.Context, id int) (entity Entity, err error) {
 	err = ctx.DB().GetContext(ctx, &entity, `
-		SELECT id, user_id, title, detail, created_at
+		SELECT id, user_id, title, detail, status, created_at
 		FROM t_note
 		WHERE id = $1
 		`,

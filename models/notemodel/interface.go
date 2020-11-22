@@ -10,6 +10,7 @@ type Noter interface {
 	AddOne(ctx context.Context) (id int, err error)
 	Add(ctx context.Context, entity Entity) (id int, err error)
 	Mod(ctx context.Context, id int, entity Entity) (err error)
+	ModStatus(ctx context.Context, id int, status Status) (err error)
 	Del(ctx context.Context, id int) (err error)
 	GetPage(ctx context.Context, entity Entity, param common.Param) (
 		res EntityList,
