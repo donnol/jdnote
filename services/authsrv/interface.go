@@ -1,8 +1,8 @@
 package authsrv
 
 import (
-	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/models/usermodel"
+	"github.com/donnol/jdnote/stores/roleactionstore"
+	"github.com/donnol/jdnote/stores/userstore"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -14,11 +14,11 @@ type IAuth interface {
 }
 
 func New(
-	RoleActionModel roleactionmodel.IRoleAction,
-	UserModel usermodel.IUser,
+	RoleActionstore roleactionstore.IRoleAction,
+	Userstore userstore.IUser,
 ) IAuth {
 	return &authImpl{
-		RoleActionModel: RoleActionModel,
-		UserModel:       UserModel,
+		RoleActionStore: RoleActionstore,
+		UserStore:       Userstore,
 	}
 }

@@ -2,7 +2,8 @@ package usersrv
 
 import (
 	"github.com/donnol/jdnote/models/usermodel"
-	"github.com/donnol/jdnote/models/userrolemodel"
+	"github.com/donnol/jdnote/stores/userrolestore"
+	"github.com/donnol/jdnote/stores/userstore"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -16,11 +17,11 @@ type IUser interface {
 }
 
 func New(
-	UserModel usermodel.IUser,
-	UserRoleModel userrolemodel.IUserRole,
+	Userstore userstore.IUser,
+	UserRolestore userrolestore.IUserRole,
 ) IUser {
 	return &userImpl{
-		UserModel:     UserModel,
-		UserRoleModel: UserRoleModel,
+		UserStore:     Userstore,
+		UserRoleStore: UserRolestore,
 	}
 }

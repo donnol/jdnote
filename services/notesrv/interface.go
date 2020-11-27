@@ -1,7 +1,7 @@
 package notesrv
 
 import (
-	"github.com/donnol/jdnote/models/notemodel"
+	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/context"
 )
 
@@ -17,9 +17,9 @@ type INote interface {
 }
 
 func New(
-	nm notemodel.Noter,
+	nm notestore.Noter,
 ) INote {
 	return &noteImpl{
-		noteModel: nm,
+		noteStore: nm,
 	}
 }

@@ -1,10 +1,11 @@
-package usermodel
+package userstore
 
 import (
 	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/models/usermodel"
 )
 
 func TestGetByName(t *testing.T) {
@@ -22,7 +23,7 @@ func TestGetByName(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	u := &userImpl{}
-	e := Entity{
+	e := usermodel.Entity{
 		Name:     "jd",
 		Phone:    "jd",
 		Email:    "jdlau@126.com",

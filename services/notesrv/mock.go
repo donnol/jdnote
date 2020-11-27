@@ -2,49 +2,54 @@ package notesrv
 
 import "github.com/donnol/jdnote/utils/context"
 
-type Mock struct {
-	GetPageHandler    func(ctx context.Context, param PageParam) (r PageResult, err error)
-	GetHandler        func(ctx context.Context, id int) (r Result, err error)
-	GetPublishHandler func(ctx context.Context, id int) (r Result, err error)
-	AddOneHandler     func(ctx context.Context) (id int, err error)
-	ModHandler        func(ctx context.Context, id int, p Param) (err error)
-	DelHandler        func(ctx context.Context, id int) (err error)
-	PublishHandler    func(ctx context.Context, id int) error
-	HideHandler       func(ctx context.Context, id int) error
+type NoteMock struct {
+	AddOneFunc func(ctx context.Context) (id int, err error)
+
+	DelFunc func(ctx context.Context, id int) (err error)
+
+	GetFunc func(ctx context.Context, id int) (r Result, err error)
+
+	GetPageFunc func(ctx context.Context, param PageParam) (r PageResult, err error)
+
+	GetPublishFunc func(ctx context.Context, id int) (r Result, err error)
+
+	HideFunc func(ctx context.Context, id int) error
+
+	ModFunc func(ctx context.Context, id int, p Param) (err error)
+
+	PublishFunc func(ctx context.Context, id int) error
 }
 
-var (
-	_ INote = Mock{}
-)
+var _ INote = &NoteMock{}
 
-func (m Mock) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
-	return m.GetPageHandler(ctx, param)
+func (mockRecv *NoteMock) AddOne(ctx context.Context) (id int, err error) {
+	return mockRecv.AddOneFunc(ctx)
 }
 
-func (m Mock) Get(ctx context.Context, id int) (r Result, err error) {
-	return m.GetHandler(ctx, id)
+func (mockRecv *NoteMock) Del(ctx context.Context, id int) (err error) {
+	return mockRecv.DelFunc(ctx, id)
 }
 
-func (m Mock) GetPublish(ctx context.Context, id int) (r Result, err error) {
-	return m.GetPublishHandler(ctx, id)
+func (mockRecv *NoteMock) Get(ctx context.Context, id int) (r Result, err error) {
+	return mockRecv.GetFunc(ctx, id)
 }
 
-func (m Mock) AddOne(ctx context.Context) (id int, err error) {
-	return m.AddOneHandler(ctx)
+func (mockRecv *NoteMock) GetPage(ctx context.Context, param PageParam) (r PageResult, err error) {
+	return mockRecv.GetPageFunc(ctx, param)
 }
 
-func (m Mock) Mod(ctx context.Context, id int, p Param) (err error) {
-	return m.ModHandler(ctx, id, p)
+func (mockRecv *NoteMock) GetPublish(ctx context.Context, id int) (r Result, err error) {
+	return mockRecv.GetPublishFunc(ctx, id)
 }
 
-func (m Mock) Del(ctx context.Context, id int) (err error) {
-	return m.DelHandler(ctx, id)
+func (mockRecv *NoteMock) Hide(ctx context.Context, id int) error {
+	return mockRecv.HideFunc(ctx, id)
 }
 
-func (m Mock) Publish(ctx context.Context, id int) error {
-	return m.PublishHandler(ctx, id)
+func (mockRecv *NoteMock) Mod(ctx context.Context, id int, p Param) (err error) {
+	return mockRecv.ModFunc(ctx, id, p)
 }
 
-func (m Mock) Hide(ctx context.Context, id int) error {
-	return m.HideHandler(ctx, id)
+func (mockRecv *NoteMock) Publish(ctx context.Context, id int) error {
+	return mockRecv.PublishFunc(ctx, id)
 }

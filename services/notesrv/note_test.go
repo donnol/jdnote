@@ -9,6 +9,7 @@ import (
 
 	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/models/notemodel"
+	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
 )
@@ -38,30 +39,30 @@ var (
 		UserID:    1,
 		CreatedAt: time.Now(),
 	}
-	mock = notemodel.Mock{
-		AddOneHandler: func(ctx context.Context) (id int, err error) {
+	mock = &notestore.NoterMock{
+		AddOneFunc: func(ctx context.Context) (id int, err error) {
 			return noteEntity.ID, nil
 		},
-		AddHandler: func(ctx context.Context, entity notemodel.Entity) (id int, err error) {
+		AddFunc: func(ctx context.Context, entity notemodel.Entity) (id int, err error) {
 			return noteEntity.ID, nil
 		},
-		ModHandler: func(ctx context.Context, id int, entity notemodel.Entity) (err error) {
+		ModFunc: func(ctx context.Context, id int, entity notemodel.Entity) (err error) {
 			return
 		},
-		DelHandler: func(ctx context.Context, id int) (err error) {
+		DelFunc: func(ctx context.Context, id int) (err error) {
 			return
 		},
-		GetPageHandler: func(ctx context.Context, entity notemodel.Entity, param common.Param) (
+		GetPageFunc: func(ctx context.Context, entity notemodel.Entity, param common.Param) (
 			res notemodel.EntityList,
 			total int,
 			err error,
 		) {
 			return
 		},
-		GetHandler: func(ctx context.Context, id int) (entity notemodel.Entity, err error) {
+		GetFunc: func(ctx context.Context, id int) (entity notemodel.Entity, err error) {
 			return noteEntity, nil
 		},
-		GetListHandler: func(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
+		GetListFunc: func(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
 			return notemodel.EntityList{noteEntity}, nil
 		},
 	}

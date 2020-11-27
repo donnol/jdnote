@@ -1,4 +1,4 @@
-package usermodel
+package userstore
 
 import "golang.org/x/crypto/bcrypt"
 

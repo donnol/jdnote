@@ -1,10 +1,11 @@
-package notemodel
+package notestore
 
 import (
 	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
 )
 
@@ -14,7 +15,7 @@ func TestAddNote(t *testing.T) {
 	_, ctx := app.New(sctx)
 
 	// 加
-	id, err := note.Add(ctx, Entity{
+	id, err := note.Add(ctx, notemodel.Entity{
 		UserID: 1,
 		Title:  "test",
 		Detail: "test detail",
@@ -32,14 +33,14 @@ func TestAddNote(t *testing.T) {
 	t.Log(detail)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, common.DefaultParam)
+	r, total, err := note.GetPage(ctx, notemodel.Entity{}, common.DefaultParam)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(r, total)
 
 	// 修改
-	if err := note.Mod(ctx, id, Entity{
+	if err := note.Mod(ctx, id, notemodel.Entity{
 		Detail: "testDetail",
 	}); err != nil {
 		t.Fatal(err)
@@ -66,7 +67,7 @@ func TestGetPage(t *testing.T) {
 	_, ctx := app.New(sctx)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, Entity{}, common.Param{PageSize: 5})
+	r, total, err := note.GetPage(ctx, notemodel.Entity{}, common.Param{PageSize: 5})
 	if err != nil {
 		t.Fatal(err)
 	}

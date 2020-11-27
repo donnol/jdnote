@@ -1,4 +1,4 @@
-package roleactionmodel
+package roleactionstore
 
 import (
 	"context"

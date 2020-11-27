@@ -1,6 +1,6 @@
 .PHONY:server_start
 
-server_install:
+server_install:install
 	go clean -cache && \
 	cd cmd/server/ && \
 	go install

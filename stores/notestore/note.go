@@ -1,8 +1,9 @@
-package notemodel
+package notestore
 
 import (
 	"time"
 
+	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/lib/pq"
@@ -28,7 +29,7 @@ func (note *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 }
 
 // Add 添加笔记
-func (note *noteImpl) Add(ctx context.Context, entity Entity) (id int, err error) {
+func (note *noteImpl) Add(ctx context.Context, entity notemodel.Entity) (id int, err error) {
 	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, $2, $3)
 		RETURNING id
@@ -45,7 +46,7 @@ func (note *noteImpl) Add(ctx context.Context, entity Entity) (id int, err error
 }
 
 // Mod 修改笔记
-func (note *noteImpl) Mod(ctx context.Context, id int, entity Entity) (err error) {
+func (note *noteImpl) Mod(ctx context.Context, id int, entity notemodel.Entity) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
 		title = :title,
 		detail = :detail
@@ -64,7 +65,7 @@ func (note *noteImpl) Mod(ctx context.Context, id int, entity Entity) (err error
 	return
 }
 
-func (note *noteImpl) ModStatus(ctx context.Context, id int, status Status) (err error) {
+func (note *noteImpl) ModStatus(ctx context.Context, id int, status notemodel.Status) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
 		status = :status
 		Where id = :id
@@ -98,13 +99,13 @@ func (note *noteImpl) Del(ctx context.Context, id int) (err error) {
 }
 
 // GetPage 获取笔记分页
-func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.Param) (
-	res EntityList,
+func (note *noteImpl) GetPage(ctx context.Context, entity notemodel.Entity, param common.Param) (
+	res notemodel.EntityList,
 	total int,
 	err error,
 ) {
 
-	var dbr Pages
+	var dbr notemodel.Pages
 	err = ctx.DB().SelectContext(ctx, &dbr, `
 		SELECT 
 			id,
@@ -165,7 +166,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity Entity, param common.P
 }
 
 // Get 获取笔记
-func (note *noteImpl) Get(ctx context.Context, id int) (entity Entity, err error) {
+func (note *noteImpl) Get(ctx context.Context, id int) (entity notemodel.Entity, err error) {
 	err = ctx.DB().GetContext(ctx, &entity, `
 		SELECT id, user_id, title, detail, status, created_at
 		FROM t_note
@@ -181,7 +182,7 @@ func (note *noteImpl) Get(ctx context.Context, id int) (entity Entity, err error
 }
 
 // GetList 获取笔记列表
-func (note *noteImpl) GetList(ctx context.Context, ids []int64) (entitys EntityList, err error) {
+func (note *noteImpl) GetList(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
 	if err = ctx.DB().SelectContext(ctx, &entitys, `
 		SELECT id, user_id, title, detail, created_at
 		FROM t_note

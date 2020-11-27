@@ -1,15 +1,16 @@
-package actionmodel
+package actionstore
 
 import (
 	"context"
 	"testing"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/models/actionmodel"
 )
 
 func TestGet(t *testing.T) {
 	a := &actionImpl{}
-	e := Entity{
+	e := actionmodel.Entity{
 		Action: "ALL",
 	}
 	var err error

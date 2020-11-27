@@ -8,15 +8,15 @@ import (
 	"testing"
 
 	"github.com/donnol/jdnote/app"
-	"github.com/donnol/jdnote/models/actionmodel"
-	"github.com/donnol/jdnote/models/notemodel"
-	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/models/rolemodel"
-	"github.com/donnol/jdnote/models/usermodel"
-	"github.com/donnol/jdnote/models/userrolemodel"
 	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/notesrv"
 	"github.com/donnol/jdnote/services/usersrv"
+	"github.com/donnol/jdnote/stores/actionstore"
+	"github.com/donnol/jdnote/stores/notestore"
+	"github.com/donnol/jdnote/stores/roleactionstore"
+	"github.com/donnol/jdnote/stores/rolestore"
+	"github.com/donnol/jdnote/stores/userrolestore"
+	"github.com/donnol/jdnote/stores/userstore"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/route"
@@ -32,22 +32,22 @@ func TestMain(m *testing.M) {
 	appObj, cctx = app.New(ctx)
 	appObj.MustRegisterProvider(
 		app.ProviderOption{
-			Provider: usermodel.New,
+			Provider: userstore.New,
 		},
 		app.ProviderOption{
-			Provider: userrolemodel.New,
+			Provider: userrolestore.New,
 		},
 		app.ProviderOption{
-			Provider: rolemodel.New,
+			Provider: rolestore.New,
 		},
 		app.ProviderOption{
-			Provider: actionmodel.New,
+			Provider: actionstore.New,
 		},
 		app.ProviderOption{
-			Provider: roleactionmodel.New,
+			Provider: roleactionstore.New,
 		},
 		app.ProviderOption{
-			Provider: notemodel.New,
+			Provider: notestore.New,
 		},
 	)
 	// service

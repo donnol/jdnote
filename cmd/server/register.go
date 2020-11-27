@@ -2,18 +2,17 @@ package main
 
 import (
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/stores/actionstore"
+	"github.com/donnol/jdnote/stores/notestore"
+	"github.com/donnol/jdnote/stores/roleactionstore"
+	"github.com/donnol/jdnote/stores/rolestore"
+	"github.com/donnol/jdnote/stores/userrolestore"
+	"github.com/donnol/jdnote/stores/userstore"
 
 	"github.com/donnol/jdnote/api/authapi"
 	"github.com/donnol/jdnote/api/fileapi"
 	"github.com/donnol/jdnote/api/noteapi"
 	"github.com/donnol/jdnote/api/timeapi"
-
-	"github.com/donnol/jdnote/models/actionmodel"
-	"github.com/donnol/jdnote/models/notemodel"
-	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/models/rolemodel"
-	"github.com/donnol/jdnote/models/usermodel"
-	"github.com/donnol/jdnote/models/userrolemodel"
 
 	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/notesrv"
@@ -47,26 +46,26 @@ func appRegister(cctx context.Context, appObj *app.App) {
 	// model
 	appObj.MustRegisterProvider(
 		app.ProviderOption{
-			Provider: usermodel.New,
-			Mock:     &usermodel.UserMock{},
+			Provider: userstore.New,
+			Mock:     &userstore.UserMock{},
 			Hooks: []inject.Hook{
 				&app.TimeHook{},
 			},
 		},
 		app.ProviderOption{
-			Provider: userrolemodel.New,
+			Provider: userrolestore.New,
 		},
 		app.ProviderOption{
-			Provider: rolemodel.New,
+			Provider: rolestore.New,
 		},
 		app.ProviderOption{
-			Provider: actionmodel.New,
+			Provider: actionstore.New,
 		},
 		app.ProviderOption{
-			Provider: roleactionmodel.New,
+			Provider: roleactionstore.New,
 		},
 		app.ProviderOption{
-			Provider: notemodel.New,
+			Provider: notestore.New,
 		},
 	)
 	// service

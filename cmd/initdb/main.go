@@ -9,6 +9,11 @@ import (
 	"github.com/donnol/jdnote/models/rolemodel"
 	"github.com/donnol/jdnote/models/usermodel"
 	"github.com/donnol/jdnote/models/userrolemodel"
+	"github.com/donnol/jdnote/stores/actionstore"
+	"github.com/donnol/jdnote/stores/roleactionstore"
+	"github.com/donnol/jdnote/stores/rolestore"
+	"github.com/donnol/jdnote/stores/userrolestore"
+	"github.com/donnol/jdnote/stores/userstore"
 )
 
 func main() {
@@ -28,7 +33,7 @@ func initdb() error {
 	re := rolemodel.Entity{
 		Role: "ALL",
 	}
-	r := rolemodel.New()
+	r := rolestore.New()
 	if re.ID, err = r.Add(ctx, re); err != nil {
 		return err
 	}
@@ -37,7 +42,7 @@ func initdb() error {
 	ae := actionmodel.Entity{
 		Action: "ALL",
 	}
-	a := actionmodel.New()
+	a := actionstore.New()
 	if ae.ID, err = a.Add(ctx, ae); err != nil {
 		return err
 	}
@@ -47,7 +52,7 @@ func initdb() error {
 		RoleID:   re.ID,
 		ActionID: ae.ID,
 	}
-	ra := roleactionmodel.New()
+	ra := roleactionstore.New()
 	if rae.ID, err = ra.Add(ctx, rae); err != nil {
 		return err
 	}
@@ -59,7 +64,7 @@ func initdb() error {
 		Email:    "jdlau@126.com",
 		Password: "jd",
 	}
-	u := usermodel.New()
+	u := userstore.New()
 	if ue.ID, err = u.Add(ctx, ue); err != nil {
 		return err
 	}
@@ -69,7 +74,7 @@ func initdb() error {
 		UserID: ue.ID,
 		RoleID: re.ID,
 	}
-	ur := userrolemodel.New()
+	ur := userrolestore.New()
 	if _, err = ur.Add(ctx, ure); err != nil {
 		return err
 	}

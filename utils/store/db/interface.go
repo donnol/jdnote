@@ -17,7 +17,7 @@ type DB interface {
 	// sqlx的方法
 	BindNamed(query string, arg interface{}) (string, []interface{}, error)
 	DriverName() string
-	Get(dest interface{}, query string, args ...interface{}) error
+	Get(interface{}, string, ...interface{}) error
 	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	MustExec(query string, args ...interface{}) sql.Result
 	MustExecContext(ctx context.Context, query string, args ...interface{}) sql.Result

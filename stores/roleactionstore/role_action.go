@@ -1,6 +1,7 @@
-package roleactionmodel
+package roleactionstore
 
 import (
+	"github.com/donnol/jdnote/models/roleactionmodel"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -10,7 +11,7 @@ type roleActionImpl struct {
 }
 
 // Add 添加
-func (ra *roleActionImpl) Add(ctx context.Context, e Entity) (id int, err error) {
+func (ra *roleActionImpl) Add(ctx context.Context, e roleactionmodel.Entity) (id int, err error) {
 	if err = ctx.DB().GetContext(ctx, &id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id

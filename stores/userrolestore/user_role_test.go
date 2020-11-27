@@ -1,4 +1,4 @@
-package userrolemodel
+package userrolestore
 
 import (
 	"context"

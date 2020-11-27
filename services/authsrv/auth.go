@@ -1,16 +1,16 @@
 package authsrv
 
 import (
-	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/models/usermodel"
+	"github.com/donnol/jdnote/stores/roleactionstore"
+	"github.com/donnol/jdnote/stores/userstore"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
 )
 
 // authImpl 认证
 type authImpl struct {
-	RoleActionModel roleactionmodel.IRoleAction
-	UserModel       usermodel.IUser
+	RoleActionStore roleactionstore.IRoleAction
+	UserStore       userstore.IUser
 }
 
 // CheckUserExist 检查用户是否存在
@@ -19,7 +19,7 @@ func (a *authImpl) CheckUserExist(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = a.UserModel.GetByID(ctx, userID)
+	_, err = a.UserStore.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func (a *authImpl) CheckUserExist(ctx context.Context) error {
 
 // CheckPerm 检查用户是否拥有指定权限
 func (a *authImpl) CheckPerm(ctx context.Context, perms []string) error {
-	if err := a.RoleActionModel.CheckPerm(ctx, perms); err != nil {
+	if err := a.RoleActionStore.CheckPerm(ctx, perms); err != nil {
 		return err
 	}
 

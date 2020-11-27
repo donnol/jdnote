@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/models/notemodel"
+	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/pkg/errors"
 )
 
 // noteImpl 笔记
 type noteImpl struct {
-	noteModel notemodel.Noter
+	noteStore notestore.Noter
 }
 
 // GetPage 获取分页
@@ -22,7 +23,7 @@ func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, 
 		Title:  param.Title,
 		Detail: param.Detail,
 	}
-	res, total, err := n.noteModel.GetPage(ctx, entity, param.Param)
+	res, total, err := n.noteStore.GetPage(ctx, entity, param.Param)
 	if err != nil {
 		return
 	}
@@ -46,7 +47,7 @@ func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, 
 
 // Get 获取
 func (n *noteImpl) Get(ctx context.Context, id int) (r Result, err error) {
-	e, err := n.noteModel.Get(ctx, id)
+	e, err := n.noteStore.Get(ctx, id)
 	if err != nil {
 		return
 	}
@@ -59,7 +60,7 @@ func (n *noteImpl) Get(ctx context.Context, id int) (r Result, err error) {
 }
 
 func (n *noteImpl) GetPublish(ctx context.Context, id int) (r Result, err error) {
-	e, err := n.noteModel.Get(ctx, id)
+	e, err := n.noteStore.Get(ctx, id)
 	if err != nil {
 		return
 	}
@@ -77,7 +78,7 @@ func (n *noteImpl) GetPublish(ctx context.Context, id int) (r Result, err error)
 
 // AddOne 添加
 func (n *noteImpl) AddOne(ctx context.Context) (id int, err error) {
-	id, err = n.noteModel.AddOne(ctx)
+	id, err = n.noteStore.AddOne(ctx)
 	if err != nil {
 		return
 	}
@@ -87,7 +88,7 @@ func (n *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 
 // Mod 修改
 func (n *noteImpl) Mod(ctx context.Context, id int, p Param) (err error) {
-	if err = n.noteModel.Mod(ctx, id, notemodel.Entity{
+	if err = n.noteStore.Mod(ctx, id, notemodel.Entity{
 		Title:  p.Title,
 		Detail: p.Detail,
 	}); err != nil {
@@ -99,7 +100,7 @@ func (n *noteImpl) Mod(ctx context.Context, id int, p Param) (err error) {
 
 // Del 删除
 func (n *noteImpl) Del(ctx context.Context, id int) (err error) {
-	err = n.noteModel.Del(ctx, id)
+	err = n.noteStore.Del(ctx, id)
 	if err != nil {
 		return
 	}
@@ -110,12 +111,12 @@ func (n *noteImpl) Del(ctx context.Context, id int) (err error) {
 // Publish 发布
 func (n *noteImpl) Publish(ctx context.Context, id int) error {
 	// 获取内容
-	_, err := n.noteModel.Get(ctx, id)
+	_, err := n.noteStore.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	if err := n.noteModel.ModStatus(ctx, id, notemodel.StatusPublish); err != nil {
+	if err := n.noteStore.ModStatus(ctx, id, notemodel.StatusPublish); err != nil {
 		return err
 	}
 
@@ -201,12 +202,12 @@ keywords:`
 // Hide 隐藏
 func (n *noteImpl) Hide(ctx context.Context, id int) error {
 	// 获取内容
-	_, err := n.noteModel.Get(ctx, id)
+	_, err := n.noteStore.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	if err := n.noteModel.ModStatus(ctx, id, notemodel.StatusDraft); err != nil {
+	if err := n.noteStore.ModStatus(ctx, id, notemodel.StatusDraft); err != nil {
 		return err
 	}
 
