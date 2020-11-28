@@ -31,9 +31,10 @@ Return
     "code": 0,
     "msg": "",
     "data": {
-        "id": 52
+        "id": 7
     },
-    "requestID": "25d03a43-03d6-4dd3-bdf1-0ac76fe428da"
+    "timestamp": 1606570686,
+    "requestID": "ad31bfbc-2588-431b-b105-c5f83b67907d"
 }
 ```
 
@@ -59,7 +60,7 @@ Return
 
 ```json
 {
-    "noteID": 52,
+    "noteID": 7,
     "title": "mod title",
     "detail": "mod detail"
 }
@@ -75,7 +76,8 @@ Return
     "code": 0,
     "msg": "",
     "data": null,
-    "requestID": "49d122bb-0ce2-4d04-95cd-9d815e1f9326"
+    "timestamp": 1606570687,
+    "requestID": "00010a1d-c77f-4060-a813-bc3ab222b2b7"
 }
 ```
 
@@ -105,6 +107,7 @@ Return
         * userName (*string*) 用户名
         * title (*string*) 标题
         * detail (*string*) 详情
+        * status (*notemodel.Status*) 状态
         * createdAt (*int64*) 创建时间
 
 <details>
@@ -124,81 +127,68 @@ beginTime=0&detail=&endTime=0&pageIndex=0&pageSize=10&title=
     "code": 0,
     "msg": "",
     "data": {
-        "total": 52,
+        "total": 7,
         "list": [
             {
-                "noteID": 52,
+                "noteID": 7,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602772737
+                "status": 1,
+                "createdAt": 1606570686
             },
             {
-                "noteID": 51,
+                "noteID": 6,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602772619
+                "status": 1,
+                "createdAt": 1606570564
             },
             {
-                "noteID": 50,
+                "noteID": 5,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602513692
+                "status": 1,
+                "createdAt": 1606570135
             },
             {
-                "noteID": 49,
-                "userName": "0",
-                "title": "",
-                "detail": "",
-                "createdAt": 1602512947
-            },
-            {
-                "noteID": 48,
-                "userName": "0",
-                "title": "",
-                "detail": "",
-                "createdAt": 1602510874
-            },
-            {
-                "noteID": 47,
-                "userName": "0",
-                "title": "",
-                "detail": "",
-                "createdAt": 1602510703
-            },
-            {
-                "noteID": 46,
-                "userName": "0",
-                "title": "",
-                "detail": "",
-                "createdAt": 1602257336
-            },
-            {
-                "noteID": 45,
+                "noteID": 4,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602256903
+                "status": 1,
+                "createdAt": 1606568988
             },
             {
-                "noteID": 44,
+                "noteID": 3,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602256700
+                "status": 1,
+                "createdAt": 1606568781
             },
             {
-                "noteID": 43,
+                "noteID": 2,
                 "userName": "0",
                 "title": "mod title",
                 "detail": "mod detail",
-                "createdAt": 1602256317
+                "status": 1,
+                "createdAt": 1606538720
+            },
+            {
+                "noteID": 1,
+                "userName": "0",
+                "title": "mod title",
+                "detail": "mod detail",
+                "status": 1,
+                "createdAt": 1606538652
             }
         ]
     },
-    "requestID": "dd4e89e5-b902-4e0a-98af-018788cad691"
+    "timestamp": 1606570688,
+    "requestID": "3615f540-d8f8-4b21-b7b8-0b841cb50533"
 }
 ```
 
@@ -221,13 +211,14 @@ Return
     * userName (*string*) 用户名
     * title (*string*) 标题
     * detail (*string*) 详情
+    * status (*notemodel.Status*) 状态
     * createdAt (*int64*) 创建时间
 
 <details>
 <summary>Param</summary>
 
 ```json
-noteID=52
+noteID=7
 ```
 
 </details>
@@ -240,13 +231,15 @@ noteID=52
     "code": 0,
     "msg": "",
     "data": {
-        "noteID": 52,
+        "noteID": 7,
         "userName": "1",
         "title": "mod title",
         "detail": "mod detail",
-        "createdAt": 1602772737
+        "status": 1,
+        "createdAt": 1606570686
     },
-    "requestID": "0f619126-a23a-41b1-9df2-9868469fe4cf"
+    "timestamp": 1606570690,
+    "requestID": "ed7c034d-28ca-4427-aa4c-2bda57d8bea7"
 }
 ```
 

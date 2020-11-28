@@ -12,9 +12,10 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/utils/context"
-	utilerrors "github.com/donnol/jdnote/utils/errors"
+	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
-	utillog "github.com/donnol/tools/log"
+
+	"github.com/donnol/tools/log"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -30,6 +31,7 @@ const (
 	setCookieHeaderKey     = "Set-Cookie"
 	contentTypeHeaderKey   = "Content-Type"
 	contentTypeHeaderValue = "application/json; charset=utf-8"
+
 	// 跨域
 	accessOriginHeaderKey         = "Access-Control-Allow-Origin"
 	accessOriginHeaderValue       = "*"
@@ -164,7 +166,7 @@ func (r *Router) Register(ctx context.Context, v interface{}) {
 
 	// 计时结束
 	end := time.Now()
-	utillog.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
+	log.Debugf("Register %s struct %d routers use time: %v\n\n", structName, routeNum, end.Sub(start))
 }
 
 type wrapOption struct {
@@ -186,8 +188,8 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 
 	return func(c *gin.Context) {
 		if !limiter.Allow() {
-			c.JSON(http.StatusTooManyRequests, Result{Error: utilerrors.Error{
-				Code: utilerrors.ErrorCodeRouter,
+			c.JSON(http.StatusTooManyRequests, Result{Error: errors.Error{
+				Code: errors.ErrorCodeRouter,
 				Msg:  "Too Many Requests",
 			}})
 			return
@@ -199,7 +201,7 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	m := metrics.NewMeter()
 	if err := metrics.Register(wo.method+" "+wo.path, m); err != nil {
-		utillog.Warnf("Register metrics failed: %+v\n", err)
+		log.Warnf("Register metrics failed: %+v\n", err)
 		return handler
 	}
 	m.Mark(0)
@@ -338,15 +340,39 @@ type handlerOption struct {
 
 // structHandlerFunc 结构体处理函数
 func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
-	utillog.Debugf("handler option: %+v\n", ho)
+	log.Debugf("handler option: %+v\n", ho)
 
+	// 处理请求的函数
 	return func(c *gin.Context) {
+		var r Result
 		var err error
 
-		reqID, err := uuid.NewV4()
-		if err != nil {
-			utillog.Default().Errorf("New request id failed: %+v\n", err)
+		// 先确定时间和地点，然后是用户和请求
+		now := time.Now()
+		nowTimestamp := now.Unix()
+		r.Timestamp = nowTimestamp
+
+		remoteAddr := c.Request.RemoteAddr
+
+		var userID int
+		cookie, err := c.Cookie(ho.sessionKey)
+		if err == nil {
+			verifyUserID, err := ho.jwtToken.Verify(cookie)
+			if err != nil {
+				log.Warnf("Verify cookie failed: %+v\n", err)
+			} else {
+				userID = verifyUserID
+			}
+		} else {
+			log.Warnf("Get cookie failed: %+v\n", err)
 		}
+
+		reqUUID, err := uuid.NewV4()
+		if err != nil {
+			log.Default().Errorf("New request id failed: %+v\n", err)
+		}
+		reqID := reqUUID.String()
+		r.RequestID = reqID
 
 		// 获取参数
 		var body []byte
@@ -366,25 +392,10 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 			values = c.Request.URL.Query()
 		}
 		if err != nil {
-			c.JSON(http.StatusNotAcceptable, Result{Error: utilerrors.Error{
-				Code: utilerrors.ErrorCodeRouter,
-				Msg:  fmt.Sprintf("%+v", err),
-			}, RequestID: reqID.String()})
+			r.Error.Code = errors.ErrorCodeRouter
+			r.Error.Msg = fmt.Sprintf("%+v", err)
+			c.JSON(http.StatusNotAcceptable, r)
 			return
-		}
-
-		// 获取用户信息
-		var userID int
-		cookie, err := c.Cookie(ho.sessionKey)
-		if err == nil {
-			verifyUserID, err := ho.jwtToken.Verify(cookie)
-			if err != nil {
-				utillog.Warnf("Verify cookie failed: %+v\n", err)
-			} else {
-				userID = verifyUserID
-			}
-		} else {
-			utillog.Warnf("Get cookie failed: %+v\n", err)
 		}
 
 		// 这里要知道路由是不是文件上传/下载接口，然后将内容传递/返回给f
@@ -392,29 +403,27 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 		if ho.isFile && method == http.MethodPost {
 			multipartReader, err = c.Request.MultipartReader()
 			if err != nil {
-				c.JSON(http.StatusMethodNotAllowed, Result{Error: utilerrors.Error{
-					Code: utilerrors.ErrorCodeRouter,
-					Msg:  fmt.Sprintf("%+v", err),
-				}, RequestID: reqID.String()})
+				r.Error.Code = errors.ErrorCodeRouter
+				r.Error.Msg = fmt.Sprintf("%+v", err)
+				c.JSON(http.StatusMethodNotAllowed, r)
 				return
 			}
 		}
 
 		// 注入上下文、用户和参数信息，并执行业务方法
-		// TODO:为确保测试既能利用数据库中已有数据，又能让测试过程产生的数据不污染数据库，当运行单元测试时（通过models.unitTestEnv判断），使用全局唯一事务，并在测试跑完后回滚
-		var r Result
 		var statusCode = http.StatusOK
-		p := Param{method: method, body: body, values: values, multipartReader: multipartReader}
+		var param = Param{method: method, body: body, values: values, multipartReader: multipartReader}
+		ctx = context.WithValue(ctx, context.TimestampKey, nowTimestamp)
+		ctx = context.WithValue(ctx, context.RemoteAddrKey, remoteAddr)
 		ctx = context.WithValue(ctx, context.UserKey, userID)
-		ctx = context.WithValue(ctx, context.RequestKey, reqID.String())
-		// TODO:方法在这里执行，那么在这里添加proxy？
+		ctx = context.WithValue(ctx, context.RequestKey, reqID)
 		if ho.useTx {
 			// 事务-统一从这里开启。srv和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
 			err = context.WithTx(ctx, func(ctx context.Context) error {
 				var err error
 
-				r, err = f(ctx, p)
+				r, err = f(ctx, param)
 				if err != nil {
 					return err
 				}
@@ -422,10 +431,12 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 				return nil
 			})
 		} else {
-			r, err = f(ctx, p)
+			r, err = f(ctx, param)
 		}
+		r.Timestamp = nowTimestamp
+		r.RequestID = reqID
 		// 处理错误
-		if e, ok := err.(utilerrors.Error); ok {
+		if e, ok := err.(errors.Error); ok {
 			if e.IsNormal() {
 				statusCode = http.StatusBadRequest
 			} else if e.IsFatal() {
@@ -434,14 +445,12 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 			r.Error = e
 		} else {
 			if err != nil {
-				c.JSON(http.StatusForbidden, Result{Error: utilerrors.Error{
-					Code: utilerrors.ErrorCodeRouter,
-					Msg:  fmt.Sprintf("%+v", err),
-				}, RequestID: reqID.String()})
+				r.Error.Code = errors.ErrorCodeRouter
+				r.Error.Msg = fmt.Sprintf("%+v", err)
+				c.JSON(http.StatusForbidden, r)
 				return
 			}
 		}
-		r.RequestID = reqID.String()
 
 		// 设置header
 		// 格式
@@ -456,10 +465,9 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 				JwtToken:   ho.jwtToken,
 			})
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, Result{Error: utilerrors.Error{
-					Code: utilerrors.ErrorCodeRouter,
-					Msg:  fmt.Sprintf("%+v", err),
-				}, RequestID: reqID.String()})
+				r.Error.Code = errors.ErrorCodeRouter
+				r.Error.Msg = fmt.Sprintf("%+v", err)
+				c.JSON(http.StatusInternalServerError, r)
 				return
 			}
 			c.Header(setCookieHeaderKey, cookie.String())

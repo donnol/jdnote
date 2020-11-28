@@ -58,7 +58,7 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 		Base: NewBase(),
 	}
 
-	// 配置,来自文件或acm
+	// 配置,来自环境变量，如docker run时用-e指定
 	// defaultConfig 默认配置
 	switch GetProjectEnv() {
 	case ProjectEnvProd:

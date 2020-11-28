@@ -7,11 +7,24 @@ import (
 	"github.com/pkg/errors"
 )
 
-type UserKeyType string
-type RequestKeyType string
+type (
+	TimestampType  string
+	RemoteAddrType string
+	UserKeyType    string
+	RequestKeyType string
+)
 
 const (
-	UserKey    UserKeyType    = "UserID"
+	// 时间
+	TimestampKey TimestampType = "Timestamp"
+
+	// 地点
+	RemoteAddrKey RemoteAddrType = "RemoteAddr"
+
+	// 用户
+	UserKey UserKeyType = "UserID"
+
+	// 请求
 	RequestKey RequestKeyType = "RequestID"
 )
 
@@ -94,6 +107,24 @@ func GetRequestValue(ctx Context) (string, error) {
 	return vv, nil
 }
 
+func GetTimestampValue(ctx Context) (int64, error) {
+	v := GetValue(ctx, TimestampKey)
+	vv, ok := v.(int64)
+	if !ok {
+		return 0, errors.Errorf("get %s failed, got %v", TimestampKey, v)
+	}
+	return vv, nil
+}
+
+func GetRemoteAddrValue(ctx Context) (string, error) {
+	v := GetValue(ctx, RemoteAddrKey)
+	vv, ok := v.(string)
+	if !ok {
+		return "", errors.Errorf("get %s failed, got %v", RemoteAddrKey, v)
+	}
+	return vv, nil
+}
+
 func MustGetUserValue(ctx Context) int {
 	v, err := GetUserValue(ctx)
 	if err != nil {
@@ -104,6 +135,22 @@ func MustGetUserValue(ctx Context) int {
 
 func MustGetRequestValue(ctx Context) string {
 	v, err := GetRequestValue(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func MustGetTimestampValue(ctx Context) int64 {
+	v, err := GetTimestampValue(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func MustGetRemoteAddrValue(ctx Context) string {
+	v, err := GetRemoteAddrValue(ctx)
 	if err != nil {
 		panic(err)
 	}
