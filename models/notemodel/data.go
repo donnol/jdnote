@@ -5,26 +5,6 @@ import (
 	"time"
 )
 
-type Status int
-
-const (
-	StatusUnknown = 0
-	StatusDraft   = 1
-	StatusPublish = 2
-)
-
-func (status Status) Valid() bool {
-	switch status {
-	case StatusDraft, StatusPublish:
-		return true
-	}
-	return false
-}
-
-func (status Status) IsPublish() bool {
-	return status == StatusPublish
-}
-
 // Entity 笔记
 // 与表结构对应，其它结构在此基础上进行增改
 type Entity struct {
