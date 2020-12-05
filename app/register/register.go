@@ -1,8 +1,9 @@
-package main
+package register
 
 import (
 	"github.com/donnol/jdnote/app"
 	"github.com/donnol/jdnote/stores/actionstore"
+	"github.com/donnol/jdnote/stores/filestore"
 	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/stores/roleactionstore"
 	"github.com/donnol/jdnote/stores/rolestore"
@@ -15,6 +16,7 @@ import (
 	"github.com/donnol/jdnote/api/timeapi"
 
 	"github.com/donnol/jdnote/services/authsrv"
+	"github.com/donnol/jdnote/services/filesrv"
 	"github.com/donnol/jdnote/services/notesrv"
 	"github.com/donnol/jdnote/services/timesrv"
 	"github.com/donnol/jdnote/services/usersrv"
@@ -26,11 +28,12 @@ import (
 	"github.com/donnol/tools/log"
 )
 
-func appRegister(cctx context.Context, appObj *app.App) {
+// RegisterAll 注册所有模块
+func RegisterAll(cctx context.Context, appObj *app.App) {
 	logger := appObj.Logger()
 	trigger := appObj.Trigger()
 
-	// 注入provider
+	// 注入通用provider
 	appObj.MustRegisterProvider(
 		app.ProviderOption{
 			Provider: func() log.Logger {
@@ -43,7 +46,7 @@ func appRegister(cctx context.Context, appObj *app.App) {
 			},
 		},
 	)
-	// model
+	// store
 	appObj.MustRegisterProvider(
 		app.ProviderOption{
 			Provider: userstore.New,
@@ -67,6 +70,9 @@ func appRegister(cctx context.Context, appObj *app.App) {
 		app.ProviderOption{
 			Provider: notestore.New,
 		},
+		app.ProviderOption{
+			Provider: filestore.NewIFile,
+		},
 	)
 	// service
 	appObj.MustRegisterProvider(
@@ -81,6 +87,9 @@ func appRegister(cctx context.Context, appObj *app.App) {
 		},
 		app.ProviderOption{
 			Provider: timesrv.New,
+		},
+		app.ProviderOption{
+			Provider: filesrv.NewIFile,
 		},
 	)
 

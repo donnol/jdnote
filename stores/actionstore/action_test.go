@@ -21,6 +21,8 @@ func TestGet(t *testing.T) {
 		t.Fatal(err)
 	} else if id == 0 {
 		t.Fatal("Bad id")
+	} else {
+		t.Logf("id: %v\n", id)
 	}
 
 	if e, err := a.GetByID(ctx, id); err != nil {

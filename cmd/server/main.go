@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/app/register"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 	logger := appObj.Logger()
 
 	// 注册
-	appRegister(cctx, appObj)
+	register.RegisterAll(cctx, appObj)
 
 	// 静态文件
 	appObj.StaticFS("/static", http.Dir("dist"))
