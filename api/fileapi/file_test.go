@@ -94,7 +94,9 @@ func TestAddFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	r.Header.Add("Content-Type", writer.FormDataContentType())
-	setRequestCookie(r)
+	if err = setRequestCookie(r); err != nil {
+		t.Fatal(err)
+	}
 
 	// 发送请求
 	client := &http.Client{
