@@ -2,6 +2,7 @@ package fileapi
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -11,7 +12,21 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/donnol/jdnote/app"
 )
+
+func setRequestCookie(r *http.Request) error {
+	ctx := context.Background()
+	appObj, _ := app.New(ctx)
+	cookie, err := appObj.MakeCookie(1)
+	if err != nil {
+		return (err)
+	}
+	r.AddCookie(&cookie)
+
+	return nil
+}
 
 func TestAddFile(t *testing.T) {
 	// 获取运行目录
@@ -74,11 +89,12 @@ func TestAddFile(t *testing.T) {
 	t.Logf("%s\n", body.Bytes())
 
 	// 新建请求
-	r, err := http.NewRequest("POST", "http://127.0.0.1:8810/v1/file", body)
+	r, err := http.NewRequest("POST", "http://127.0.0.1:8890/v1/file", body)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r.Header.Add("Content-Type", writer.FormDataContentType())
+	setRequestCookie(r)
 
 	// 发送请求
 	client := &http.Client{
@@ -103,8 +119,14 @@ func TestAddFile(t *testing.T) {
 }
 
 func TestGetFile(t *testing.T) {
-	r, err := http.NewRequest("GET", "http://127.0.0.1:8810/v1/file", nil)
+	r, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8890/v1/file?id=2", nil)
 	if err != nil {
+		t.Fatal(err)
+	}
+	// 不加这个hader，会报"unexpected EOF"错误
+	// 了解 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Encoding
+	r.Header.Add("Accept-Encoding", "identity")
+	if err := setRequestCookie(r); err != nil {
 		t.Fatal(err)
 	}
 
@@ -118,13 +140,13 @@ func TestGetFile(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	// 结果打印
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("Bad status code")
-	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%s\n", data)
+	// 结果打印
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Bad status code")
+	}
 }

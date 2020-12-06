@@ -1,8 +1,7 @@
 package fileapi
 
 import (
-	"bytes"
-
+	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/filesrv"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/route"
@@ -20,6 +19,7 @@ type File struct {
 	// 有tag则只对tag里的添加，没有则全部方法均添加(这时参数怎么指定呢？`rate:"Rate(0.25, 2)"`)
 	Limiter route.Limiter `method:"Add(0.25, 2);Get(0.25, 2)"` // 指定限流器，包括方法和参数; 多个方法使用分号分隔
 
+	authSrv authsrv.IAuth
 	fileSrv filesrv.IFile
 
 	logger log.Logger
@@ -34,9 +34,24 @@ func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, e
 	if err != nil {
 		return
 	}
-	file.logger.Debugf("%+v, %d\n", p, len(body))
+
+	// 权限
+	if err = file.authSrv.CheckLogin(ctx); err != nil {
+		return
+	}
+
+	addParam := filesrv.AddParam{}
 	for name, one := range body {
 		file.logger.Debugf("name: %s, content: %s\n", name, one)
+
+		addParam.Name = p.FieldFileName
+		addParam.Content = one
+		var addResult filesrv.AddResult
+		addResult, err = file.fileSrv.Add(ctx, addParam)
+		if err != nil {
+			return
+		}
+		r.Data = addResult
 	}
 
 	return
@@ -45,23 +60,26 @@ func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, e
 // Get 下载文件
 func (file *File) Get(ctx context.Context, param route.Param) (r route.Result, err error) {
 	// 参数
-	if err = param.Parse(ctx, &struct{}{}); err != nil {
+	getParam := filesrv.GetParam{}
+	if err = param.Parse(ctx, &getParam); err != nil {
 		return
 	}
 
 	// 权限
+	if err = file.authSrv.CheckLogin(ctx); err != nil {
+		return
+	}
 
 	// 业务
-	filename := "test.md"
-	content := "# Hello\n\n## I am bat man\n\n"
-
-	buf := new(bytes.Buffer)
-	_, err = buf.Write([]byte(content))
+	getResult, err := file.fileSrv.Get(ctx, getParam)
 	if err != nil {
 		return
 	}
-	r.Content = route.MakeContentFromBuffer(filename, buf)
-	file.logger.Debugf("r: %+v\n", r)
+
+	r.Content, err = route.MakeContentFromBytes(getResult.Name, getResult.Content)
+	if err != nil {
+		return
+	}
 
 	return
 }

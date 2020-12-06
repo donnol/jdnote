@@ -46,9 +46,9 @@ func (impl *fileImpl) Add(ctx context.Context, entity filemodel.File) (id int, e
 }
 
 func (impl *fileImpl) GetContentByIDs(ctx context.Context, ids []int64) (entity []filemodel.FileContent, err error) {
-	err = ctx.DB().GetContext(ctx, &entity, `
+	err = ctx.DB().SelectContext(ctx, &entity, `
 		SELECT *
-		FROM t_file
+		FROM t_file_content
 		WHERE id = any($1)
 		ORDER BY id DESC
 		`,

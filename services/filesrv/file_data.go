@@ -1,9 +1,12 @@
 package filesrv
 
-import "github.com/donnol/jdnote/models/filemodel"
+import (
+	"github.com/donnol/jdnote/models/commonmodel"
+	"github.com/donnol/jdnote/models/filemodel"
+)
 
 type GetParam struct {
-	ID int `json:"id"` // 记录ID
+	commonmodel.IDBase
 }
 
 type GetResult struct {
@@ -12,7 +15,10 @@ type GetResult struct {
 }
 
 type AddParam struct {
+	filemodel.FileInputData
+	filemodel.FileContentData
 }
 
 type AddResult struct {
+	commonmodel.IDBase
 }
