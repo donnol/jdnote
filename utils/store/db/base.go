@@ -6,29 +6,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Base 基底
-type Base struct {
-	db *sqlx.DB
-}
-
-// New 新建
-func New(db *sqlx.DB) *Base {
-	return &Base{
-		db: db,
-	}
-}
-
-// DB 获取DB
-func (b *Base) DB() DB {
-	return b.db
-}
-
-// WithTx 事务-这种写法必须确定f函数里是否也调用了WithTx，如果不确定，有可能导致事务重复开启，从而出错。所以，在使用唯一一层事务时才使用这个方法
-// 适合在最外层使用
-func (b *Base) WithTx(f func(tx DB) error) error {
-	return WithTx(b.db, f)
-}
-
 func WithTx(db DB, f func(tx DB) error) error {
 	var tx *sqlx.Tx
 	var err error
