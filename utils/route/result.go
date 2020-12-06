@@ -55,6 +55,28 @@ func MakeContentFromBuffer(filename string, buf *bytes.Buffer) Content {
 	return r
 }
 
+func MakeContentFromBytes(filename string, content []byte) (Content, error) {
+	var r Content
+
+	buf := new(bytes.Buffer)
+	_, err := buf.Write(content)
+	if err != nil {
+		return r, err
+	}
+	writer := multipart.NewWriter(buf)
+	r.ContentLength = int64(buf.Len())
+	r.ContentType = writer.FormDataContentType()
+	r.ContentReader = buf
+	r.ExtraHeaders = map[string]string{
+		ContentDispositionHeaderKey: fmt.Sprintf(
+			ContentDispositionHeaderValueFormat,
+			filename,
+		),
+	}
+
+	return r, nil
+}
+
 // PresentData 用具体结构体展现数据
 func (r *Result) PresentData(v interface{}) error {
 	b, err := json.Marshal(r.Data)

@@ -474,6 +474,7 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 		}
 
 		// 调用过滤器，过滤返回内容
+		// Filter的存在，使用同一结构，能在不同请求里返回不一样的字段
 		if v, ok := r.Data.(Filter); ok {
 			r.Data = v.Filter()
 		}
