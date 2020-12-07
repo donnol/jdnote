@@ -481,6 +481,8 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 
 		// 返回文件内容
 		if ho.isFile && method == http.MethodGet {
+			// 重新设置文件的Content-Type
+			c.Header(contentTypeHeaderKey, r.ContentType)
 			c.DataFromReader(statusCode, r.ContentLength, r.ContentType, r.ContentReader, r.ExtraHeaders)
 			return
 		}
