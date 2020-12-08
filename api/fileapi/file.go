@@ -51,7 +51,6 @@ func (file *File) Add(ctx context.Context, param route.Param) (r route.Result, e
 		if err != nil {
 			return
 		}
-		addResult.Path = "/v1/file"
 		r.Data = addResult
 	}
 

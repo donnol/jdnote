@@ -21,6 +21,4 @@ type AddParam struct {
 
 type AddResult struct {
 	commonmodel.IDBase
-
-	Path string `json:"path"` // 路径，如：/v1/file
 }
