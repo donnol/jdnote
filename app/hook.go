@@ -1,26 +1,45 @@
 package app
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/donnol/tools/inject"
 )
 
-type TimeHook struct {
-	begin time.Time
-	end   time.Time
+var (
+	_ inject.Arounder = inject.AroundFunc(Around)
+)
+
+func Around(pctx inject.ProxyContext, method reflect.Value, args []reflect.Value) []reflect.Value {
+	var result []reflect.Value
+
+	// 执行前
+	begin := time.Now()
+
+	result = method.Call(args)
+
+	// 执行后
+	used := time.Since(begin)
+	processUsedTime(pctx, used)
+
+	return result
 }
 
-func (hook *TimeHook) Before(pctx inject.ProxyContext) {
-	hook.begin = time.Now()
-	pctx.Logf("begin: %v\n", hook.begin)
-}
-
-func (hook *TimeHook) After(pctx inject.ProxyContext) {
-	hook.end = time.Now()
-	pctx.Logf("end: %v\n", hook.end)
-
-	// 耗时
-	used := hook.end.Sub(hook.begin)
-	pctx.Logf("used: %v\n", used)
+func processUsedTime(pctx inject.ProxyContext, used time.Duration) {
+	usedSec := used.Seconds()
+	switch {
+	case usedSec >= 10:
+		pctx.Logf("| Used Time | terrible long: %v\n", used)
+	case usedSec >= 5:
+		pctx.Logf("| Used Time | too long: %v\n", used)
+	case usedSec >= 3:
+		pctx.Logf("| Used Time | very long: %v\n", used)
+	case usedSec >= 1:
+		pctx.Logf("| Used Time | a bit long: %v\n", used)
+	case usedSec >= 0.5:
+		pctx.Logf("| Used Time | normal: %v\n", used)
+	default:
+		pctx.Logf("| Used Time | good: %v\n", used)
+	}
 }

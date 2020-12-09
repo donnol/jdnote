@@ -24,7 +24,6 @@ import (
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/queue"
 
-	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"
 )
 
@@ -51,45 +50,53 @@ func RegisterAll(cctx context.Context, appObj *app.App) {
 		app.ProviderOption{
 			Provider: userstore.New,
 			Mock:     &userstore.UserMock{},
-			Hooks: []inject.Hook{
-				&app.TimeHook{},
-			},
 		},
 		app.ProviderOption{
 			Provider: userrolestore.New,
+			Mock:     &userrolestore.UserRoleMock{},
 		},
 		app.ProviderOption{
 			Provider: rolestore.New,
+			Mock:     &rolestore.RoleMock{},
 		},
 		app.ProviderOption{
 			Provider: actionstore.New,
+			Mock:     &actionstore.ActionMock{},
 		},
 		app.ProviderOption{
 			Provider: roleactionstore.New,
+			Mock:     &roleactionstore.RoleActionMock{},
 		},
 		app.ProviderOption{
 			Provider: notestore.New,
+			Mock:     &notestore.NoterMock{},
 		},
 		app.ProviderOption{
 			Provider: filestore.NewIFile,
+			Mock:     &filestore.FileMock{},
 		},
 	)
 	// service
 	appObj.MustRegisterProvider(
 		app.ProviderOption{
 			Provider: usersrv.New,
+			Mock:     &usersrv.UserMock{},
 		},
 		app.ProviderOption{
 			Provider: authsrv.New,
+			Mock:     &authsrv.AuthMock{},
 		},
 		app.ProviderOption{
 			Provider: notesrv.New,
+			Mock:     &notesrv.NoteMock{},
 		},
 		app.ProviderOption{
 			Provider: timesrv.New,
+			Mock:     &timesrv.TimeMock{},
 		},
 		app.ProviderOption{
 			Provider: filesrv.NewIFile,
+			Mock:     &filesrv.FileMock{},
 		},
 	)
 

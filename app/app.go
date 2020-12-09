@@ -95,6 +95,8 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 	// trigger
 	app.trigger = queue.NewTrigger(queue.Option{})
 
+	// influxdb
+
 	// ctx
 	cusCtx := context.New(ctx, app.db, 0)
 
@@ -163,12 +165,11 @@ func (app *App) Router() *route.Router {
 type ProviderOption struct {
 	Provider interface{}
 	Mock     interface{}
-	Hooks    []inject.Hook
 }
 
 func (app *App) MustRegisterProvider(opts ...ProviderOption) {
 	for _, opt := range opts {
-		v := app.proxy.Wrap(opt.Provider, opt.Mock, opt.Hooks...)
+		v := app.proxy.Around(opt.Provider, opt.Mock, inject.AroundFunc(Around))
 		if err := app.ioc.RegisterProvider(v); err != nil {
 			panic(err)
 		}
