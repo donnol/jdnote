@@ -16,5 +16,13 @@ user = "jd"
 password = "jd"
 name = "cicada"
 
+[influx_db]
+host = "http://localhost:8086"
+token = "zkKjAsnZ8_5-e6kAWytj-li_LZvusdfCGgaXmxZiktzUcJj5yueasLjKVUyhYgKkDeYKMVP8cMsPIMzi5rY1RA=="
+
+[influx_api_writer]
+orgName = "jdorg"
+bucketName = "jdbucket"
+
 [jwt]
 secret = "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039"

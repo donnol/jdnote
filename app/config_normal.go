@@ -1,6 +1,9 @@
 package app
 
-import "github.com/donnol/jdnote/utils/config"
+import (
+	"github.com/donnol/jdnote/utils/config"
+	"github.com/donnol/jdnote/utils/store/influx"
+)
 
 var dev = func() config.Config {
 	// 根据normal衍生而来，做部分修改
@@ -36,6 +39,14 @@ var normal = config.Config{
 		User:     "jd",
 		Password: "jd",
 		Name:     "cicada",
+	},
+	InfluxDB: influx.Option{
+		Host:  "http://localhost:8086",
+		Token: "zkKjAsnZ8_5-e6kAWytj-li_LZvusdfCGgaXmxZiktzUcJj5yueasLjKVUyhYgKkDeYKMVP8cMsPIMzi5rY1RA==",
+	},
+	InfluxAPIWriter: influx.BucketSetting{
+		OrgName:    "jdorg",
+		BucketName: "jdbucket",
 	},
 	JWT: config.JWT{
 		Secret: "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039",

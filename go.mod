@@ -40,7 +40,6 @@ require (
 	golang.org/x/tools v0.0.0-20201112185108-eeaa07dd7696 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 
 go 1.14

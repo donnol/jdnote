@@ -14,9 +14,8 @@ func TestInflux(t *testing.T) {
 	ctx := context.Background()
 
 	client := influx.Open(influx.Option{
-		Host:     "http://localhost:8086",
-		UserName: "jd",
-		Password: "jd123456JD",
+		Host:  "http://localhost:8086",
+		Token: "zkKjAsnZ8_5-e6kAWytj-li_LZvusdfCGgaXmxZiktzUcJj5yueasLjKVUyhYgKkDeYKMVP8cMsPIMzi5rY1RA==",
 	}, nil)
 
 	hc, err := client.Health(ctx)
@@ -28,11 +27,13 @@ func TestInflux(t *testing.T) {
 		t.Logf("%v\n", *hc.Message) // ready for queries and writes
 	}
 
-	orgName := "jdorg"
-	bucketName := "jdbucket"
+	bs := influx.BucketSetting{
+		OrgName:    "jdorg",
+		BucketName: "jdbucket",
+	}
 
 	// Use blocking write client for writes to desired bucket
-	writeAPI := client.WriteAPIBlocking(orgName, bucketName)
+	writeAPI := client.WriteAPIBlocking(bs.OrgName, bs.BucketName)
 	// Create point using full params constructor
 	p := influxdb2.NewPoint("stat",
 		map[string]string{"unit": "temperature"},
@@ -60,9 +61,9 @@ func TestInflux(t *testing.T) {
 	}
 
 	// Get query client
-	queryAPI := client.QueryAPI(orgName)
+	queryAPI := client.QueryAPI(bs.OrgName)
 	// Get parser flux query result
-	result, err := queryAPI.Query(ctx, `from(bucket:"`+bucketName+`")|> range(start: -1h) |> filter(fn: (r) => r._measurement == "stat")`)
+	result, err := queryAPI.Query(ctx, `from(bucket:"`+bs.BucketName+`")|> range(start: -1h) |> filter(fn: (r) => r._measurement == "stat")`)
 	if err == nil {
 		// Use Next() to iterate over query result lines
 		for result.Next() {

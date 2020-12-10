@@ -14,6 +14,8 @@ import (
 	"github.com/donnol/jdnote/utils/queue"
 	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/jdnote/utils/store/db"
+	"github.com/donnol/jdnote/utils/store/influx"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 
 	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"
@@ -29,15 +31,17 @@ import (
 type App struct {
 	*Base
 
-	config   config.Config
-	db       db.DB
-	logger   log.Logger
-	trigger  queue.Trigger
-	jwtToken *jwt.Token
-	ioc      *inject.Ioc
-	proxy    inject.Proxy
-	router   *route.Router
-	server   *http.Server
+	config          config.Config
+	db              db.DB
+	logger          log.Logger
+	trigger         queue.Trigger
+	jwtToken        *jwt.Token
+	ioc             *inject.Ioc
+	proxy           inject.Proxy
+	router          *route.Router
+	server          *http.Server
+	influxdb        *influx.Client
+	InfluxAPIWriter api.WriteAPI
 }
 
 const (
@@ -96,6 +100,11 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 	app.trigger = queue.NewTrigger(queue.Option{})
 
 	// influxdb
+	app.influxdb = influx.Open(influx.Option{
+		Host:  app.config.InfluxDB.Host,
+		Token: app.config.InfluxDB.Token,
+	}, nil)
+	app.InfluxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
 
 	// ctx
 	cusCtx := context.New(ctx, app.db, 0)
@@ -183,7 +192,9 @@ func (app *App) Register(ctx context.Context, v interface{}) {
 		panic(err)
 	}
 
-	app.router.Register(ctx, v)
+	app.router.Register(ctx, v, route.RegisterOption{
+		InfluxAPIWriter: app.InfluxAPIWriter,
+	})
 }
 
 func (app *App) StaticFS(relativePath string, fs http.FileSystem) {

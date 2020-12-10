@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
+	"github.com/donnol/jdnote/utils/store/influx"
 )
 
 // Config 配置
@@ -17,6 +18,9 @@ type Config struct {
 
 	// 数据库配置
 	DB DB `toml:"database"`
+
+	InfluxDB        influx.Option        `toml:"influx_db"`
+	InfluxAPIWriter influx.BucketSetting `toml:"influx_api_writer"`
 
 	// jwt配置
 	JWT JWT `toml:"jwt"`

@@ -14,6 +14,8 @@ import (
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
+	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/influxdata/influxdb-client-go/v2/api/write"
 
 	"github.com/donnol/tools/log"
 	"github.com/gin-contrib/gzip"
@@ -78,9 +80,13 @@ type limiterOption struct {
 	b    int     // 代表Token桶的容量大小
 }
 
+type RegisterOption struct {
+	InfluxAPIWriter api.WriteAPI
+}
+
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
-func (r *Router) Register(ctx context.Context, v interface{}) {
+func (r *Router) Register(ctx context.Context, v interface{}, opt RegisterOption) {
 	// 计时开始
 	start := time.Now()
 
@@ -140,9 +146,10 @@ func (r *Router) Register(ctx context.Context, v interface{}) {
 		handler := structHandlerFunc(ctx, method, valueFunc, ho)
 
 		wo := wrapOption{
-			fieldName: field.Name,
-			method:    method,
-			path:      path,
+			fieldName:      field.Name,
+			method:         method,
+			path:           path,
+			RegisterOption: opt,
 		}
 
 		// 添加中间件：我要知道我要不要用，用什么，用的参数
@@ -173,6 +180,8 @@ type wrapOption struct {
 	fieldName string
 	method    string
 	path      string
+
+	RegisterOption
 }
 
 func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gin.HandlerFunc {
@@ -200,22 +209,37 @@ func wrapLimiter(handler gin.HandlerFunc, routeAtrr routeAttr, wo wrapOption) gi
 
 func wrapMetrics(handler gin.HandlerFunc, wo wrapOption) gin.HandlerFunc {
 	m := metrics.NewMeter()
-	if err := metrics.Register(wo.method+" "+wo.path, m); err != nil {
+	name := wo.method + " " + wo.path
+	if err := metrics.Register(name, m); err != nil {
 		log.Warnf("Register metrics failed: %+v\n", err)
 		return handler
 	}
-	m.Mark(0)
+	m.Mark(1)
 
-	// TODO:改为存储到时序数据库
-	// go metrics.Log(
-	// 	metrics.DefaultRegistry,
-	// 	5*time.Second,
-	// 	log.New(os.Stdout, "metrics: ", log.Lmicroseconds),
-	// )
+	// 存储到时序数据库
+	go func() {
+		// 定时将meter转为influxdb的point，然后写到influxdb
+		for range time.Tick(2 * time.Second) {
+			ms := m.Snapshot()
+			point := write.NewPointWithMeasurement(name).
+				AddTag("unit", "meter").
+				AddField("count", m.Count()).
+				AddField("m1", ms.Rate1()).
+				AddField("m5", ms.Rate5()).
+				AddField("m15", ms.Rate15()).
+				AddField("mean", ms.RateMean()).
+				SetTime(time.Now())
 
+			writeAPI := wo.RegisterOption.InfluxAPIWriter
+			writeAPI.WritePoint(point)
+		}
+	}()
+
+	var j int64 = 1
 	return func(c *gin.Context) {
+		j++
+		m.Mark(j)
 		handler(c)
-		m.Mark(1)
 	}
 }
 

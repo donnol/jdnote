@@ -30,7 +30,7 @@ else
 endif
 path=/
 ab:
-	ab -n 1000 -c 100 $(kflag) http://localhost:8810$(path)
+	ab -n 1000 -c 100 $(kflag) http://localhost:8890$(path)
 
 # 构建镜像
 docker_build:
