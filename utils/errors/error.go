@@ -10,7 +10,8 @@ const (
 
 // 错误码
 const (
-	ErrorCodeRouter = 10001
+	ErrorCodeRouter = 10001 // 路由问题
+	ErrorCodeAuth   = 10010 // 认证问题
 )
 
 // Error 错误
@@ -21,22 +22,22 @@ type Error struct {
 	level int `json:"-"` // 级别
 }
 
-// New 新建普通错误
-func New(code int, msg string) error {
+func newError(code int, msg string, level int) error {
 	return Error{
 		Code:  code,
 		Msg:   msg,
-		level: LevelNormal,
+		level: level,
 	}
 }
 
-// Fatal 新建严重错误
-func Fatal(code int, msg string) error {
-	return Error{
-		Code:  code,
-		Msg:   msg,
-		level: LevelFatal,
-	}
+// NewNormal 新建普通错误
+func NewNormal(code int, msg string) error {
+	return newError(code, msg, LevelNormal)
+}
+
+// NewFatal 新建严重错误
+func NewFatal(code int, msg string) error {
+	return newError(code, msg, LevelFatal)
 }
 
 // Error 实现error接口

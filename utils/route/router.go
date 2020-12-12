@@ -462,7 +462,11 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 		// 处理错误
 		if e, ok := err.(errors.Error); ok {
 			if e.IsNormal() {
-				statusCode = http.StatusBadRequest
+				if e.Code == errors.ErrorCodeAuth {
+					statusCode = http.StatusUnauthorized
+				} else {
+					statusCode = http.StatusBadRequest
+				}
 			} else if e.IsFatal() {
 				statusCode = http.StatusInternalServerError
 			}

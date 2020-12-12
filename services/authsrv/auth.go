@@ -4,7 +4,7 @@ import (
 	"github.com/donnol/jdnote/stores/roleactionstore"
 	"github.com/donnol/jdnote/stores/userstore"
 	"github.com/donnol/jdnote/utils/context"
-	"github.com/pkg/errors"
+	"github.com/donnol/jdnote/utils/errors"
 )
 
 // authImpl 认证
@@ -43,7 +43,7 @@ func (a *authImpl) CheckLogin(ctx context.Context) error {
 		return err
 	}
 	if userID == 0 {
-		return errors.Errorf("Please login")
+		return errors.NewNormal(errors.ErrorCodeAuth, "please login")
 	}
 	err = a.CheckUserExist(ctx)
 	if err != nil {

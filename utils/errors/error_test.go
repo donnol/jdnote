@@ -4,7 +4,7 @@ import "testing"
 
 func TestError(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
-		err := New(0, "错误")
+		err := NewNormal(0, "错误")
 		if e, ok := err.(Error); ok && e.IsNormal() {
 			t.Log(err)
 		} else {
@@ -13,7 +13,7 @@ func TestError(t *testing.T) {
 	})
 
 	t.Run("Fatal", func(t *testing.T) {
-		err := Fatal(0, "错误")
+		err := NewFatal(0, "错误")
 		if e, ok := err.(Error); ok && e.IsFatal() {
 			t.Log(err)
 		} else {
