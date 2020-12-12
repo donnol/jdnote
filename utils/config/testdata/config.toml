@@ -16,6 +16,10 @@ user = "jd"
 password = "jd"
 name = "cicada"
 
+[redis]
+addr = "127.0.0.1:6379"
+password = "jdis1gHR"
+
 [influx_db]
 host = "http://localhost:8086"
 token = "zkKjAsnZ8_5-e6kAWytj-li_LZvusdfCGgaXmxZiktzUcJj5yueasLjKVUyhYgKkDeYKMVP8cMsPIMzi5rY1RA=="

@@ -19,6 +19,8 @@ type Config struct {
 	// 数据库配置
 	DB DB `toml:"database"`
 
+	Redis Redis `toml:"redis"`
+
 	InfluxDB        influx.Option        `toml:"influx_db"`
 	InfluxAPIWriter influx.BucketSetting `toml:"influx_api_writer"`
 
@@ -62,6 +64,11 @@ type DB struct {
 	Password string // 密码
 	Name     string // 数据库名
 	SSLmode  bool   // ssl模式
+}
+
+type Redis struct {
+	Addr     string // 地址
+	Password string // 密码
 }
 
 // JWT jwt配置

@@ -17,9 +17,8 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/glycerine/go-unsnap-stream v0.0.0-20190901134440-81cf024a9e0a // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
-	github.com/go-redis/redis/v7 v7.4.0
+	github.com/go-redis/redis/v8 v8.4.2
 	github.com/gofrs/uuid v3.3.0+incompatible
-	github.com/google/go-cmp v0.5.3 // indirect
 	github.com/google/gops v0.3.10
 	github.com/gorilla/schema v1.1.0
 	github.com/influxdata/influxdb-client-go/v2 v2.2.0

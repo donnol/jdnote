@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/donnol/jdnote/utils/cache"
 	"github.com/donnol/jdnote/utils/config"
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/jwt"
@@ -15,6 +16,7 @@ import (
 	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/jdnote/utils/store/influx"
+	"github.com/donnol/jdnote/utils/store/redis"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 
 	"github.com/donnol/tools/inject"
@@ -42,6 +44,8 @@ type App struct {
 	server          *http.Server
 	influxdb        *influx.Client
 	InfluxAPIWriter api.WriteAPI
+	redisClient     *redis.Client
+	cache           cache.Cache
 }
 
 const (
@@ -92,6 +96,17 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 
 		return db
 	}()
+
+	// redis
+	app.redisClient = redis.NewClient(&redis.Options{
+		Addr:     app.config.Redis.Addr,
+		Password: app.config.Redis.Password,
+	})
+
+	// cache
+	app.cache = cache.New(cache.Option{
+		RedisClient: app.redisClient,
+	})
 
 	// logger
 	app.logger = log.New(os.Stdout, "", stdlog.LstdFlags|stdlog.Lshortfile)

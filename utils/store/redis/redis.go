@@ -1,8 +1,14 @@
 package redis
 
 import (
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 )
+
+type Options = redis.Options
+
+type XAddArgs = redis.XAddArgs
+
+type XReadArgs = redis.XReadArgs
 
 // Client Client
 type Client struct {

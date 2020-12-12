@@ -1,19 +1,21 @@
 package queue
 
-type TriggerMock struct {
-	PublishFunc func(topic Topic, param Param)
+import "context"
 
-	SubscribeFunc func(topic Topic, f Func)
+type TriggerMock struct {
+	PublishFunc func(ctx context.Context, topic Topic, param Param)
+
+	SubscribeFunc func(ctx context.Context, topic Topic, f Func)
 }
 
 var _ Trigger = &TriggerMock{}
 
-func (mockRecv *TriggerMock) Publish(topic Topic, param Param) {
-	mockRecv.PublishFunc(topic, param)
+func (mockRecv *TriggerMock) Publish(ctx context.Context, topic Topic, param Param) {
+	mockRecv.PublishFunc(ctx, topic, param)
 }
 
-func (mockRecv *TriggerMock) Subscribe(topic Topic, f Func) {
-	mockRecv.SubscribeFunc(topic, f)
+func (mockRecv *TriggerMock) Subscribe(ctx context.Context, topic Topic, f Func) {
+	mockRecv.SubscribeFunc(ctx, topic, f)
 }
 
 type QueueMock struct {

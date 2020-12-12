@@ -40,6 +40,10 @@ var normal = config.Config{
 		Password: "jd",
 		Name:     "cicada",
 	},
+	Redis: config.Redis{
+		Addr:     "127.0.0.1:6379",
+		Password: "jdis1gHR",
+	},
 	InfluxDB: influx.Option{
 		Host:  "http://localhost:8086",
 		Token: "zkKjAsnZ8_5-e6kAWytj-li_LZvusdfCGgaXmxZiktzUcJj5yueasLjKVUyhYgKkDeYKMVP8cMsPIMzi5rY1RA==",
