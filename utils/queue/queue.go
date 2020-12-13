@@ -9,7 +9,7 @@ import (
 
 type Topic struct{}
 
-type Func func()
+type Func func(Param)
 
 type Param struct {
 	Values map[string]interface{}
@@ -42,7 +42,7 @@ type triggerImpl struct {
 func (trigger *triggerImpl) Publish(ctx context.Context, topic Topic, param Param) {
 	// 发到哪里，可以是queue
 	r, err := trigger.redisClient.XAdd(ctx, &redis.XAddArgs{
-		Stream:       "",
+		Stream:       "mystream",
 		MaxLen:       0,
 		MaxLenApprox: 0,
 		ID:           "",
@@ -61,14 +61,21 @@ func (trigger *triggerImpl) Publish(ctx context.Context, topic Topic, param Para
 // 如果你关心别人，你就订阅Ta的消息
 // 同一个Topic，可以绑定不同Func嘛？
 func (trigger *triggerImpl) Subscribe(ctx context.Context, topic Topic, f Func) {
-	if r, err := trigger.redisClient.XRead(ctx, &redis.XReadArgs{
-		Streams: []string{}, // list of streams and ids, e.g. stream1 stream2 id1 id2
-		Count:   0,
+	r, err := trigger.redisClient.XRead(ctx, &redis.XReadArgs{
+		Streams: []string{"mystream", "$"}, // list of streams and ids, e.g. stream1 stream2 id1 id2
+		Count:   1,
 		Block:   0,
-	}).Result(); err != nil {
+	}).Result()
+	if err != nil {
 		fmt.Printf("Subscribe failed, err: %+v\n", err)
 	} else {
 		fmt.Printf("Subscribe success, r: %+v\n", r)
+	}
+
+	if len(r) != 0 {
+		f(Param{
+			Values: r[0].Messages[0].Values,
+		})
 	}
 }
 

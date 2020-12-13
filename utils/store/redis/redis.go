@@ -10,6 +10,8 @@ type XAddArgs = redis.XAddArgs
 
 type XReadArgs = redis.XReadArgs
 
+type XReadGroupArgs = redis.XReadGroupArgs
+
 // Client Client
 type Client struct {
 	*redis.Client
