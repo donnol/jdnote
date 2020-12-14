@@ -3,6 +3,7 @@ package userstore
 import (
 	"github.com/donnol/jdnote/models/usermodel"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/tools/inject"
 )
 
 type UserMock struct {
@@ -17,7 +18,39 @@ type UserMock struct {
 	VerifyByNameAndPasswordFunc func(ctx context.Context, name string, password string) (e usermodel.Entity, err error)
 }
 
-var _ IUser = &UserMock{}
+var (
+	_ IUser = &UserMock{}
+
+	userMockCommonProxyContext = inject.ProxyContext{
+		PkgPath:       "github.com/donnol/jdnote/stores/userstore",
+		InterfaceName: "IUser",
+	}
+	UserMockAddProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = userMockCommonProxyContext
+		pctx.MethodName = "Add"
+		return
+	}()
+	UserMockGetByIDProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = userMockCommonProxyContext
+		pctx.MethodName = "GetByID"
+		return
+	}()
+	UserMockGetByNameProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = userMockCommonProxyContext
+		pctx.MethodName = "GetByName"
+		return
+	}()
+	UserMockGetFirstProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = userMockCommonProxyContext
+		pctx.MethodName = "GetFirst"
+		return
+	}()
+	UserMockVerifyByNameAndPasswordProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = userMockCommonProxyContext
+		pctx.MethodName = "VerifyByNameAndPassword"
+		return
+	}()
+)
 
 func (mockRecv *UserMock) Add(ctx context.Context, e usermodel.Entity) (id int, err error) {
 	return mockRecv.AddFunc(ctx, e)
@@ -43,7 +76,19 @@ type EntityMock struct {
 	FilterFunc func() interface{}
 }
 
-var _ IEntity = &EntityMock{}
+var (
+	_ IEntity = &EntityMock{}
+
+	entityMockCommonProxyContext = inject.ProxyContext{
+		PkgPath:       "github.com/donnol/jdnote/stores/userstore",
+		InterfaceName: "IEntity",
+	}
+	EntityMockFilterProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = entityMockCommonProxyContext
+		pctx.MethodName = "Filter"
+		return
+	}()
+)
 
 func (mockRecv *EntityMock) Filter() interface{} {
 	return mockRecv.FilterFunc()

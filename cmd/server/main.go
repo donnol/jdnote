@@ -20,6 +20,9 @@ func main() {
 	defer appObj.Cancel()
 	logger := appObj.Logger()
 
+	// 先注册ArounderMap，因为后面的依赖注入和proxy依赖它
+	appObj.RegisterArounderMap(register.ArounderMap)
+
 	// 注册
 	register.RegisterAll(cctx, appObj)
 

@@ -7,23 +7,27 @@ import (
 	"github.com/donnol/tools/inject"
 )
 
-var (
-	_ inject.Arounder = inject.AroundFunc(Around)
-)
+func GetArounder(arounderMap map[inject.ProxyContext]inject.AroundFunc) inject.AroundFunc {
+	return func(pctx inject.ProxyContext, method reflect.Value, args []reflect.Value) []reflect.Value {
+		var result []reflect.Value
 
-func Around(pctx inject.ProxyContext, method reflect.Value, args []reflect.Value) []reflect.Value {
-	var result []reflect.Value
+		// 执行前
+		begin := time.Now()
 
-	// 执行前
-	begin := time.Now()
+		// 针对pctx的操作
+		around, ok := arounderMap[pctx]
+		if ok {
+			result = around(pctx, method, args)
+		} else {
+			result = method.Call(args)
+		}
 
-	result = method.Call(args)
+		// 执行后
+		used := time.Since(begin)
+		processUsedTime(pctx, used)
 
-	// 执行后
-	used := time.Since(begin)
-	processUsedTime(pctx, used)
-
-	return result
+		return result
+	}
 }
 
 func processUsedTime(pctx inject.ProxyContext, used time.Duration) {

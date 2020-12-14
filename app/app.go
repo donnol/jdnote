@@ -39,6 +39,7 @@ type App struct {
 	trigger         queue.Trigger
 	jwtToken        *jwt.Token
 	ioc             *inject.Ioc
+	arounderMap     map[inject.ProxyContext]inject.AroundFunc
 	proxy           inject.Proxy
 	router          *route.Router
 	server          *http.Server
@@ -191,9 +192,13 @@ type ProviderOption struct {
 	Mock     interface{}
 }
 
+func (app *App) RegisterArounderMap(arounderMap map[inject.ProxyContext]inject.AroundFunc) {
+	app.arounderMap = arounderMap
+}
+
 func (app *App) MustRegisterProvider(opts ...ProviderOption) {
 	for _, opt := range opts {
-		v := app.proxy.Around(opt.Provider, opt.Mock, inject.AroundFunc(Around))
+		v := app.proxy.Around(opt.Provider, opt.Mock, GetArounder(app.arounderMap))
 		if err := app.ioc.RegisterProvider(v); err != nil {
 			panic(err)
 		}
