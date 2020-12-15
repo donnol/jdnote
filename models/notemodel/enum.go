@@ -8,7 +8,7 @@ const (
 	StatusPublish = 2
 )
 
-func (status Status) Valid() bool {
+func (status Status) IsValid() bool {
 	switch status {
 	case StatusDraft, StatusPublish:
 		return true

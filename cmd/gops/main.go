@@ -18,20 +18,11 @@ func main() {
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})
 	go func() {
-		// ctrl+c停止
 		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 
-		// docker stop会发这个信号给进程
-		sigterm := make(chan os.Signal, 1)
-		signal.Notify(sigterm, syscall.SIGTERM)
-
-		select {
-		case <-sigint:
-			utillog.Debugf("Recv interrupt signal.")
-		case <-sigterm:
-			utillog.Debugf("Recv terminal signal.")
-		}
+		sig := <-sigint
+		utillog.Debugf("Recv signal: %v.", sig)
 
 		// 关闭
 		agent.Close()

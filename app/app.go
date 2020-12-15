@@ -33,20 +33,24 @@ import (
 type App struct {
 	*Base
 
-	config          config.Config
+	config config.Config
+
 	db              db.DB
-	logger          log.Logger
-	trigger         queue.Trigger
-	jwtToken        *jwt.Token
-	ioc             *inject.Ioc
-	arounderMap     map[inject.ProxyContext]inject.AroundFunc
-	proxy           inject.Proxy
-	router          *route.Router
-	server          *http.Server
+	redisClient     *redis.Client
 	influxdb        *influx.Client
 	InfluxAPIWriter api.WriteAPI
-	redisClient     *redis.Client
-	cache           cache.Cache
+
+	cache   cache.Cache
+	logger  log.Logger
+	trigger queue.Trigger
+
+	ioc         *inject.Ioc
+	arounderMap map[inject.ProxyContext]inject.AroundFunc
+	proxy       inject.Proxy
+
+	jwtToken *jwt.Token
+	router   *route.Router
+	server   *http.Server
 }
 
 const (
@@ -64,10 +68,19 @@ func GetProjectEnv() string {
 	return ProjectEnvDev
 }
 
-func New(ctx stdctx.Context) (*App, context.Context) {
-	app := &App{
-		Base: NewBase(),
+func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
+	// 选项
+	opt := &Option{}
+	for _, setter := range setters {
+		setter(opt)
 	}
+	_ = opt // TODO:
+
+	// 新建app
+	app := &App{}
+
+	// base
+	app.Base = NewBase()
 
 	// 配置,来自环境变量，如docker run时用-e指定
 	// defaultConfig 默认配置
@@ -78,7 +91,7 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 		app.config = dev
 	}
 
-	// 数据库: mysql或pg,redis
+	// 数据库: mysql或pg
 	// defaultDB 默认db
 	app.db = func() *sqlx.DB {
 		db, err := sqlx.Open(app.config.DB.Scheme, app.config.DB.String())
@@ -113,7 +126,9 @@ func New(ctx stdctx.Context) (*App, context.Context) {
 	app.logger = log.New(os.Stdout, "", stdlog.LstdFlags|stdlog.Lshortfile)
 
 	// trigger
-	app.trigger = queue.NewTrigger(queue.Option{})
+	app.trigger = queue.NewTrigger(queue.Option{
+		RedisClient: app.redisClient,
+	})
 
 	// influxdb
 	app.influxdb = influx.Open(influx.Option{
