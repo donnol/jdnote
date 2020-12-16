@@ -2,6 +2,7 @@ package register
 
 import (
 	"github.com/donnol/jdnote/app"
+
 	"github.com/donnol/jdnote/stores/actionstore"
 	"github.com/donnol/jdnote/stores/filestore"
 	"github.com/donnol/jdnote/stores/notestore"

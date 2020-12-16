@@ -4,6 +4,7 @@ import (
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/tools/inject"
 )
 
 type NoterMock struct {
@@ -24,7 +25,54 @@ type NoterMock struct {
 	ModStatusFunc func(ctx context.Context, id int, status notemodel.Status) (err error)
 }
 
-var _ Noter = &NoterMock{}
+var (
+	_ Noter = &NoterMock{}
+
+	noterMockCommonProxyContext = inject.ProxyContext{
+		PkgPath:       "github.com/donnol/jdnote/stores/notestore",
+		InterfaceName: "Noter",
+	}
+	NoterMockAddProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "Add"
+		return
+	}()
+	NoterMockAddOneProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "AddOne"
+		return
+	}()
+	NoterMockDelProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "Del"
+		return
+	}()
+	NoterMockGetProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "Get"
+		return
+	}()
+	NoterMockGetListProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "GetList"
+		return
+	}()
+	NoterMockGetPageProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "GetPage"
+		return
+	}()
+	NoterMockModProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "Mod"
+		return
+	}()
+	NoterMockModStatusProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noterMockCommonProxyContext
+		pctx.MethodName = "ModStatus"
+		return
+	}()
+)
 
 func (mockRecv *NoterMock) Add(ctx context.Context, entity notemodel.Entity) (id int, err error) {
 	return mockRecv.AddFunc(ctx, entity)
