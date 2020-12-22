@@ -87,8 +87,8 @@ func (n *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 }
 
 // Mod 修改
-func (n *noteImpl) Mod(ctx context.Context, id int, p Param) (err error) {
-	if err = n.noteStore.Mod(ctx, id, notemodel.Entity{
+func (n *noteImpl) Mod(ctx context.Context, id int, p *Param) (err error) {
+	if err = n.noteStore.Mod(ctx, id, &notemodel.Entity{
 		Title:  p.Title,
 		Detail: p.Detail,
 	}); err != nil {

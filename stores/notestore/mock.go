@@ -20,7 +20,7 @@ type NoterMock struct {
 
 	GetPageFunc func(ctx context.Context, entity notemodel.Entity, param common.Param) (res notemodel.EntityList, total int, err error)
 
-	ModFunc func(ctx context.Context, id int, entity notemodel.Entity) (err error)
+	ModFunc func(ctx context.Context, id int, entity *notemodel.Entity) (err error)
 
 	ModStatusFunc func(ctx context.Context, id int, status notemodel.Status) (err error)
 }
@@ -98,7 +98,7 @@ func (mockRecv *NoterMock) GetPage(ctx context.Context, entity notemodel.Entity,
 	return mockRecv.GetPageFunc(ctx, entity, param)
 }
 
-func (mockRecv *NoterMock) Mod(ctx context.Context, id int, entity notemodel.Entity) (err error) {
+func (mockRecv *NoterMock) Mod(ctx context.Context, id int, entity *notemodel.Entity) (err error) {
 	return mockRecv.ModFunc(ctx, id, entity)
 }
 

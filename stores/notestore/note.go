@@ -46,7 +46,7 @@ func (note *noteImpl) Add(ctx context.Context, entity notemodel.Entity) (id int,
 }
 
 // Mod 修改笔记
-func (note *noteImpl) Mod(ctx context.Context, id int, entity notemodel.Entity) (err error) {
+func (note *noteImpl) Mod(ctx context.Context, id int, entity *notemodel.Entity) (err error) {
 	_, err = ctx.DB().NamedExecContext(ctx, `Update t_note set
 		title = :title,
 		detail = :detail

@@ -46,7 +46,7 @@ var (
 		AddFunc: func(ctx context.Context, entity notemodel.Entity) (id int, err error) {
 			return noteEntity.ID, nil
 		},
-		ModFunc: func(ctx context.Context, id int, entity notemodel.Entity) (err error) {
+		ModFunc: func(ctx context.Context, id int, entity *notemodel.Entity) (err error) {
 			return
 		},
 		DelFunc: func(ctx context.Context, id int) (err error) {

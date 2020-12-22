@@ -40,7 +40,7 @@ func TestAddNote(t *testing.T) {
 	t.Log(r, total)
 
 	// 修改
-	if err := note.Mod(ctx, id, notemodel.Entity{
+	if err := note.Mod(ctx, id, &notemodel.Entity{
 		Detail: "testDetail",
 	}); err != nil {
 		t.Fatal(err)

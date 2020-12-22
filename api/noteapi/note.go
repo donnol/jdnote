@@ -104,7 +104,7 @@ func (n *Note) Mod(ctx context.Context, p route.Param) (res route.Result, err er
 	}
 
 	// 业务
-	err = n.noteSrv.Mod(ctx, param.NoteID, param.Param)
+	err = n.noteSrv.Mod(ctx, param.NoteID, &param.Param)
 	if err != nil {
 		return
 	}

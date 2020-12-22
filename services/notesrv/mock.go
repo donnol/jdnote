@@ -15,7 +15,7 @@ type NoteMock struct {
 
 	HideFunc func(ctx context.Context, id int) error
 
-	ModFunc func(ctx context.Context, id int, p Param) (err error)
+	ModFunc func(ctx context.Context, id int, p *Param) (err error)
 
 	PublishFunc func(ctx context.Context, id int) error
 }
@@ -46,7 +46,7 @@ func (mockRecv *NoteMock) Hide(ctx context.Context, id int) error {
 	return mockRecv.HideFunc(ctx, id)
 }
 
-func (mockRecv *NoteMock) Mod(ctx context.Context, id int, p Param) (err error) {
+func (mockRecv *NoteMock) Mod(ctx context.Context, id int, p *Param) (err error) {
 	return mockRecv.ModFunc(ctx, id, p)
 }
 

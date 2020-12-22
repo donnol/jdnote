@@ -1,7 +1,9 @@
 .PHONY:server_start
 
+go_clean:
+	go clean -cache
+
 server_install:install
-	go clean -cache && \
 	cd cmd/server/ && \
 	go install
 

@@ -10,7 +10,7 @@ type INote interface {
 	Get(ctx context.Context, id int) (r Result, err error)
 	GetPublish(ctx context.Context, id int) (r Result, err error)
 	AddOne(ctx context.Context) (id int, err error)
-	Mod(ctx context.Context, id int, p Param) (err error)
+	Mod(ctx context.Context, id int, p *Param) (err error)
 	Del(ctx context.Context, id int) (err error)
 	Publish(ctx context.Context, id int) error
 	Hide(ctx context.Context, id int) error
