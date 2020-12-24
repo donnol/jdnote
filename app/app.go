@@ -45,7 +45,7 @@ type App struct {
 	trigger queue.Trigger
 
 	ioc         *inject.Ioc
-	arounderMap map[inject.ProxyContext]inject.AroundFunc
+	arounderMap inject.ArounderMap
 	proxy       inject.Proxy
 
 	jwtToken *jwt.Token
