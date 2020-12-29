@@ -3,6 +3,7 @@ package notesrv
 import (
 	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/timer"
 )
 
 type INote interface {
@@ -14,6 +15,7 @@ type INote interface {
 	Del(ctx context.Context, id int) (err error)
 	Publish(ctx context.Context, id int) error
 	Hide(ctx context.Context, id int) error
+	Timer(ctx context.Context) timer.FuncJob
 }
 
 func New(

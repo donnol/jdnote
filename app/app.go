@@ -17,13 +17,15 @@ import (
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/jdnote/utils/store/influx"
 	"github.com/donnol/jdnote/utils/store/redis"
-	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/donnol/jdnote/utils/timer"
 
 	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"
 
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/robfig/cron/v3"
 
 	_ "net/http/pprof"
 
@@ -51,6 +53,7 @@ type App struct {
 	jwtToken *jwt.Token
 	router   *route.Router
 	server   *http.Server
+	cron     *cron.Cron
 }
 
 const (
@@ -158,6 +161,12 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 		JwtToken:   app.jwtToken,
 	})
 
+	// timer
+	opts := []cron.Option{
+		cron.WithLocation(time.Local),
+	}
+	app.cron = cron.New(opts...)
+
 	return app, cusCtx
 }
 
@@ -220,12 +229,14 @@ func (app *App) MustRegisterProvider(opts ...ProviderOption) {
 	}
 }
 
-// Register 注册
-func (app *App) Register(ctx context.Context, v interface{}) {
-	// 初始化
+func (app *App) MustInject(v interface{}) {
 	if err := app.ioc.Inject(v); err != nil {
 		panic(err)
 	}
+}
+
+func (app *App) RegisterRouterWithInject(ctx context.Context, v interface{}) {
+	app.MustInject(v)
 
 	app.router.Register(ctx, v, route.RegisterOption{
 		InfluxAPIWriter: app.InfluxAPIWriter,
@@ -234,6 +245,26 @@ func (app *App) Register(ctx context.Context, v interface{}) {
 
 func (app *App) StaticFS(relativePath string, fs http.FileSystem) {
 	app.router.StaticFS(relativePath, fs)
+}
+
+func (app *App) RegisterTimerHandler(spec string, f timer.FuncJob) {
+	jobWrapper := cron.Recover(cron.DefaultLogger)
+	job := jobWrapper(f)
+	entryID, err := app.cron.AddJob(spec, job)
+	if err != nil {
+		panic(err)
+	}
+	app.logger.Infof("Cron AddJob: %v\n", entryID)
+}
+
+func (app *App) RunTimer() error {
+	app.cron.Start()
+
+	return nil
+}
+
+func (app *App) StopTimer() stdctx.Context {
+	return app.cron.Stop()
 }
 
 func (app *App) RunPprof() error {

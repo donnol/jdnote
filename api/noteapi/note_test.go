@@ -62,7 +62,7 @@ func TestMain(m *testing.M) {
 			Provider: notesrv.New,
 		},
 	)
-	appObj.Register(cctx, &Note{})
+	appObj.RegisterRouterWithInject(cctx, &Note{})
 
 	go func() {
 		if err := appObj.StartServer(port); err != nil {

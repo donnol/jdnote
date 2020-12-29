@@ -1,6 +1,9 @@
 package notesrv
 
-import "github.com/donnol/jdnote/utils/context"
+import (
+	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/timer"
+)
 
 type NoteMock struct {
 	AddOneFunc func(ctx context.Context) (id int, err error)
@@ -18,6 +21,8 @@ type NoteMock struct {
 	ModFunc func(ctx context.Context, id int, p *Param) (err error)
 
 	PublishFunc func(ctx context.Context, id int) error
+
+	TimerFunc func(ctx context.Context) timer.FuncJob
 }
 
 var _ INote = &NoteMock{}
@@ -52,4 +57,8 @@ func (mockRecv *NoteMock) Mod(ctx context.Context, id int, p *Param) (err error)
 
 func (mockRecv *NoteMock) Publish(ctx context.Context, id int) error {
 	return mockRecv.PublishFunc(ctx, id)
+}
+
+func (mockRecv *NoteMock) Timer(ctx context.Context) timer.FuncJob {
+	return mockRecv.TimerFunc(ctx)
 }

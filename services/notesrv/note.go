@@ -9,6 +9,8 @@ import (
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/timer"
+	"github.com/donnol/tools/log"
 	"github.com/pkg/errors"
 )
 
@@ -212,4 +214,14 @@ func (n *noteImpl) Hide(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (n *noteImpl) Timer(ctx context.Context) timer.FuncJob {
+	mark := " | noteImpl Timer | "
+	return timer.WithTimeConsuming(mark, func() {
+		log.Default().Infof("Timer begin.")
+		defer log.Default().Infof("Timer finish.")
+
+		// do something
+	})
 }

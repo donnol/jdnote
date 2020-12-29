@@ -24,7 +24,7 @@ func main() {
 	appObj.RegisterArounderMap(register.GetArounder())
 
 	// 注册
-	register.RegisterAll(cctx, appObj)
+	register.InjectAndRegisterRouter(cctx, appObj)
 
 	// 静态文件
 	appObj.StaticFS("/static", http.Dir("dist"))

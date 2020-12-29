@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 			Provider: usersrv.New,
 		},
 	)
-	appObj.Register(cctx, &Auth{})
+	appObj.RegisterRouterWithInject(cctx, &Auth{})
 
 	go func() {
 		if err := appObj.StartServer(port); err != nil {
