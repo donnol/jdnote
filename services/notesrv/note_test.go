@@ -14,14 +14,6 @@ import (
 	"github.com/donnol/jdnote/utils/context"
 )
 
-func TestNoteGetHugoContent(t *testing.T) {
-	n := &noteImpl{}
-	content := n.getHugoContent("hah", "# hahahah", "2019-12-15", true, []string{}, []string{}, []string{})
-	t.Logf("%s\n", content)
-	content = n.getHugoContent("hah", "# hahahah", "2019-12-15", false, []string{"Go"}, []string{"Go"}, []string{"Go"})
-	t.Logf("%s\n", content)
-}
-
 func TestPublish(t *testing.T) {
 	n := &noteImpl{}
 	sctx := stdctx.Background()
