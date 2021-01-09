@@ -40,8 +40,8 @@ func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, 
 
 		// 详情截取前30个字符
 		limit := 30
-		if len(single.Detail) > limit {
-			tmp.Detail = single.Detail[:limit]
+		if len([]rune(single.Detail)) > limit {
+			tmp.Detail = string([]rune(single.Detail)[:limit])
 		}
 
 		r.List = append(r.List, tmp)
