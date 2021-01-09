@@ -16,9 +16,6 @@ type Entity struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`           // 创建时间
 }
 
-// EntityList 列表
-type EntityList []Entity
-
 // Process 处理
 func (e Entity) Process() Entity {
 	ne := e
@@ -41,27 +38,7 @@ func (e Entity) Filter() interface{} {
 	return e
 }
 
-// Join 连接
-// 这里又怎么会知道要跟谁join呢？所以只能在srv里做，这里做是没意义的
-func (e Entity) Join(f func(Entity) Entity) Entity {
-	ne := f(e)
-	return ne
-}
-
-// Pages 分页列表
-type Pages []struct {
+type EntityWithTotal struct {
 	Entity
 	Total int
-}
-
-// Transfer 转换
-func (p Pages) Transfer() (res []Entity, total int, err error) {
-	for i, single := range p {
-		if i == 0 {
-			total = single.Total
-		}
-		res = append(res, single.Entity)
-	}
-
-	return
 }

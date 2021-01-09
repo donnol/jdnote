@@ -16,9 +16,9 @@ type NoterMock struct {
 
 	GetFunc func(ctx context.Context, id int) (entity notemodel.Entity, err error)
 
-	GetListFunc func(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error)
+	GetListFunc func(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error)
 
-	GetPageFunc func(ctx context.Context, entity notemodel.Entity, param common.Param) (res notemodel.EntityList, total int, err error)
+	GetPageFunc func(ctx context.Context, entity notemodel.Entity, param common.Param) (res []notemodel.EntityWithTotal, err error)
 
 	ModFunc func(ctx context.Context, id int, entity *notemodel.Entity) (err error)
 
@@ -90,11 +90,11 @@ func (mockRecv *NoterMock) Get(ctx context.Context, id int) (entity notemodel.En
 	return mockRecv.GetFunc(ctx, id)
 }
 
-func (mockRecv *NoterMock) GetList(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
+func (mockRecv *NoterMock) GetList(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error) {
 	return mockRecv.GetListFunc(ctx, ids)
 }
 
-func (mockRecv *NoterMock) GetPage(ctx context.Context, entity notemodel.Entity, param common.Param) (res notemodel.EntityList, total int, err error) {
+func (mockRecv *NoterMock) GetPage(ctx context.Context, entity notemodel.Entity, param common.Param) (res []notemodel.EntityWithTotal, err error) {
 	return mockRecv.GetPageFunc(ctx, entity, param)
 }
 

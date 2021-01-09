@@ -33,11 +33,11 @@ func TestAddNote(t *testing.T) {
 	t.Log(detail)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, notemodel.Entity{}, common.DefaultParam)
+	r, err := note.GetPage(ctx, notemodel.Entity{}, common.DefaultParam)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(r, total)
+	t.Log(r)
 
 	// 修改
 	if err := note.Mod(ctx, id, &notemodel.Entity{
@@ -67,11 +67,11 @@ func TestGetPage(t *testing.T) {
 	_, ctx := app.New(sctx)
 
 	// 分页
-	r, total, err := note.GetPage(ctx, notemodel.Entity{}, common.Param{PageSize: 5})
+	r, err := note.GetPage(ctx, notemodel.Entity{}, common.Param{PageSize: 5})
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(r, total)
+	t.Log(r)
 }
 
 func TestAddOne(t *testing.T) {

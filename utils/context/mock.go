@@ -1,6 +1,7 @@
 package context
 
 import (
+	"context"
 	"time"
 
 	"github.com/donnol/jdnote/utils/store/db"
@@ -18,6 +19,10 @@ type ContextMock struct {
 	NewWithTxFunc func(db.DB) Context
 
 	ValueFunc func(key interface{}) interface{}
+
+	SetContextFunc func(ctx context.Context)
+
+	StdContextFunc func() context.Context
 }
 
 var _ Context = &ContextMock{}
@@ -44,4 +49,12 @@ func (mockRecv *ContextMock) NewWithTx(p0 db.DB) Context {
 
 func (mockRecv *ContextMock) Value(key interface{}) interface{} {
 	return mockRecv.ValueFunc(key)
+}
+
+func (mockRecv *ContextMock) SetContext(ctx context.Context) {
+	mockRecv.SetContextFunc(ctx)
+}
+
+func (mockRecv *ContextMock) StdContext() context.Context {
+	return mockRecv.StdContextFunc()
 }

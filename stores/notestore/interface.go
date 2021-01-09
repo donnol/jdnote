@@ -14,12 +14,11 @@ type Noter interface {
 	ModStatus(ctx context.Context, id int, status notemodel.Status) (err error)
 	Del(ctx context.Context, id int) (err error)
 	GetPage(ctx context.Context, entity notemodel.Entity, param common.Param) (
-		res notemodel.EntityList,
-		total int,
+		res []notemodel.EntityWithTotal,
 		err error,
 	)
 	Get(ctx context.Context, id int) (entity notemodel.Entity, err error)
-	GetList(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error)
+	GetList(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error)
 }
 
 // New 新建

@@ -37,6 +37,9 @@ type Context interface {
 
 	// 返回一个新的Context，并设置tx
 	NewWithTx(db.DB) Context
+
+	SetContext(ctx context.Context)
+	StdContext() context.Context
 }
 
 // myContext myContext
@@ -51,15 +54,19 @@ func (mc *myContext) DB() (db db.DB) {
 	return mc.db
 }
 
+// NewWithTx 返回一个新的Context，并设置tx
+func (mc *myContext) NewWithTx(tx db.DB) Context {
+	mctx := newCtx(mc.Context, tx)
+	return mctx
+}
+
 // SetContext 设置Context
 func (mc *myContext) SetContext(ctx context.Context) {
 	mc.Context = ctx
 }
 
-// NewWithTx 返回一个新的Context，并设置tx
-func (mc *myContext) NewWithTx(tx db.DB) Context {
-	mctx := newCtx(mc.Context, tx)
-	return mctx
+func (mc *myContext) StdContext() context.Context {
+	return mc.Context
 }
 
 // New 新建
@@ -81,12 +88,12 @@ func newCtx(ctx context.Context, db db.DB) Context {
 }
 
 func WithValue(ctx Context, key, value interface{}) Context {
-	nctx := context.WithValue(ctx, key, value)
+	nctx := context.WithValue(ctx.StdContext(), key, value)
 	return newCtx(nctx, ctx.DB())
 }
 
 func GetValue(ctx Context, key interface{}) interface{} {
-	return ctx.Value(key)
+	return ctx.StdContext().Value(key)
 }
 
 func GetUserValue(ctx Context) (int, error) {

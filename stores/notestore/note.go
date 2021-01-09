@@ -100,13 +100,11 @@ func (note *noteImpl) Del(ctx context.Context, id int) (err error) {
 
 // GetPage 获取笔记分页
 func (note *noteImpl) GetPage(ctx context.Context, entity notemodel.Entity, param common.Param) (
-	res notemodel.EntityList,
-	total int,
+	res []notemodel.EntityWithTotal,
 	err error,
 ) {
 
-	var dbr notemodel.Pages
-	err = ctx.DB().SelectContext(ctx, &dbr, `
+	err = ctx.DB().SelectContext(ctx, &res, `
 		SELECT 
 			id,
 			title,
@@ -157,11 +155,6 @@ func (note *noteImpl) GetPage(ctx context.Context, entity notemodel.Entity, para
 		return
 	}
 
-	res, total, err = dbr.Transfer()
-	if err != nil {
-		return
-	}
-
 	return
 }
 
@@ -182,7 +175,7 @@ func (note *noteImpl) Get(ctx context.Context, id int) (entity notemodel.Entity,
 }
 
 // GetList 获取笔记列表
-func (note *noteImpl) GetList(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
+func (note *noteImpl) GetList(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error) {
 	if err = ctx.DB().SelectContext(ctx, &entitys, `
 		SELECT id, user_id, title, detail, created_at
 		FROM t_note

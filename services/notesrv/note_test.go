@@ -45,8 +45,7 @@ var (
 			return
 		},
 		GetPageFunc: func(ctx context.Context, entity notemodel.Entity, param common.Param) (
-			res notemodel.EntityList,
-			total int,
+			res []notemodel.EntityWithTotal,
 			err error,
 		) {
 			return
@@ -54,8 +53,8 @@ var (
 		GetFunc: func(ctx context.Context, id int) (entity notemodel.Entity, err error) {
 			return noteEntity, nil
 		},
-		GetListFunc: func(ctx context.Context, ids []int64) (entitys notemodel.EntityList, err error) {
-			return notemodel.EntityList{noteEntity}, nil
+		GetListFunc: func(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error) {
+			return []notemodel.Entity{noteEntity}, nil
 		},
 	}
 )

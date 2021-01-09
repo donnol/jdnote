@@ -20,20 +20,28 @@ func (n *noteImpl) GetPage(ctx context.Context, param PageParam) (r PageResult, 
 		Title:  param.Title,
 		Detail: param.Detail,
 	}
-	res, total, err := n.noteStore.GetPage(ctx, entity, param.Param)
+	res, err := n.noteStore.GetPage(ctx, entity, param.Param)
 	if err != nil {
 		return
 	}
-	r.Total = total
 
 	r.List = make([]Result, 0, len(res))
 	var tmp Result
-	for _, single := range res {
+	for i, single := range res {
+		if i == 0 {
+			r.Total = single.Total
+		}
 		tmp = Result{}
 
-		tmp, err = tmp.Init(single)
+		tmp, err = tmp.Init(single.Entity)
 		if err != nil {
 			return
+		}
+
+		// 详情截取前30个字符
+		limit := 30
+		if len(single.Detail) > limit {
+			tmp.Detail = single.Detail[:limit]
 		}
 
 		r.List = append(r.List, tmp)
