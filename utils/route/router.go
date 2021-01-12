@@ -1,6 +1,7 @@
 package route
 
 import (
+	stdctx "context"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -363,17 +364,58 @@ type handlerOption struct {
 }
 
 // structHandlerFunc 结构体处理函数
-func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
+func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
 	log.Debugf("handler option: %+v\n", ho)
 
+	// =============== Request starting point ===============
 	// 处理请求的函数
+	// 这里才是请求进来开始执行的地方，所以，与请求有关的变量在这里初始化、使用（读写）、释放
 	return func(c *gin.Context) {
 		var r Result
 		var err error
 
+		// === 当没有新建ctx时：
+		// 请求1
+		//  &{context.Background.WithCancel.
+		// WithValue(type context.TimestampType, val <not Stringer>).
+		// WithValue(type context.RemoteAddrType, val 127.0.0.1:57996).
+		// WithValue(type context.UserKeyType, val <not Stringer>).
+		// WithValue(type context.RequestKeyType, val e9a753ec-4819-41f6-93f0-ac425047d6ec) 0xc0002b3fb0}
+		// 请求2
+		// &{context.Background.WithCancel.
+		// WithValue(type context.TimestampType, val <not Stringer>).
+		// WithValue(type context.RemoteAddrType, val 127.0.0.1:57996).
+		// WithValue(type context.UserKeyType, val <not Stringer>).
+		// WithValue(type context.RequestKeyType, val e9a753ec-4819-41f6-93f0-ac425047d6ec).
+		// -- 这个请求的ctx还保留了上个请求的ctx信息
+		// WithValue(type context.TimestampType, val <not Stringer>).
+		// WithValue(type context.RemoteAddrType, val 127.0.0.1:58884).
+		// WithValue(type context.UserKeyType, val <not Stringer>).
+		// WithValue(type context.RequestKeyType, val 88742e6e-5a04-46ea-b57e-393938fbcc6d) 0xc0002b3fb0}
+		// 更多请求时，这个ctx的value就越来越多越来越多了
+		// ------------------------------------------------------------
+		// === 当有新建ctx时：
+		// 请求1
+		// &{context.Background.WithCancel.WithDeadline(2021-01-12 17:58:25.798519989 +0800 CST m=+3614.074959074 [59m59.999087102s]).
+		// WithValue(type context.TimestampType, val <not Stringer>).
+		// WithValue(type context.RemoteAddrType, val 127.0.0.1:32862).
+		// WithValue(type context.UserKeyType, val <not Stringer>).
+		// WithValue(type context.RequestKeyType, val 5919c0ad-fd80-4592-9900-bd360ffe0250) 0xc000340120}
+		// 请求2
+		// &{context.Background.WithCancel.WithDeadline(2021-01-12 17:59:00.0565294 +0800 CST m=+3648.332968375 [59m59.999139757s]).
+		// WithValue(type context.TimestampType, val <not Stringer>).
+		// WithValue(type context.RemoteAddrType, val 127.0.0.1:32912).
+		// WithValue(type context.UserKeyType, val <not Stringer>).
+		// WithValue(type context.RequestKeyType, val 52f41d4c-c98b-4b4f-a796-d5f8c14d4eb1) 0xc000340120}
+		//
+		// 新建一个，否则会导致多个请求共用一个ctx，然后导致ctx的value越来越多
+		sctx, cancel := stdctx.WithTimeout(cctx.StdContext(), time.Hour*1) // 请求最多可以执行的时间
+		defer cancel()
+		ctx := context.New(sctx, cctx.DB())
+
 		// 先确定时间和地点，然后是用户和请求
 		now := time.Now()
-		nowTimestamp := now.Unix()
+		nowTimestamp := now.UnixNano() / (1000 * 1000) // ms
 		r.Timestamp = nowTimestamp
 
 		remoteAddr := c.Request.RemoteAddr
@@ -457,6 +499,7 @@ func structHandlerFunc(ctx context.Context, method string, f HandlerFunc, ho han
 		} else {
 			r, err = f(ctx, param)
 		}
+		// 看似多余，但因为r是在f执行后返回的，有可能返回的是空结构，所以需要再次赋值
 		r.Timestamp = nowTimestamp
 		r.RequestID = reqID
 		// 处理错误

@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/donnol/jdnote/models/notemodel"
+	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/tools/inject"
 )
 
@@ -41,6 +42,18 @@ func GetArounder() inject.ArounderMap {
 				if arg.CanInterface() {
 					argType := arg.Type()
 					pctx.Logf("arg: %v, %s\n", arg.Interface(), arg.String())
+
+					// 查看ctx信息
+					if i == 0 {
+						ctx, ok := arg.Interface().(context.Context)
+						if ok {
+							values, err := context.GetAllValue(ctx)
+							if err != nil {
+								pctx.Logf("GetAllValue err: %+v\n", err)
+							}
+							pctx.Logf("GetAllValue: %+v\n", values)
+						}
+					}
 
 					// 以参数位置和参数类型判断
 					// 类型是 *notemodel.Entity

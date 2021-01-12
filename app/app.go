@@ -141,7 +141,7 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 	app.InfluxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
 
 	// ctx
-	cusCtx := context.New(ctx, app.db, 0)
+	cusCtx := context.New(ctx, app.db)
 
 	// 第三方sdk: oss等
 

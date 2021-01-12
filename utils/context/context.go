@@ -4,28 +4,6 @@ import (
 	"context"
 
 	"github.com/donnol/jdnote/utils/store/db"
-	"github.com/pkg/errors"
-)
-
-type (
-	TimestampType  string
-	RemoteAddrType string
-	UserKeyType    string
-	RequestKeyType string
-)
-
-const (
-	// 时间
-	TimestampKey TimestampType = "Timestamp"
-
-	// 地点
-	RemoteAddrKey RemoteAddrType = "RemoteAddr"
-
-	// 用户
-	UserKey UserKeyType = "UserID"
-
-	// 请求
-	RequestKey RequestKeyType = "RequestID"
 )
 
 // Context 上下文
@@ -70,8 +48,7 @@ func (mc *myContext) StdContext() context.Context {
 }
 
 // New 新建
-func New(ctx context.Context, db db.DB, userID int) Context {
-	ctx = context.WithValue(ctx, UserKey, userID)
+func New(ctx context.Context, db db.DB) Context {
 	mctx := newCtx(ctx, db)
 
 	return mctx
@@ -87,79 +64,13 @@ func newCtx(ctx context.Context, db db.DB) Context {
 	return mctx
 }
 
+// WithValue 往标准库ctx设置key,value
 func WithValue(ctx Context, key, value interface{}) Context {
 	nctx := context.WithValue(ctx.StdContext(), key, value)
 	return newCtx(nctx, ctx.DB())
 }
 
+// GetValue 从标准库ctx读取key对应value
 func GetValue(ctx Context, key interface{}) interface{} {
 	return ctx.StdContext().Value(key)
-}
-
-func GetUserValue(ctx Context) (int, error) {
-	v := GetValue(ctx, UserKey)
-	vv, ok := v.(int)
-	if !ok {
-		return 0, errors.Errorf("get %s failed, got %v", UserKey, v)
-	}
-	return vv, nil
-}
-
-func GetRequestValue(ctx Context) (string, error) {
-	v := GetValue(ctx, RequestKey)
-	vv, ok := v.(string)
-	if !ok {
-		return "", errors.Errorf("get %s failed, got %v", RequestKey, v)
-	}
-	return vv, nil
-}
-
-func GetTimestampValue(ctx Context) (int64, error) {
-	v := GetValue(ctx, TimestampKey)
-	vv, ok := v.(int64)
-	if !ok {
-		return 0, errors.Errorf("get %s failed, got %v", TimestampKey, v)
-	}
-	return vv, nil
-}
-
-func GetRemoteAddrValue(ctx Context) (string, error) {
-	v := GetValue(ctx, RemoteAddrKey)
-	vv, ok := v.(string)
-	if !ok {
-		return "", errors.Errorf("get %s failed, got %v", RemoteAddrKey, v)
-	}
-	return vv, nil
-}
-
-func MustGetUserValue(ctx Context) int {
-	v, err := GetUserValue(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-func MustGetRequestValue(ctx Context) string {
-	v, err := GetRequestValue(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-func MustGetTimestampValue(ctx Context) int64 {
-	v, err := GetTimestampValue(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-func MustGetRemoteAddrValue(ctx Context) string {
-	v, err := GetRemoteAddrValue(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return v
 }

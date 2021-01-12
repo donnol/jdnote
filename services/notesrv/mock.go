@@ -3,6 +3,7 @@ package notesrv
 import (
 	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/timer"
+	"github.com/donnol/tools/inject"
 )
 
 type NoteMock struct {
@@ -25,7 +26,59 @@ type NoteMock struct {
 	TimerFunc func(ctx context.Context) timer.FuncJob
 }
 
-var _ INote = &NoteMock{}
+var (
+	_ INote = &NoteMock{}
+
+	noteMockCommonProxyContext = inject.ProxyContext{
+		PkgPath:       "github.com/donnol/jdnote/services/notesrv",
+		InterfaceName: "INote",
+	}
+	NoteMockAddOneProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "AddOne"
+		return
+	}()
+	NoteMockDelProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Del"
+		return
+	}()
+	NoteMockGetProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Get"
+		return
+	}()
+	NoteMockGetPageProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "GetPage"
+		return
+	}()
+	NoteMockGetPublishProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "GetPublish"
+		return
+	}()
+	NoteMockHideProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Hide"
+		return
+	}()
+	NoteMockModProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Mod"
+		return
+	}()
+	NoteMockPublishProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Publish"
+		return
+	}()
+	NoteMockTimerProxyContext = func() (pctx inject.ProxyContext) {
+		pctx = noteMockCommonProxyContext
+		pctx.MethodName = "Timer"
+		return
+	}()
+)
 
 func (mockRecv *NoteMock) AddOne(ctx context.Context) (id int, err error) {
 	return mockRecv.AddOneFunc(ctx)
