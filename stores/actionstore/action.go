@@ -11,7 +11,7 @@ type actionImpl struct {
 
 // GetByID 获取
 func (a *actionImpl) GetByID(ctx context.Context, id int) (e actionmodel.Entity, err error) {
-	if err = ctx.DB().GetContext(ctx, &e, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &e, `
 		SELECT * FROM t_action WHERE id = $1
 		`, id); err != nil {
 		err = errors.WithStack(err)
@@ -23,7 +23,7 @@ func (a *actionImpl) GetByID(ctx context.Context, id int) (e actionmodel.Entity,
 
 // Add 添加
 func (a *actionImpl) Add(ctx context.Context, e actionmodel.Entity) (id int, err error) {
-	if err = ctx.DB().GetContext(ctx, &id, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &id, `
 		INSERT INTO t_action (action)VALUES($1) RETURNING id
 		`, e.Action); err != nil {
 		err = errors.WithStack(err)

@@ -11,7 +11,7 @@ type roleImpl struct {
 
 // GetByID 获取
 func (r *roleImpl) GetByID(ctx context.Context, id int) (e rolemodel.Entity, err error) {
-	if err = ctx.DB().GetContext(ctx, &e, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &e, `
 		SELECT * FROM t_role WHERE id = $1
 		`, id); err != nil {
 		err = errors.WithStack(err)
@@ -23,7 +23,7 @@ func (r *roleImpl) GetByID(ctx context.Context, id int) (e rolemodel.Entity, err
 
 // Add 添加
 func (r *roleImpl) Add(ctx context.Context, e rolemodel.Entity) (id int, err error) {
-	if err = ctx.DB().GetContext(ctx, &id, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &id, `
 		INSERT INTO t_role (role)VALUES($1) RETURNING id
 		`, e.Role); err != nil {
 		err = errors.WithStack(err)

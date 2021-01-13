@@ -9,14 +9,17 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	a := &actionImpl{}
-	e := actionmodel.Entity{
-		Action: "ALL",
-	}
 	var err error
 	var id int
+
 	sctx := context.Background()
 	_, ctx := initializers.New(sctx)
+
+	a := New()
+	e := actionmodel.Entity{
+		Action: "WRITE",
+	}
+
 	if id, err = a.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {

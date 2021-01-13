@@ -12,7 +12,7 @@ type roleActionImpl struct {
 
 // Add 添加
 func (ra *roleActionImpl) Add(ctx context.Context, e roleactionmodel.Entity) (id int, err error) {
-	if err = ctx.DB().GetContext(ctx, &id, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
 		`, e.RoleID, e.ActionID); err != nil {
@@ -26,7 +26,7 @@ func (ra *roleActionImpl) Add(ctx context.Context, e roleactionmodel.Entity) (id
 // CheckPerm 检查权限
 func (ra *roleActionImpl) CheckPerm(ctx context.Context, perms []string) error {
 	var exist bool
-	if err := ctx.DB().GetContext(ctx, &exist, `
+	if err := ctx.DB().GetContext(ctx.StdContext(), &exist, `
 		select exists(
 			select * from 
 			t_role_action ra

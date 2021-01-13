@@ -10,9 +10,10 @@ import (
 )
 
 func TestAddNote(t *testing.T) {
-	note := &noteImpl{}
 	sctx := context.Background()
 	_, ctx := initializers.New(sctx)
+
+	note := New()
 
 	// 加
 	id, err := note.Add(ctx, notemodel.Entity{
@@ -62,9 +63,10 @@ func TestAddNote(t *testing.T) {
 }
 
 func TestGetPage(t *testing.T) {
-	note := &noteImpl{}
 	sctx := context.Background()
 	_, ctx := initializers.New(sctx)
+
+	note := New()
 
 	// 分页
 	r, err := note.GetPage(ctx, notemodel.Entity{}, common.Param{PageSize: 5})
@@ -75,9 +77,10 @@ func TestGetPage(t *testing.T) {
 }
 
 func TestAddOne(t *testing.T) {
-	note := &noteImpl{}
 	sctx := context.Background()
 	_, ctx := initializers.New(sctx)
+
+	note := New()
 
 	id, err := note.AddOne(ctx)
 	if err != nil {

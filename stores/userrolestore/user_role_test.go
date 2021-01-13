@@ -8,10 +8,11 @@ import (
 )
 
 func TestGetByUserID(t *testing.T) {
-	ur := &userRoleImpl{}
 	sctx := context.Background()
 	_, ctx := initializers.New(sctx)
-	if r, err := ur.GetByUserID(ctx, 38); err != nil {
+
+	ur := New()
+	if r, err := ur.GetByUserID(ctx, 1); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Log(r)

@@ -7,6 +7,7 @@ import (
 )
 
 type Client struct {
+	// FIXME:这个go-sonic包不太行的样子，后面考虑自己写一个
 	ingester sonic.Ingestable
 	search   sonic.Searchable
 }

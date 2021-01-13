@@ -15,7 +15,7 @@ type fileImpl struct {
 }
 
 func (impl *fileImpl) Get(ctx context.Context, id int) (entity filemodel.File, err error) {
-	err = ctx.DB().GetContext(ctx, &entity, `
+	err = ctx.DB().GetContext(ctx.StdContext(), &entity, `
 		SELECT *
 		FROM t_file
 		WHERE id = $1
@@ -30,7 +30,7 @@ func (impl *fileImpl) Get(ctx context.Context, id int) (entity filemodel.File, e
 }
 
 func (impl *fileImpl) Add(ctx context.Context, entity filemodel.File) (id int, err error) {
-	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_file(file_content_id, name, size)
+	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_file(file_content_id, name, size)
 		VALUES($1, $2, $3)
 		RETURNING id
 		`,
@@ -46,7 +46,7 @@ func (impl *fileImpl) Add(ctx context.Context, entity filemodel.File) (id int, e
 }
 
 func (impl *fileImpl) GetContentByIDs(ctx context.Context, ids []int64) (entity []filemodel.FileContent, err error) {
-	err = ctx.DB().SelectContext(ctx, &entity, `
+	err = ctx.DB().SelectContext(ctx.StdContext(), &entity, `
 		SELECT *
 		FROM t_file_content
 		WHERE id = any($1)
@@ -62,7 +62,7 @@ func (impl *fileImpl) GetContentByIDs(ctx context.Context, ids []int64) (entity 
 }
 
 func (impl *fileImpl) AddContent(ctx context.Context, entity filemodel.FileContent) (id int, err error) {
-	err = ctx.DB().GetContext(ctx, &id, `INSERT INTO t_file_content(content)
+	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_file_content(content)
 		VALUES($1)
 		RETURNING id
 		`,

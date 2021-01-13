@@ -11,7 +11,7 @@ type userRoleImpl struct {
 
 // GetByUserID 获取用户相关的角色
 func (ur *userRoleImpl) GetByUserID(ctx context.Context, userID int) (list []userrolemodel.Entity, err error) {
-	if err = ctx.DB().SelectContext(ctx, &list, `
+	if err = ctx.DB().SelectContext(ctx.StdContext(), &list, `
 		SELECT * FROM t_user_role WHERE user_id = $1
 		`, userID); err != nil {
 		err = errors.WithStack(err)
@@ -23,7 +23,7 @@ func (ur *userRoleImpl) GetByUserID(ctx context.Context, userID int) (list []use
 
 // Add 添加
 func (ur *userRoleImpl) Add(ctx context.Context, e userrolemodel.Entity) (id int, err error) {
-	if err = ctx.DB().GetContext(ctx, &id, `
+	if err = ctx.DB().GetContext(ctx.StdContext(), &id, `
 		INSERT INTO t_user_role (user_id, role_id)VALUES($1, $2)
 		RETURNING id
 		`, e.UserID, e.RoleID); err != nil {
