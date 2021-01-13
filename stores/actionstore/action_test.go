@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/actionmodel"
 )
 
@@ -16,7 +16,7 @@ func TestGet(t *testing.T) {
 	var err error
 	var id int
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 	if id, err = a.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {

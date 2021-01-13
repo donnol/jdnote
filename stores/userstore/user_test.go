@@ -4,14 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/usermodel"
 )
 
 func TestGetByName(t *testing.T) {
 	u := &userImpl{}
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 	if e, err := u.GetByName(ctx, "jd"); err != nil {
 		t.Fatal(err)
 	} else if e.ID == 0 {
@@ -30,7 +30,7 @@ func TestAdd(t *testing.T) {
 		Password: "jd",
 	}
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 	if id, err := u.Add(ctx, e); err != nil {
 		t.Fatal(err)
 	} else if id == 0 {

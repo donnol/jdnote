@@ -1,10 +1,10 @@
 package register
 
 import (
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 )
 
-func registerProvider(appObj *app.App) {
+func registerProvider(appObj *initializers.App) {
 	// common
 	registerCommonProvider(appObj)
 

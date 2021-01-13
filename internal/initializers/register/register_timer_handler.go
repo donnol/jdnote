@@ -1,7 +1,7 @@
 package register
 
 import (
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 
 	"github.com/donnol/jdnote/services/notesrv"
 
@@ -15,7 +15,7 @@ type timerHandler struct {
 	// more...
 }
 
-func InjectAndRegisterTimerHandler(cctx context.Context, appObj *app.App) {
+func InjectAndRegisterTimerHandler(cctx context.Context, appObj *initializers.App) {
 	// 注册provider
 	registerProvider(appObj)
 

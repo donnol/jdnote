@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/common"
@@ -15,9 +15,10 @@ import (
 )
 
 func TestPublish(t *testing.T) {
-	n := &noteImpl{}
 	sctx := stdctx.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
+
+	n := New(mock)
 	if err := n.Publish(ctx, 45); err != nil {
 		t.Fatal(err)
 	}
@@ -41,6 +42,9 @@ var (
 		ModFunc: func(ctx context.Context, id int, entity *notemodel.Entity) (err error) {
 			return
 		},
+		ModStatusFunc: func(ctx context.Context, id int, status notemodel.Status) (err error) {
+			return
+		},
 		DelFunc: func(ctx context.Context, id int) (err error) {
 			return
 		},
@@ -61,7 +65,7 @@ var (
 
 func TestGet(t *testing.T) {
 	sctx := stdctx.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 
 	v := New(mock)
 	want := Result{

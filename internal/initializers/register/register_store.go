@@ -1,7 +1,7 @@
 package register
 
 import (
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 
 	"github.com/donnol/jdnote/stores/actionstore"
 	"github.com/donnol/jdnote/stores/filestore"
@@ -12,33 +12,33 @@ import (
 	"github.com/donnol/jdnote/stores/userstore"
 )
 
-func registerStoreProvider(appObj *app.App) {
+func registerStoreProvider(appObj *initializers.App) {
 	appObj.MustRegisterProvider(
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userstore.New,
 			Mock:     &userstore.UserMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userrolestore.New,
 			Mock:     &userrolestore.UserRoleMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: rolestore.New,
 			Mock:     &rolestore.RoleMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: actionstore.New,
 			Mock:     &actionstore.ActionMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: roleactionstore.New,
 			Mock:     &roleactionstore.RoleActionMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: notestore.New,
 			Mock:     &notestore.NoterMock{},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: filestore.NewIFile,
 			Mock:     &filestore.FileMock{},
 		},

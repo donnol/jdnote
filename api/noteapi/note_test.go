@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/notesrv"
 	"github.com/donnol/jdnote/services/usersrv"
@@ -23,42 +23,42 @@ import (
 	"github.com/donnol/tools/apitest"
 )
 
-var appObj *app.App
+var appObj *initializers.App
 var port = 8820
 
 func TestMain(m *testing.M) {
 	ctx := stdctx.Background()
 	var cctx context.Context
-	appObj, cctx = app.New(ctx)
+	appObj, cctx = initializers.New(ctx)
 	appObj.MustRegisterProvider(
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userstore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userrolestore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: rolestore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: actionstore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: roleactionstore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: notestore.New,
 		},
 	)
 	// service
 	appObj.MustRegisterProvider(
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: usersrv.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: authsrv.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: notesrv.New,
 		},
 	)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
 )
@@ -12,7 +12,7 @@ import (
 func TestAddNote(t *testing.T) {
 	note := &noteImpl{}
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 
 	// 加
 	id, err := note.Add(ctx, notemodel.Entity{
@@ -64,7 +64,7 @@ func TestAddNote(t *testing.T) {
 func TestGetPage(t *testing.T) {
 	note := &noteImpl{}
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 
 	// 分页
 	r, err := note.GetPage(ctx, notemodel.Entity{}, common.Param{PageSize: 5})
@@ -77,7 +77,7 @@ func TestGetPage(t *testing.T) {
 func TestAddOne(t *testing.T) {
 	note := &noteImpl{}
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 
 	id, err := note.AddOne(ctx)
 	if err != nil {

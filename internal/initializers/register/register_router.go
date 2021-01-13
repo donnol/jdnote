@@ -1,18 +1,17 @@
 package register
 
 import (
-	"github.com/donnol/jdnote/app"
-
 	"github.com/donnol/jdnote/api/authapi"
 	"github.com/donnol/jdnote/api/fileapi"
 	"github.com/donnol/jdnote/api/noteapi"
 	"github.com/donnol/jdnote/api/timeapi"
+	"github.com/donnol/jdnote/internal/initializers"
 
 	"github.com/donnol/jdnote/utils/context"
 )
 
 // InjectAndRegisterRouter 注入依赖并注册路由
-func InjectAndRegisterRouter(cctx context.Context, appObj *app.App) {
+func InjectAndRegisterRouter(cctx context.Context, appObj *initializers.App) {
 	// 注册provider
 	registerProvider(appObj)
 

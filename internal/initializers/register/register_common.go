@@ -1,25 +1,25 @@
 package register
 
 import (
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 
 	"github.com/donnol/jdnote/utils/queue"
 
 	"github.com/donnol/tools/log"
 )
 
-func registerCommonProvider(appObj *app.App) {
+func registerCommonProvider(appObj *initializers.App) {
 	logger := appObj.Logger()
 	trigger := appObj.Trigger()
 
 	// 注入通用provider
 	appObj.MustRegisterProvider(
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: func() log.Logger {
 				return logger
 			},
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: func() queue.Trigger {
 				return trigger
 			},

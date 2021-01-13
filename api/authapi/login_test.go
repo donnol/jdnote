@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/services/usersrv"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
@@ -21,15 +21,15 @@ var port = 8820
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
-	appObj, cctx := app.New(ctx)
+	appObj, cctx := initializers.New(ctx)
 	appObj.MustRegisterProvider(
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userrolestore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: userstore.New,
 		},
-		app.ProviderOption{
+		initializers.ProviderOption{
 			Provider: usersrv.New,
 		},
 	)

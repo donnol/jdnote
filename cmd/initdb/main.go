@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/actionmodel"
 	"github.com/donnol/jdnote/models/roleactionmodel"
 	"github.com/donnol/jdnote/models/rolemodel"
@@ -27,7 +27,7 @@ func initdb() error {
 	var err error
 
 	sctx := context.Background()
-	_, ctx := app.New(sctx)
+	_, ctx := initializers.New(sctx)
 
 	// 角色
 	re := rolemodel.Entity{

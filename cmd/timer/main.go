@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/donnol/jdnote/app"
-	"github.com/donnol/jdnote/app/register"
+	"github.com/donnol/jdnote/internal/initializers"
+	"github.com/donnol/jdnote/internal/initializers/register"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	appObj, cctx := app.New(ctx)
+	appObj, cctx := initializers.New(ctx)
 	defer appObj.Cancel()
 	logger := appObj.Logger()
 

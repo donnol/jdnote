@@ -13,12 +13,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/donnol/jdnote/app"
+	"github.com/donnol/jdnote/internal/initializers"
 )
 
 func setRequestCookie(r *http.Request) error {
 	ctx := context.Background()
-	appObj, _ := app.New(ctx)
+	appObj, _ := initializers.New(ctx)
 	cookie, err := appObj.MakeCookie(1)
 	if err != nil {
 		return (err)
