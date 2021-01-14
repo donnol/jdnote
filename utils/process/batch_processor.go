@@ -1,4 +1,4 @@
-package initializers
+package process
 
 import (
 	"database/sql"
@@ -11,13 +11,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Base 基底
-type Base struct {
+type BatchProcessor struct {
 }
 
-// NewBase 新建
-func NewBase() *Base {
-	return &Base{}
+func NewBatchProcessor() *BatchProcessor {
+	return &BatchProcessor{}
 }
 
 // ProcessOption 选项
@@ -53,7 +51,7 @@ type Doer interface {
 }
 
 // ProcessConcurrent 并发处理
-func (b *Base) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
+func (b *BatchProcessor) ProcessConcurrent(ctx context.Context, opt ProcessOption) error {
 	// 启动worker
 	numCPU := runtime.NumCPU()
 	log.Default().Debugf("== numCPU: %d\n", numCPU)

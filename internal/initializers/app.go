@@ -33,14 +33,14 @@ import (
 )
 
 type App struct {
-	*Base
+	opt *Option
 
 	config config.Config
 
 	db              db.DB
 	redisClient     *redis.Client
 	influxdb        *influx.Client
-	InfluxAPIWriter api.WriteAPI
+	influxAPIWriter api.WriteAPI
 
 	cache   cache.Cache
 	logger  log.Logger
@@ -77,13 +77,17 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 	for _, setter := range setters {
 		setter(opt)
 	}
-	_ = opt // TODO:
+
+	// 检查必填项，如果没设置，或报错，或使用默认值
+	if err := opt.checkRequire(); err != nil {
+		panic(err)
+	}
 
 	// 新建app
 	app := &App{}
 
-	// base
-	app.Base = NewBase()
+	// 选项
+	app.opt = opt
 
 	// 配置,来自环境变量，如docker run时用-e指定
 	// defaultConfig 默认配置
@@ -93,26 +97,17 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 	default:
 		app.config = dev
 	}
+	fmt.Printf("config: %+v\n", app.config)
 
 	// 数据库: mysql或pg
-	// defaultDB 默认db
-	app.db = func() *sqlx.DB {
-		db, err := sqlx.Open(app.config.DB.Scheme, app.config.DB.String())
-		if err != nil {
-			panic(err)
-		}
-		if err := db.Ping(); err != nil {
-			panic(err)
-		}
-
-		// 设置db最大连接数，最大空闲连接，最大可用时间，最大空闲时间
-		db.SetMaxOpenConns(100)
-		db.SetMaxIdleConns(100)
-		db.SetConnMaxLifetime(1 * time.Hour)
-		db.SetConnMaxIdleTime(30 * time.Minute)
-
-		return db
-	}()
+	var err error
+	app.db, err = db.Open(db.Option{
+		DriverName:     app.config.DB.Scheme,
+		DataSourceName: app.config.DB.String(),
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	// redis
 	app.redisClient = redis.NewClient(&redis.Options{
@@ -138,7 +133,7 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 		Host:  app.config.InfluxDB.Host,
 		Token: app.config.InfluxDB.Token,
 	}, nil)
-	app.InfluxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
+	app.influxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
 
 	// ctx
 	cusCtx := context.New(ctx, app.db)
@@ -239,7 +234,8 @@ func (app *App) RegisterRouterWithInject(ctx context.Context, v interface{}) {
 	app.MustInject(v)
 
 	app.router.Register(ctx, v, route.RegisterOption{
-		InfluxAPIWriter: app.InfluxAPIWriter,
+		InfluxAPIWriter: app.influxAPIWriter,
+		ReqTimeout:      app.opt.timeout,
 	})
 }
 

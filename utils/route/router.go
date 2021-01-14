@@ -83,6 +83,7 @@ type limiterOption struct {
 
 type RegisterOption struct {
 	InfluxAPIWriter api.WriteAPI
+	ReqTimeout      time.Duration
 }
 
 // Register 注册结构体
@@ -128,6 +129,7 @@ func (r *Router) Register(ctx context.Context, v interface{}, opt RegisterOption
 		var ho = handlerOption{
 			sessionKey: r.sessionKey,
 			jwtToken:   r.jwtToken,
+			reqTimeout: opt.ReqTimeout,
 		}
 		if routeAtrr.isFile {
 			ho.isFile = true
@@ -361,6 +363,8 @@ type handlerOption struct {
 	useTx      bool // 是否使用事务
 	sessionKey string
 	jwtToken   *jwt.Token
+
+	reqTimeout time.Duration // 请求超时时长
 }
 
 // structHandlerFunc 结构体处理函数
@@ -409,7 +413,7 @@ func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho ha
 		// WithValue(type context.RequestKeyType, val 52f41d4c-c98b-4b4f-a796-d5f8c14d4eb1) 0xc000340120}
 		//
 		// 新建一个，否则会导致多个请求共用一个ctx，然后导致ctx的value越来越多
-		sctx, cancel := stdctx.WithTimeout(cctx.StdContext(), time.Hour*1) // 请求最多可以执行的时间
+		sctx, cancel := stdctx.WithTimeout(cctx.StdContext(), ho.reqTimeout) // 请求最多可以执行的时间
 		defer cancel()
 		ctx := context.New(sctx, cctx.DB())
 

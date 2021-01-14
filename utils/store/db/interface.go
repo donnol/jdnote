@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -38,4 +39,27 @@ type DB interface {
 
 	// database/sql的方法
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+}
+
+type Option struct {
+	DriverName     string // require
+	DataSourceName string // require
+}
+
+func Open(opt Option) (DB, error) {
+	db, err := sqlx.Open(opt.DriverName, opt.DataSourceName)
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	// 设置db最大连接数，最大空闲连接，最大可用时间，最大空闲时间
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(100)
+	db.SetConnMaxLifetime(1 * time.Hour)
+	db.SetConnMaxIdleTime(30 * time.Minute)
+
+	return db, nil
 }

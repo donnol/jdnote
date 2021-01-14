@@ -17,3 +17,15 @@ func SetTimeout(timeout time.Duration) OptionSetter {
 		opt.timeout = timeout
 	}
 }
+
+// checkRequire 检查必填项，如果没设置，或报错，或使用默认值
+func (opt *Option) checkRequire() error {
+	// 没有则设置默认值
+	if opt.timeout == 0 {
+		opt.timeout = time.Hour * 1
+	}
+
+	// 没有则报错
+
+	return nil
+}
