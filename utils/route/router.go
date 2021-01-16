@@ -487,8 +487,14 @@ func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho ha
 		ctx = context.WithValue(ctx, context.RemoteAddrKey, remoteAddr)
 		ctx = context.WithValue(ctx, context.UserKey, userID)
 		ctx = context.WithValue(ctx, context.RequestKey, reqID)
+		// 从这里开始，db会贯穿整个api,service,store，但其实api是完全不需要用到它的，service也只允许执行事务操作(开启、回滚、提交)，store才是真正执行db操作的
+		// 如果基于上面提到的，另外一个做法是利用依赖注入将db实例注入到service/store里，如果没有事务的话，这种做法也是相当可以了
+		// 问题的关键是往service注入了db，然后在开启了事务tx之后，怎么让service依赖的store里的db同时变成这个tx呢？这个是每个请求不同的，会不会不小心把别的请求也改了？毕竟依赖的store是全局单例来的
+		// 或许只能通过显示传递tx到store方法去，那这时对于跨service的事务呢，也要在service的方法里预留tx参数嘛？这样方法调用就会变成x.y(ctx, tx, param)，除了必有的ctx，还要多一个tx
+		// 事务对应请求，最大情况是每个请求对应一个事务
+		// 结论：要不使用自定义context(将ctx和db包括进来)，要不显示传递两个参数(ctx, db, param)
 		if ho.useTx {
-			// 事务-统一从这里开启。srv和db不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
+			// 事务-统一从这里开启。srv和store不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
 			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
 			err = context.WithTx(ctx, func(ctx context.Context) error {
 				var err error
