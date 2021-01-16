@@ -1,0 +1,24 @@
+syntax = "proto3";
+package notemodel;
+
+// 参照：https://colobu.com/2019/10/03/protobuf-ultimate-tutorial-in-go/
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+// 自定义类型: type Status int
+message CustomType {
+  optional int64 Field = 1 [(gogoproto.customtype) = "Status"];
+}
+
+message Note {
+    int64       id = 1; // 记录ID
+    int64       userID = 2; // 用户ID
+    string    title = 3; // 标题
+    // Status    status = 4 // 状态: 1 草稿;2 发布;
+    string    detail = 5; // 详情
+    int64 createdAt = 6; // 创建时间
+}
+
+// service Service {
+//     rpc Get() returns (Note) 
+// }

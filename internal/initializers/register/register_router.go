@@ -16,6 +16,8 @@ func InjectAndRegisterRouter(cctx context.Context, appObj *initializers.App) {
 	registerProvider(appObj)
 
 	// 注入依赖，并注册路由
+	// 可以是注入到gin restful router
+	// 也可以是grpc
 	for _, target := range getRouterTargets() {
 		appObj.RegisterRouterWithInject(cctx, target)
 	}
