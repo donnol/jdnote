@@ -32,6 +32,7 @@ import (
 	_ "github.com/lib/pq" // github.com/lib/pq postgresql驱动
 )
 
+// App 应用，由它所需的各种组件构成
 type App struct {
 	opt *Option
 
@@ -54,21 +55,6 @@ type App struct {
 	router   *route.Router
 	server   *http.Server
 	cron     *cron.Cron
-}
-
-const (
-	ProjectEnv = "PROJECT_ENV"
-
-	ProjectEnvDev = "PROJECT_ENV_DEV"
-
-	ProjectEnvProd = "PROJECT_ENV_PROD"
-)
-
-func GetProjectEnv() string {
-	if v, ok := os.LookupEnv(ProjectEnv); ok && v == ProjectEnvProd {
-		return ProjectEnvProd
-	}
-	return ProjectEnvDev
 }
 
 func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
@@ -164,11 +150,6 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 
 	return app, cusCtx
 }
-
-// session
-const (
-	sessionKey = "jd_session"
-)
 
 func (app *App) GetConfig() config.Config {
 	return app.config
