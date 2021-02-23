@@ -1,8 +1,9 @@
 package filestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/filemodel"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 type FileMock struct {

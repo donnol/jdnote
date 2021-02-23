@@ -1,10 +1,10 @@
 package timeapi
 
 import (
+	"context"
 	"time"
 
 	"github.com/donnol/jdnote/services/timesrv"
-	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/route"
 )
 

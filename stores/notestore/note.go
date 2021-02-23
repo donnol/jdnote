@@ -1,24 +1,27 @@
 package notestore
 
 import (
+	"context"
 	"time"
 
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
 type noteImpl struct {
+	db db.DB
 }
 
 // AddOne 添加一条记录，并返回它的id
 func (note *noteImpl) AddOne(ctx context.Context) (id int, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_note(user_id, title, detail)
+	err = db.DBFromCtxValue(ctx, note.db).GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, '', '')
 		RETURNING id`,
-		context.MustGetUserValue(ctx),
+		utilctx.MustGetUserValue(ctx),
 	)
 	if err != nil {
 		err = errors.WithStack(err)
@@ -30,7 +33,7 @@ func (note *noteImpl) AddOne(ctx context.Context) (id int, err error) {
 
 // Add 添加笔记
 func (note *noteImpl) Add(ctx context.Context, entity notemodel.Entity) (id int, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_note(user_id, title, detail)
+	err = db.DBFromCtxValue(ctx, note.db).GetContext(ctx, &id, `INSERT INTO t_note(user_id, title, detail)
 		VALUES($1, $2, $3)
 		RETURNING id
 		`,
@@ -47,7 +50,7 @@ func (note *noteImpl) Add(ctx context.Context, entity notemodel.Entity) (id int,
 
 // Mod 修改笔记
 func (note *noteImpl) Mod(ctx context.Context, id int, entity *notemodel.Entity) (err error) {
-	_, err = ctx.DB().NamedExecContext(ctx.StdContext(), `Update t_note set
+	_, err = db.DBFromCtxValue(ctx, note.db).NamedExecContext(ctx, `Update t_note set
 		title = :title,
 		detail = :detail
 		Where id = :id
@@ -66,7 +69,7 @@ func (note *noteImpl) Mod(ctx context.Context, id int, entity *notemodel.Entity)
 }
 
 func (note *noteImpl) ModStatus(ctx context.Context, id int, status notemodel.Status) (err error) {
-	_, err = ctx.DB().NamedExecContext(ctx.StdContext(), `Update t_note set
+	_, err = db.DBFromCtxValue(ctx, note.db).NamedExecContext(ctx, `Update t_note set
 		status = :status
 		Where id = :id
 		`,
@@ -84,7 +87,7 @@ func (note *noteImpl) ModStatus(ctx context.Context, id int, status notemodel.St
 
 // Del 删除笔记
 func (note *noteImpl) Del(ctx context.Context, id int) (err error) {
-	_, err = ctx.DB().NamedExecContext(ctx.StdContext(), `Delete FROM t_note
+	_, err = db.DBFromCtxValue(ctx, note.db).NamedExecContext(ctx, `Delete FROM t_note
 		Where id = :id
 		`,
 		map[string]interface{}{
@@ -104,7 +107,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity notemodel.Entity, para
 	err error,
 ) {
 
-	err = ctx.DB().SelectContext(ctx.StdContext(), &res, `
+	err = db.DBFromCtxValue(ctx, note.db).SelectContext(ctx, &res, `
 		SELECT 
 			id,
 			title,
@@ -160,7 +163,7 @@ func (note *noteImpl) GetPage(ctx context.Context, entity notemodel.Entity, para
 
 // Get 获取笔记
 func (note *noteImpl) Get(ctx context.Context, id int) (entity notemodel.Entity, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &entity, `
+	err = db.DBFromCtxValue(ctx, note.db).GetContext(ctx, &entity, `
 		SELECT id, user_id, title, detail, status, created_at
 		FROM t_note
 		WHERE id = $1
@@ -176,7 +179,7 @@ func (note *noteImpl) Get(ctx context.Context, id int) (entity notemodel.Entity,
 
 // GetList 获取笔记列表
 func (note *noteImpl) GetList(ctx context.Context, ids []int64) (entitys []notemodel.Entity, err error) {
-	if err = ctx.DB().SelectContext(ctx.StdContext(), &entitys, `
+	if err = db.DBFromCtxValue(ctx, note.db).SelectContext(ctx, &entitys, `
 		SELECT id, user_id, title, detail, created_at
 		FROM t_note
 		WHERE id = any($1)

@@ -1,8 +1,10 @@
 package roleactionstore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 type IRoleAction interface {
@@ -10,6 +12,10 @@ type IRoleAction interface {
 	CheckPerm(ctx context.Context, perms []string) error
 }
 
-func New() IRoleAction {
-	return &roleActionImpl{}
+func New(
+	db db.DB,
+) IRoleAction {
+	return &roleActionImpl{
+		db: db,
+	}
 }

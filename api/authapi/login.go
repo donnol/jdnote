@@ -1,8 +1,10 @@
 package authapi
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/services/usersrv"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/route"
 )
 
@@ -27,7 +29,7 @@ func (auth *Auth) GetIslogin(ctx context.Context, param route.Param) (r route.Re
 	// 参数
 
 	// 权限
-	userID, err := context.GetUserValue(ctx)
+	userID, err := utilctx.GetUserValue(ctx)
 	if err != nil {
 		return
 	}

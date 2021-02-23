@@ -1,8 +1,10 @@
 package userrolestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/userrolemodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 type IUserRole interface {
@@ -10,6 +12,10 @@ type IUserRole interface {
 	GetByUserID(ctx context.Context, userID int) (list []userrolemodel.Entity, err error)
 }
 
-func New() IUserRole {
-	return &userRoleImpl{}
+func New(
+	db db.DB,
+) IUserRole {
+	return &userRoleImpl{
+		db: db,
+	}
 }

@@ -1,6 +1,6 @@
 package authsrv
 
-import "github.com/donnol/jdnote/utils/context"
+import "context"
 
 type AuthMock struct {
 	CheckLoginFunc func(ctx context.Context) error

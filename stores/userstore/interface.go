@@ -1,8 +1,10 @@
 package userstore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/usermodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 type IUser interface {
@@ -15,6 +17,10 @@ type IUser interface {
 
 type IEntity interface{ Filter() interface{} }
 
-func New() IUser {
-	return &userImpl{}
+func New(
+	db db.DB,
+) IUser {
+	return &userImpl{
+		db: db,
+	}
 }

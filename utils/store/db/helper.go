@@ -1,10 +1,39 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
+
+type (
+	TxKeyType string
+)
+
+const (
+	TxKey TxKeyType = "Tx"
+)
+
+// DBFromCtxValue 从ctx value获取tx，如果不存在则返回db
+func DBFromCtxValue(ctx context.Context, db DB) DB {
+	tx, ok := ctx.Value(TxKey).(DB)
+	if ok {
+		if tx == nil {
+			panic(fmt.Errorf("tx from ctx is nil"))
+		}
+		return tx
+	}
+	return db
+}
+
+func MustGetDBFromCtxValue(ctx context.Context) DB {
+	db := DBFromCtxValue(ctx, nil)
+	if db == nil {
+		panic(fmt.Errorf("can't get tx from ctx"))
+	}
+	return db
+}
 
 func WithTx(db DB, f func(tx DB) error) error {
 	var tx *sqlx.Tx

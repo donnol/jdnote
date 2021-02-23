@@ -16,7 +16,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	appObj, cctx := initializers.New(ctx)
+	appObj := initializers.New()
 	defer appObj.Cancel()
 	logger := appObj.Logger()
 
@@ -24,7 +24,7 @@ func main() {
 	appObj.RegisterArounderMap(register.GetArounder())
 
 	// 注册
-	register.InjectAndRegisterRouter(cctx, appObj)
+	register.InjectAndRegisterRouter(appObj)
 
 	// 静态文件
 	appObj.StaticFS("/static", http.Dir("dist"))

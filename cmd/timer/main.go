@@ -16,7 +16,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	appObj, cctx := initializers.New(ctx)
+	appObj := initializers.New()
 	defer appObj.Cancel()
 	logger := appObj.Logger()
 
@@ -24,7 +24,7 @@ func main() {
 	appObj.RegisterArounderMap(register.GetArounder())
 
 	// 注入依赖并注册定时器handler
-	register.InjectAndRegisterTimerHandler(cctx, appObj)
+	register.InjectAndRegisterTimerHandler(ctx, appObj)
 
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})

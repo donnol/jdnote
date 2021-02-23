@@ -10,7 +10,6 @@ import (
 
 	"github.com/donnol/jdnote/utils/cache"
 	"github.com/donnol/jdnote/utils/config"
-	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/jwt"
 	"github.com/donnol/jdnote/utils/queue"
 	"github.com/donnol/jdnote/utils/route"
@@ -57,7 +56,7 @@ type App struct {
 	cron     *cron.Cron
 }
 
-func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
+func New(setters ...OptionSetter) *App {
 	// 选项
 	opt := &Option{}
 	for _, setter := range setters {
@@ -122,7 +121,7 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 	app.influxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
 
 	// ctx
-	cusCtx := context.New(ctx, app.db)
+	// cusCtx := context.New(ctx, app.db)
 
 	// 第三方sdk: oss等
 
@@ -148,7 +147,7 @@ func New(ctx stdctx.Context, setters ...OptionSetter) (*App, context.Context) {
 	}
 	app.cron = cron.New(opts...)
 
-	return app, cusCtx
+	return app
 }
 
 func (app *App) GetConfig() config.Config {
@@ -211,10 +210,10 @@ func (app *App) MustInject(v interface{}) {
 	}
 }
 
-func (app *App) RegisterRouterWithInject(ctx context.Context, v interface{}) {
+func (app *App) RegisterRouterWithInject(v interface{}) {
 	app.MustInject(v)
 
-	app.router.Register(ctx, v, route.RegisterOption{
+	app.router.Register(v, route.RegisterOption{
 		InfluxAPIWriter: app.influxAPIWriter,
 		ReqTimeout:      app.opt.timeout,
 	})
@@ -305,4 +304,9 @@ func (app *App) Cancel() {
 	if idb, ok := app.db.(*sqlx.DB); ok {
 		idb.Close()
 	}
+}
+
+// GetDB 获取db实例
+func (app *App) GetDB() db.DB {
+	return app.db
 }

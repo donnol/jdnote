@@ -1,19 +1,18 @@
 package roleactionstore
 
 import (
-	stdctx "context"
+	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/internal/initializers"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 func TestCheckPerm(t *testing.T) {
-	sctx := stdctx.Background()
-	_, ctx := initializers.New(sctx)
-	ctx = context.WithValue(ctx, context.UserKey, 1)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utilctx.UserKey, 1)
 
-	ra := New()
+	ra := New(&db.DBMock{})
 	if err := ra.CheckPerm(ctx, []string{"ALL"}); err != nil {
 		t.Fatal(err)
 	}

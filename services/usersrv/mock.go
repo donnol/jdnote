@@ -1,8 +1,9 @@
 package usersrv
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/usermodel"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 type UserMock struct {

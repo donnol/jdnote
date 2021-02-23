@@ -1,8 +1,9 @@
 package userrolestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/userrolemodel"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 type UserRoleMock struct {

@@ -1,7 +1,6 @@
 package noteapi
 
 import (
-	stdctx "context"
 	"fmt"
 	"net/http"
 	"os"
@@ -17,7 +16,6 @@ import (
 	"github.com/donnol/jdnote/stores/rolestore"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/tools/apitest"
@@ -27,9 +25,7 @@ var appObj *initializers.App
 var port = 8820
 
 func TestMain(m *testing.M) {
-	ctx := stdctx.Background()
-	var cctx context.Context
-	appObj, cctx = initializers.New(ctx)
+	appObj = initializers.New()
 	appObj.MustRegisterProvider(
 		initializers.ProviderOption{
 			Provider: userstore.New,
@@ -62,7 +58,7 @@ func TestMain(m *testing.M) {
 			Provider: notesrv.New,
 		},
 	)
-	appObj.RegisterRouterWithInject(cctx, &Note{})
+	appObj.RegisterRouterWithInject(&Note{})
 
 	go func() {
 		if err := appObj.StartServer(port); err != nil {

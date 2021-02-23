@@ -1,21 +1,27 @@
 package filesrv
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/filemodel"
 	"github.com/donnol/jdnote/stores/filestore"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/pkg/errors"
 )
 
 func NewIFile(
+	db db.DB,
 	fileStore filestore.IFile,
 ) IFile {
 	return &fileImpl{
+		db:        db,
 		fileStore: fileStore,
 	}
 }
 
 type fileImpl struct {
+	db db.DB
+
 	fileStore filestore.IFile
 }
 
@@ -38,9 +44,16 @@ func (impl *fileImpl) Get(ctx context.Context, param GetParam) (result GetResult
 }
 
 func (impl *fileImpl) Add(ctx context.Context, param AddParam) (result AddResult, err error) {
-	if err = context.WithTx(ctx, func(ctx context.Context) error {
+	if err = db.WithTx(impl.db, func(tx db.DB) error {
+		// 将tx存入context value
+		var ctx = context.WithValue(ctx, db.TxKey, tx)
+
 		var fileContentID int
-		fileContentID, err = impl.fileStore.AddContent(ctx, filemodel.FileContent{FileContentData: filemodel.FileContentData{Content: param.Content}})
+		fileContentID, err = impl.fileStore.AddContent(ctx, filemodel.FileContent{
+			FileContentData: filemodel.FileContentData{
+				Content: param.Content,
+			},
+		})
 		if err != nil {
 			return err
 		}
@@ -65,5 +78,6 @@ func (impl *fileImpl) Add(ctx context.Context, param AddParam) (result AddResult
 	}); err != nil {
 		return
 	}
+
 	return
 }

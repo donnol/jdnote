@@ -4,14 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/internal/initializers"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 func TestGetByUserID(t *testing.T) {
-	sctx := context.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
-	ur := New()
+	ur := New(&db.DBMock{})
 	if r, err := ur.GetByUserID(ctx, 1); err != nil {
 		t.Fatal(err)
 	} else {

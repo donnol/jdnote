@@ -26,14 +26,15 @@ func main() {
 func initdb() error {
 	var err error
 
-	sctx := context.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
+	app := initializers.New()
+	db := app.GetDB()
 
 	// 角色
 	re := rolemodel.Entity{
 		Role: "ALL",
 	}
-	r := rolestore.New()
+	r := rolestore.New(db)
 	if re.ID, err = r.Add(ctx, re); err != nil {
 		return err
 	}
@@ -42,7 +43,7 @@ func initdb() error {
 	ae := actionmodel.Entity{
 		Action: "ALL",
 	}
-	a := actionstore.New()
+	a := actionstore.New(db)
 	if ae.ID, err = a.Add(ctx, ae); err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func initdb() error {
 		RoleID:   re.ID,
 		ActionID: ae.ID,
 	}
-	ra := roleactionstore.New()
+	ra := roleactionstore.New(db)
 	if rae.ID, err = ra.Add(ctx, rae); err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func initdb() error {
 		Email:    "jdlau@126.com",
 		Password: "jd",
 	}
-	u := userstore.New()
+	u := userstore.New(db)
 	if ue.ID, err = u.Add(ctx, ue); err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func initdb() error {
 		UserID: ue.ID,
 		RoleID: re.ID,
 	}
-	ur := userrolestore.New()
+	ur := userrolestore.New(db)
 	if _, err = ur.Add(ctx, ure); err != nil {
 		return err
 	}

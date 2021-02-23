@@ -1,18 +1,22 @@
 package roleactionstore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/roleactionmodel"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
 type roleActionImpl struct {
+	db db.DB
 }
 
 // Add 添加
 func (ra *roleActionImpl) Add(ctx context.Context, e roleactionmodel.Entity) (id int, err error) {
-	if err = ctx.DB().GetContext(ctx.StdContext(), &id, `
+	if err = db.DBFromCtxValue(ctx, ra.db).GetContext(ctx, &id, `
 		INSERT INTO t_role_action (role_id, action_id)VALUES($1, $2)
 		RETURNING id
 		`, e.RoleID, e.ActionID); err != nil {
@@ -26,7 +30,7 @@ func (ra *roleActionImpl) Add(ctx context.Context, e roleactionmodel.Entity) (id
 // CheckPerm 检查权限
 func (ra *roleActionImpl) CheckPerm(ctx context.Context, perms []string) error {
 	var exist bool
-	if err := ctx.DB().GetContext(ctx.StdContext(), &exist, `
+	if err := db.DBFromCtxValue(ctx, ra.db).GetContext(ctx, &exist, `
 		select exists(
 			select * from 
 			t_role_action ra
@@ -38,7 +42,7 @@ func (ra *roleActionImpl) CheckPerm(ctx context.Context, perms []string) error {
 			and a.action = any($2)
 		)
 		`,
-		context.MustGetUserValue(ctx),
+		utilctx.MustGetUserValue(ctx),
 		pq.StringArray(perms),
 	); err != nil {
 		err = errors.WithStack(err)

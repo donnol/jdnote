@@ -4,18 +4,17 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/actionmodel"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 func TestGet(t *testing.T) {
 	var err error
 	var id int
 
-	sctx := context.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
-	a := New()
+	a := New(&db.DBMock{}) // 没有连接到数据库的
 	e := actionmodel.Entity{
 		Action: "WRITE",
 	}

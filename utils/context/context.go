@@ -6,15 +6,15 @@ import (
 	"github.com/donnol/jdnote/utils/store/db"
 )
 
-// Context 上下文
-type Context interface {
+// iContext 上下文
+type iContext interface {
 	context.Context
 
 	// 获取DB实例
 	DB() db.DB
 
 	// 返回一个新的Context，并设置tx
-	NewWithTx(db.DB) Context
+	NewWithTx(db.DB) iContext
 
 	SetContext(ctx context.Context)
 	StdContext() context.Context
@@ -33,7 +33,7 @@ func (mc *myContext) DB() (db db.DB) {
 }
 
 // NewWithTx 返回一个新的Context，并设置tx
-func (mc *myContext) NewWithTx(tx db.DB) Context {
+func (mc *myContext) NewWithTx(tx db.DB) iContext {
 	mctx := newCtx(mc.Context, tx)
 	return mctx
 }
@@ -48,13 +48,13 @@ func (mc *myContext) StdContext() context.Context {
 }
 
 // New 新建
-func New(ctx context.Context, db db.DB) Context {
+func New(ctx context.Context, db db.DB) iContext {
 	mctx := newCtx(ctx, db)
 
 	return mctx
 }
 
-func newCtx(ctx context.Context, db db.DB) Context {
+func newCtx(ctx context.Context, db db.DB) iContext {
 	mctx := new(myContext)
 
 	mctx.Context = ctx
@@ -62,15 +62,4 @@ func newCtx(ctx context.Context, db db.DB) Context {
 	mctx.db = db
 
 	return mctx
-}
-
-// WithValue 往标准库ctx设置key,value
-func WithValue(ctx Context, key, value interface{}) Context {
-	nctx := context.WithValue(ctx.StdContext(), key, value)
-	return newCtx(nctx, ctx.DB())
-}
-
-// GetValue 从标准库ctx读取key对应value
-func GetValue(ctx Context, key interface{}) interface{} {
-	return ctx.StdContext().Value(key)
 }

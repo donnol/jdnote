@@ -1,21 +1,27 @@
 package process
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"runtime"
 
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/tools/log"
 	"github.com/donnol/tools/worker"
 	"github.com/pkg/errors"
 )
 
 type BatchProcessor struct {
+	db db.DB
 }
 
-func NewBatchProcessor() *BatchProcessor {
-	return &BatchProcessor{}
+func NewBatchProcessor(
+	db db.DB,
+) *BatchProcessor {
+	return &BatchProcessor{
+		db: db,
+	}
 }
 
 // ProcessOption 选项
@@ -59,11 +65,14 @@ func (b *BatchProcessor) ProcessConcurrent(ctx context.Context, opt ProcessOptio
 	w.Start()
 
 	// 语句查询
-	rows, err := ctx.DB().QueryContext(ctx, opt.Query, opt.Args...)
+	rows, err := b.db.QueryContext(ctx, opt.Query, opt.Args...)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
+
+	// 将db存入ctx value
+	ctx = context.WithValue(ctx, db.TxKey, b.db)
 
 	// 遍历结果
 	// 每找到n条记录，传入worker执行

@@ -2,7 +2,6 @@ package fileapi
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -17,8 +16,7 @@ import (
 )
 
 func setRequestCookie(r *http.Request) error {
-	ctx := context.Background()
-	appObj, _ := initializers.New(ctx)
+	appObj := initializers.New()
 	cookie, err := appObj.MakeCookie(1)
 	if err != nil {
 		return (err)

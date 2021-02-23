@@ -1,10 +1,11 @@
 package usersrv
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/usermodel"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 type IUser interface {

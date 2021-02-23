@@ -1,21 +1,28 @@
 package filestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/filemodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
-func NewIFile() IFile {
-	return &fileImpl{}
+func NewIFile(
+	db db.DB,
+) IFile {
+	return &fileImpl{
+		db: db,
+	}
 }
 
 type fileImpl struct {
+	db db.DB
 }
 
 func (impl *fileImpl) Get(ctx context.Context, id int) (entity filemodel.File, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &entity, `
+	err = db.DBFromCtxValue(ctx, impl.db).GetContext(ctx, &entity, `
 		SELECT *
 		FROM t_file
 		WHERE id = $1
@@ -30,7 +37,7 @@ func (impl *fileImpl) Get(ctx context.Context, id int) (entity filemodel.File, e
 }
 
 func (impl *fileImpl) Add(ctx context.Context, entity filemodel.File) (id int, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_file(file_content_id, name, size)
+	err = db.DBFromCtxValue(ctx, impl.db).GetContext(ctx, &id, `INSERT INTO t_file(file_content_id, name, size)
 		VALUES($1, $2, $3)
 		RETURNING id
 		`,
@@ -46,7 +53,7 @@ func (impl *fileImpl) Add(ctx context.Context, entity filemodel.File) (id int, e
 }
 
 func (impl *fileImpl) GetContentByIDs(ctx context.Context, ids []int64) (entity []filemodel.FileContent, err error) {
-	err = ctx.DB().SelectContext(ctx.StdContext(), &entity, `
+	err = db.DBFromCtxValue(ctx, impl.db).SelectContext(ctx, &entity, `
 		SELECT *
 		FROM t_file_content
 		WHERE id = any($1)
@@ -62,7 +69,7 @@ func (impl *fileImpl) GetContentByIDs(ctx context.Context, ids []int64) (entity 
 }
 
 func (impl *fileImpl) AddContent(ctx context.Context, entity filemodel.FileContent) (id int, err error) {
-	err = ctx.DB().GetContext(ctx.StdContext(), &id, `INSERT INTO t_file_content(content)
+	err = db.DBFromCtxValue(ctx, impl.db).GetContext(ctx, &id, `INSERT INTO t_file_content(content)
 		VALUES($1)
 		RETURNING id
 		`,

@@ -1,8 +1,10 @@
 package rolestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/rolemodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 type IRole interface {
@@ -10,6 +12,10 @@ type IRole interface {
 	GetByID(ctx context.Context, id int) (e rolemodel.Entity, err error)
 }
 
-func New() IRole {
-	return &roleImpl{}
+func New(
+	db db.DB,
+) IRole {
+	return &roleImpl{
+		db: db,
+	}
 }

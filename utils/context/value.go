@@ -1,6 +1,10 @@
 package context
 
-import "github.com/pkg/errors"
+import (
+	"context"
+
+	"github.com/pkg/errors"
+)
 
 // 时间、地点、人物、事情
 type (
@@ -24,8 +28,13 @@ const (
 	RequestKey RequestKeyType = "RequestID"
 )
 
+// GetValue 从标准库ctx读取key对应value
+func GetValue(ctx context.Context, key interface{}) interface{} {
+	return ctx.Value(key)
+}
+
 // GetAllValue 获取ctx里的所有value
-func GetAllValue(ctx Context) ([]interface{}, error) {
+func GetAllValue(ctx context.Context) ([]interface{}, error) {
 	r := make([]interface{}, 0, 4)
 
 	r1, err := GetTimestampValue(ctx)
@@ -55,7 +64,7 @@ func GetAllValue(ctx Context) ([]interface{}, error) {
 	return r, nil
 }
 
-func GetUserValue(ctx Context) (int, error) {
+func GetUserValue(ctx context.Context) (int, error) {
 	v := GetValue(ctx, UserKey)
 	vv, ok := v.(int)
 	if !ok {
@@ -64,7 +73,7 @@ func GetUserValue(ctx Context) (int, error) {
 	return vv, nil
 }
 
-func GetRequestValue(ctx Context) (string, error) {
+func GetRequestValue(ctx context.Context) (string, error) {
 	v := GetValue(ctx, RequestKey)
 	vv, ok := v.(string)
 	if !ok {
@@ -73,7 +82,7 @@ func GetRequestValue(ctx Context) (string, error) {
 	return vv, nil
 }
 
-func GetTimestampValue(ctx Context) (int64, error) {
+func GetTimestampValue(ctx context.Context) (int64, error) {
 	v := GetValue(ctx, TimestampKey)
 	vv, ok := v.(int64)
 	if !ok {
@@ -82,7 +91,7 @@ func GetTimestampValue(ctx Context) (int64, error) {
 	return vv, nil
 }
 
-func GetRemoteAddrValue(ctx Context) (string, error) {
+func GetRemoteAddrValue(ctx context.Context) (string, error) {
 	v := GetValue(ctx, RemoteAddrKey)
 	vv, ok := v.(string)
 	if !ok {
@@ -91,7 +100,7 @@ func GetRemoteAddrValue(ctx Context) (string, error) {
 	return vv, nil
 }
 
-func MustGetUserValue(ctx Context) int {
+func MustGetUserValue(ctx context.Context) int {
 	v, err := GetUserValue(ctx)
 	if err != nil {
 		panic(err)
@@ -99,7 +108,7 @@ func MustGetUserValue(ctx Context) int {
 	return v
 }
 
-func MustGetRequestValue(ctx Context) string {
+func MustGetRequestValue(ctx context.Context) string {
 	v, err := GetRequestValue(ctx)
 	if err != nil {
 		panic(err)
@@ -107,7 +116,7 @@ func MustGetRequestValue(ctx Context) string {
 	return v
 }
 
-func MustGetTimestampValue(ctx Context) int64 {
+func MustGetTimestampValue(ctx context.Context) int64 {
 	v, err := GetTimestampValue(ctx)
 	if err != nil {
 		panic(err)
@@ -115,7 +124,7 @@ func MustGetTimestampValue(ctx Context) int64 {
 	return v
 }
 
-func MustGetRemoteAddrValue(ctx Context) string {
+func MustGetRemoteAddrValue(ctx context.Context) string {
 	v, err := GetRemoteAddrValue(ctx)
 	if err != nil {
 		panic(err)

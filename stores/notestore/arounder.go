@@ -1,10 +1,11 @@
 package notestore
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/donnol/jdnote/models/notemodel"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/tools/inject"
 )
 
@@ -47,7 +48,7 @@ func GetArounder() inject.ArounderMap {
 					if i == 0 {
 						ctx, ok := arg.Interface().(context.Context)
 						if ok {
-							values, err := context.GetAllValue(ctx)
+							values, err := utilctx.GetAllValue(ctx)
 							if err != nil {
 								pctx.Logf("GetAllValue err: %+v\n", err)
 							}

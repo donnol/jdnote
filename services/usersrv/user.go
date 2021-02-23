@@ -1,12 +1,13 @@
 package usersrv
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/rolemodel"
 	"github.com/donnol/jdnote/models/usermodel"
 	"github.com/donnol/jdnote/models/userrolemodel"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 type userImpl struct {

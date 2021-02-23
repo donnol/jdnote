@@ -1,7 +1,7 @@
 package route
 
 import (
-	stdctx "context"
+	"context"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/jdnote/utils/jwt"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -88,7 +88,7 @@ type RegisterOption struct {
 
 // Register 注册结构体
 // 结构体名字作为路径的第一部分，路径后面部分由可导出方法名映射来
-func (r *Router) Register(ctx context.Context, v interface{}, opt RegisterOption) {
+func (r *Router) Register(v interface{}, opt RegisterOption) {
 	// 计时开始
 	start := time.Now()
 
@@ -146,7 +146,7 @@ func (r *Router) Register(ctx context.Context, v interface{}, opt RegisterOption
 			}
 		}
 
-		handler := structHandlerFunc(ctx, method, valueFunc, ho)
+		handler := structHandlerFunc(method, valueFunc, ho)
 
 		wo := wrapOption{
 			fieldName:      field.Name,
@@ -368,7 +368,7 @@ type handlerOption struct {
 }
 
 // structHandlerFunc 结构体处理函数
-func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
+func structHandlerFunc(method string, f HandlerFunc, ho handlerOption) gin.HandlerFunc {
 	log.Debugf("handler option: %+v\n", ho)
 
 	// =============== Request starting point ===============
@@ -413,9 +413,8 @@ func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho ha
 		// WithValue(type context.RequestKeyType, val 52f41d4c-c98b-4b4f-a796-d5f8c14d4eb1) 0xc000340120}
 		//
 		// 新建一个，否则会导致多个请求共用一个ctx，然后导致ctx的value越来越多
-		sctx, cancel := stdctx.WithTimeout(cctx.StdContext(), ho.reqTimeout) // 请求最多可以执行的时间
+		ctx, cancel := context.WithTimeout(c.Request.Context(), ho.reqTimeout) // 请求最多可以执行的时间
 		defer cancel()
-		ctx := context.New(sctx, cctx.DB())
 
 		// 先确定时间和地点，然后是用户和请求
 		now := time.Now()
@@ -483,32 +482,14 @@ func structHandlerFunc(cctx context.Context, method string, f HandlerFunc, ho ha
 		// 注入上下文、用户和参数信息，并执行业务方法
 		var statusCode = http.StatusOK
 		var param = Param{method: method, body: body, values: values, multipartReader: multipartReader}
-		ctx = context.WithValue(ctx, context.TimestampKey, nowTimestamp)
-		ctx = context.WithValue(ctx, context.RemoteAddrKey, remoteAddr)
-		ctx = context.WithValue(ctx, context.UserKey, userID)
-		ctx = context.WithValue(ctx, context.RequestKey, reqID)
-		// 从这里开始，db会贯穿整个api,service,store，但其实api是完全不需要用到它的，service也只允许执行事务操作(开启、回滚、提交)，store才是真正执行db操作的
-		// 如果基于上面提到的，另外一个做法是利用依赖注入将db实例注入到service/store里，如果没有事务的话，这种做法也是相当可以了
-		// 问题的关键是往service注入了db，然后在开启了事务tx之后，怎么让service依赖的store里的db同时变成这个tx呢？这个是每个请求不同的，会不会不小心把别的请求也改了？毕竟依赖的store是全局单例来的
-		// 或许只能通过显示传递tx到store方法去，那这时对于跨service的事务呢，也要在service的方法里预留tx参数嘛？这样方法调用就会变成x.y(ctx, tx, param)，除了必有的ctx，还要多一个tx
-		// 事务对应请求，最大情况是每个请求对应一个事务
-		// 结论：要不使用自定义context(将ctx和db包括进来)，要不显示传递两个参数(ctx, db, param)
-		if ho.useTx {
-			// 事务-统一从这里开启。srv和store不需要理会事务，只需要使用ctx.DB()返回的实例去操作即可
-			// 即使是相同的请求，每次进来都会是一个新事务，所以基本上是没有事务嵌套的问题的
-			err = context.WithTx(ctx, func(ctx context.Context) error {
-				var err error
+		ctx = context.WithValue(ctx, utilctx.TimestampKey, nowTimestamp)
+		ctx = context.WithValue(ctx, utilctx.RemoteAddrKey, remoteAddr)
+		ctx = context.WithValue(ctx, utilctx.UserKey, userID)
+		ctx = context.WithValue(ctx, utilctx.RequestKey, reqID)
 
-				r, err = f(ctx, param)
-				if err != nil {
-					return err
-				}
+		// 执行业务方法
+		r, err = f(ctx, param)
 
-				return nil
-			})
-		} else {
-			r, err = f(ctx, param)
-		}
 		// 看似多余，但因为r是在f执行后返回的，有可能返回的是空结构，所以需要再次赋值
 		r.Timestamp = nowTimestamp
 		r.RequestID = reqID

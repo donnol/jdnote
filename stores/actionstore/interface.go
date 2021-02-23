@@ -1,8 +1,10 @@
 package actionstore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/actionmodel"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 type IAction interface {
@@ -10,6 +12,10 @@ type IAction interface {
 	GetByID(ctx context.Context, id int) (e actionmodel.Entity, err error)
 }
 
-func New() IAction {
-	return &actionImpl{}
+func New(
+	db db.DB,
+) IAction {
+	return &actionImpl{
+		db: db,
+	}
 }

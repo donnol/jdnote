@@ -1,9 +1,11 @@
 package authsrv
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/stores/roleactionstore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/context"
+	utilctx "github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/errors"
 )
 
@@ -15,7 +17,7 @@ type authImpl struct {
 
 // CheckUserExist 检查用户是否存在
 func (a *authImpl) CheckUserExist(ctx context.Context) error {
-	userID, err := context.GetUserValue(ctx)
+	userID, err := utilctx.GetUserValue(ctx)
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func (a *authImpl) CheckPerm(ctx context.Context, perms []string) error {
 
 // CheckLogin 检查登录态
 func (a *authImpl) CheckLogin(ctx context.Context) error {
-	userID, err := context.GetUserValue(ctx)
+	userID, err := utilctx.GetUserValue(ctx)
 	if err != nil {
 		return err
 	}

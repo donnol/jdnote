@@ -1,22 +1,19 @@
 package notesrv
 
 import (
-	stdctx "context"
+	"context"
 	"reflect"
 	"strconv"
 	"testing"
 	"time"
 
-	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/stores/notestore"
 	"github.com/donnol/jdnote/utils/common"
-	"github.com/donnol/jdnote/utils/context"
 )
 
 func TestPublish(t *testing.T) {
-	sctx := stdctx.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
 	n := New(mock)
 	if err := n.Publish(ctx, 45); err != nil {
@@ -64,8 +61,7 @@ var (
 )
 
 func TestGet(t *testing.T) {
-	sctx := stdctx.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
 	v := New(mock)
 	want := Result{

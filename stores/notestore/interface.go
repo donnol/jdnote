@@ -1,9 +1,11 @@
 package notestore
 
 import (
+	"context"
+
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
-	"github.com/donnol/jdnote/utils/context"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 // Noter 笔记接口
@@ -22,6 +24,10 @@ type Noter interface {
 }
 
 // New 新建
-func New() Noter {
-	return &noteImpl{}
+func New(
+	db db.DB,
+) Noter {
+	return &noteImpl{
+		db: db,
+	}
 }

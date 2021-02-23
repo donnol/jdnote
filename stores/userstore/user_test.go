@@ -4,15 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/models/usermodel"
+	"github.com/donnol/jdnote/utils/store/db"
 )
 
 func TestGetByName(t *testing.T) {
-	sctx := context.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
-	u := New()
+	u := New(&db.DBMock{})
 	if e, err := u.GetByName(ctx, "jd"); err != nil {
 		t.Fatal(err)
 	} else if e.ID == 0 {
@@ -23,10 +22,9 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	sctx := context.Background()
-	_, ctx := initializers.New(sctx)
+	ctx := context.Background()
 
-	u := New()
+	u := New(&db.DBMock{})
 	e := usermodel.Entity{
 		Name:     "jd",
 		Phone:    "jd",

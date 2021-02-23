@@ -1,7 +1,6 @@
 package authapi
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,8 +19,7 @@ import (
 var port = 8820
 
 func TestMain(m *testing.M) {
-	ctx := context.Background()
-	appObj, cctx := initializers.New(ctx)
+	appObj := initializers.New()
 	appObj.MustRegisterProvider(
 		initializers.ProviderOption{
 			Provider: userrolestore.New,
@@ -33,7 +31,7 @@ func TestMain(m *testing.M) {
 			Provider: usersrv.New,
 		},
 	)
-	appObj.RegisterRouterWithInject(cctx, &Auth{})
+	appObj.RegisterRouterWithInject(&Auth{})
 
 	go func() {
 		if err := appObj.StartServer(port); err != nil {

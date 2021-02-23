@@ -1,13 +1,12 @@
 package process
 
 import (
-	stdctx "context"
+	"context"
 	"database/sql"
 	"math/rand"
 	"strconv"
 	"testing"
 
-	"github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -50,8 +49,8 @@ func (ei *entityImpl) Do(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	query = ctx.DB().Rebind(query)
-	res := ctx.DB().MustExecContext(ctx, query, args...)
+	query = db.MustGetDBFromCtxValue(ctx).Rebind(query)
+	res := db.MustGetDBFromCtxValue(ctx).MustExecContext(ctx, query, args...)
 	_, err = res.RowsAffected()
 	if err != nil {
 		return err
@@ -61,18 +60,8 @@ func (ei *entityImpl) Do(ctx context.Context) error {
 }
 
 var (
-	sctx = stdctx.Background()
-	ctx  = func() context.Context {
-		dbImpl, err := db.Open(db.Option{
-			DriverName:     "postgres",
-			DataSourceName: "postgres://jd:jd@127.0.0.1:5432/cicada_dev?sslmode=disable",
-		})
-		if err != nil {
-			panic(err)
-		}
-		return context.New(sctx, dbImpl)
-	}()
-	batchProcessor = NewBatchProcessor()
+	ctx            = context.Background()
+	batchProcessor = NewBatchProcessor(&db.DBMock{})
 
 	entity = &entityImpl{
 		rows: make([]rowStruct, 0),
