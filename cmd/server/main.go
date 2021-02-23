@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"embed"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,6 +11,11 @@ import (
 
 	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/internal/initializers/register"
+)
+
+var (
+	//go:embed dist/*
+	content embed.FS
 )
 
 func main() {
@@ -26,8 +33,12 @@ func main() {
 	// 注册
 	register.InjectAndRegisterRouter(appObj)
 
-	// 静态文件
-	appObj.StaticFS("/static", http.Dir("dist"))
+	// 静态文件，使用go1.16新添的go embed，就可以把dockerfile里的dist复制指令去掉
+	sub, err := fs.Sub(content, "dist")
+	if err != nil {
+		panic(err)
+	}
+	appObj.StaticFS("/static", http.FS(sub))
 
 	// 监听终止信号
 	idleConnsClosed := make(chan struct{})

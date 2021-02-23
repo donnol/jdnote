@@ -6,14 +6,9 @@ require (
 	github.com/blevesearch/bleve v1.0.9
 	github.com/brianvoe/gofakeit/v4 v4.3.0
 	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
-	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
-	github.com/cznic/strutil v0.0.0-20181122101858-275e90344537 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/donnol/tools v0.5.1-0.20201222123925-8e57d5eb656b
 	github.com/expectedsh/go-sonic v0.0.0-20200417165347-1cfe7c425fff
-	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
-	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
-	github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 // indirect
 	github.com/gin-contrib/gzip v0.0.2
 	github.com/gin-gonic/gin v1.6.3
 	github.com/glycerine/go-unsnap-stream v0.0.0-20190901134440-81cf024a9e0a // indirect
@@ -31,7 +26,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0
-	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/tinylib/msgp v1.1.2 // indirect
@@ -43,4 +37,4 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 )
 
-go 1.14
+go 1.16
