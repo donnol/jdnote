@@ -6,6 +6,7 @@ import (
 	stdlog "log"
 	"net/http"
 	"os"
+	"runtime/metrics"
 	"time"
 
 	"github.com/donnol/jdnote/utils/cache"
@@ -268,6 +269,78 @@ func (app *App) RunPrometheus() error {
 	}()
 
 	return nil
+}
+
+func (app *App) RunMetrics() {
+	// TODO:从配置获取时间间隔
+	var d time.Duration = time.Second * 5
+
+	go func() {
+		ticker := time.NewTicker(d)
+		for t := range ticker.C {
+			fmt.Printf("time: %v\n", t)
+
+			// 获取所有指标描述
+			descs := metrics.All()
+
+			// 用指标名称创建样本
+			samples := make([]metrics.Sample, len(descs))
+			for i := range samples {
+				samples[i].Name = descs[i].Name
+			}
+
+			// 采样
+			metrics.Read(samples)
+
+			// 遍历结果
+			for _, sample := range samples {
+				name, value := sample.Name, sample.Value
+
+				// 处理每个样本.
+				switch value.Kind() {
+				case metrics.KindUint64:
+					fmt.Printf("KindUint64 %s: %d\n", name, value.Uint64())
+				case metrics.KindFloat64:
+					fmt.Printf("KindFloat64 %s: %f\n", name, value.Float64())
+				case metrics.KindFloat64Histogram:
+					// The histogram may be quite large, so let's just pull out
+					// a crude estimate for the median for the sake of this example. (在此示例中，中位数的粗略估算。)
+					fmt.Printf("KindFloat64Histogram %s: %f\n", name, medianBucket(value.Float64Histogram()))
+				case metrics.KindBad:
+					// This should never happen because all metrics are supported
+					// by construction.
+					panic("bug in runtime/metrics package!")
+				default:
+					// This may happen as new metrics get added.
+					//
+					// The safest thing to do here is to simply log it somewhere
+					// as something to look into, but ignore it for now.
+					// In the worst case, you might temporarily miss out on a new metric.
+					fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
+				}
+			}
+		}
+	}()
+}
+
+// 取中位数
+func medianBucket(h *metrics.Float64Histogram) float64 {
+	// 总数
+	total := uint64(0)
+	for _, count := range h.Counts {
+		total += count
+	}
+	// 中位数阈值大小
+	thresh := total / 2
+
+	total = 0
+	for i, count := range h.Counts {
+		total += count
+		if total >= thresh { // 达到阈值
+			return h.Buckets[i]
+		}
+	}
+	panic("should not happen")
 }
 
 func (app *App) Run() error {

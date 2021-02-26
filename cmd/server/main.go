@@ -65,6 +65,9 @@ func main() {
 		logger.Errorf("Prometheus err: %+v\n", err)
 	}
 
+	// 每隔一段时间收集一次指标
+	appObj.RunMetrics()
+
 	// 开启服务器
 	if err := appObj.Run(); err != nil {
 		logger.Errorf("Server err: %+v\n", err)
