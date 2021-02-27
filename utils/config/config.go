@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/donnol/jdnote/utils/store/influx"
@@ -26,6 +27,9 @@ type Config struct {
 
 	// jwt配置
 	JWT JWT `toml:"jwt"`
+
+	// Metrics时间间隔
+	MetricsTimeInterval time.Duration `toml:"metricsTimeInterval"`
 }
 
 type Pprof struct {

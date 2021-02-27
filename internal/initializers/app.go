@@ -272,8 +272,8 @@ func (app *App) RunPrometheus() error {
 }
 
 func (app *App) RunMetrics() {
-	// TODO:从配置获取时间间隔
-	var d time.Duration = time.Second * 5
+	// 从配置获取时间间隔
+	var d time.Duration = app.config.MetricsTimeInterval
 
 	go func() {
 		ticker := time.NewTicker(d)

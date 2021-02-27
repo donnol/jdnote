@@ -1,6 +1,8 @@
 package initializers
 
 import (
+	"time"
+
 	"github.com/donnol/jdnote/utils/config"
 	"github.com/donnol/jdnote/utils/store/influx"
 )
@@ -14,6 +16,7 @@ var dev = func() config.Config {
 	newConfig.Prometheus.Server.Port = 6690
 	newConfig.DB.Name = normal.DB.Name + "_dev"
 	newConfig.JWT.Secret = "Xadfdfoere23242l2afasf34wraf090uadfrfdI123dfdfe1"
+	newConfig.MetricsTimeInterval = time.Second * 5
 
 	return newConfig
 }()
@@ -55,4 +58,5 @@ var normal = config.Config{
 	JWT: config.JWT{
 		Secret: "Xadfdfoere23242l2afasf34wraf090uadfrfdIEJF039039",
 	},
+	MetricsTimeInterval: time.Second * 60,
 }
