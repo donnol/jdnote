@@ -11,6 +11,9 @@ import (
 
 	"github.com/donnol/jdnote/internal/initializers"
 	"github.com/donnol/jdnote/internal/initializers/register"
+
+	// 时区数据
+	_ "time/tzdata"
 )
 
 var (
