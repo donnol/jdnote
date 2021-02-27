@@ -39,6 +39,9 @@ path=/
 ab:
 	ab -n 1000 -c 100 $(kflag) http://localhost:8890$(path)
 
+docker_ps:
+	sudo docker ps
+
 # 构建镜像
 docker_build:
 	sudo docker build -t jdnote-server -f cmd/server/Dockerfile .
