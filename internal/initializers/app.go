@@ -1,7 +1,7 @@
 package initializers
 
 import (
-	stdctx "context"
+	"context"
 	"fmt"
 	stdlog "log"
 	"net/http"
@@ -240,7 +240,7 @@ func (app *App) RunTimer() error {
 	return nil
 }
 
-func (app *App) StopTimer() stdctx.Context {
+func (app *App) StopTimer() context.Context {
 	return app.cron.Stop()
 }
 
@@ -369,7 +369,7 @@ func (app *App) StartServer(port int) error {
 	return nil
 }
 
-func (app *App) ShutdownServer(ctx stdctx.Context) error {
+func (app *App) ShutdownServer(ctx context.Context) error {
 	return app.server.Shutdown(ctx)
 }
 
