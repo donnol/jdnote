@@ -37,7 +37,9 @@ var normal = config.Config{
 	},
 	DB: config.DB{
 		Scheme:   "postgres",
-		Host:     "127.0.0.1",
+		// TODO: 添加环境变量控制使用何种方式 键为hostFlag 值为: 1 ip地址;2 k8s服务名;
+		Host:     "127.0.0.1", // 本地开发时使用
+		// Host:     "postgres", // 在k8s集群中, 使用服务名来调用
 		Port:     5432,
 		User:     "jd",
 		Password: "jd",

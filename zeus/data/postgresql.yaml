@@ -14,7 +14,7 @@ metadata:
  name: postgres
 subsets:
  - addresses:
-     - ip: 10.0.1.1 # Host IP from host-access
+     - ip: 192.168.9.15 # Host IP from host-access, 远程服务的ip地址, 比如另一台虚拟机的ip
    ports:
      - port: 5432
 
