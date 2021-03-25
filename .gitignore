@@ -1,4 +1,5 @@
 .idea
-cmd/server/dist/
+cmd/server/dist/*
+!cmd/server/dist/README.md
 *.swp
 .vscode
