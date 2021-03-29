@@ -11,13 +11,13 @@ import (
 
 	"github.com/donnol/jdnote/utils/cache"
 	"github.com/donnol/jdnote/utils/config"
-	"github.com/donnol/jdnote/utils/jwt"
 	"github.com/donnol/jdnote/utils/queue"
-	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/jdnote/utils/store/db"
 	"github.com/donnol/jdnote/utils/store/influx"
 	"github.com/donnol/jdnote/utils/store/redis"
 	"github.com/donnol/jdnote/utils/timer"
+	"github.com/donnol/tools/jwt"
+	"github.com/donnol/tools/route"
 
 	"github.com/donnol/tools/inject"
 	"github.com/donnol/tools/log"

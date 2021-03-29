@@ -6,8 +6,8 @@ import (
 
 	"github.com/donnol/jdnote/models/notemodel"
 	"github.com/donnol/jdnote/utils/common"
-	utilctx "github.com/donnol/jdnote/utils/context"
 	"github.com/donnol/jdnote/utils/store/db"
+	utilctx "github.com/donnol/tools/context"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
