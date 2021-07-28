@@ -76,6 +76,7 @@ kubectl_scale_deploy:
 
 # k8s deploy service
 kubectl_expose_service:
+	# kubectl expose deployment jdnote-server --type=NodePort --name=jdnote-server-service --port=8890
 	sudo microk8s.kubectl expose deployment $(deployName) --type=NodePort --port=80 --name=jdnote-service
 
 # k8s delete service

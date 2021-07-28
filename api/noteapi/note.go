@@ -5,7 +5,7 @@ import (
 
 	"github.com/donnol/jdnote/services/authsrv"
 	"github.com/donnol/jdnote/services/notesrv"
-	"github.com/donnol/jdnote/utils/route"
+	"github.com/donnol/tools/route"
 )
 
 // Note 笔记

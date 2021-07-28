@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/donnol/jdnote/services/timesrv"
-	"github.com/donnol/jdnote/utils/route"
+	"github.com/donnol/tools/route"
 )
 
 type Time struct {

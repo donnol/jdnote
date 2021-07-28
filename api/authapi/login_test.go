@@ -12,8 +12,8 @@ import (
 	"github.com/donnol/jdnote/services/usersrv"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/errors"
 	"github.com/donnol/tools/apitest"
+	"github.com/donnol/tools/errors"
 )
 
 var port = 8820

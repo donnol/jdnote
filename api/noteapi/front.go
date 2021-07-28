@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/donnol/jdnote/services/notesrv"
-	"github.com/donnol/jdnote/utils/route"
+	"github.com/donnol/tools/route"
 )
 
 type Front struct {

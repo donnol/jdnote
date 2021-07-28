@@ -16,9 +16,9 @@ import (
 	"github.com/donnol/jdnote/stores/rolestore"
 	"github.com/donnol/jdnote/stores/userrolestore"
 	"github.com/donnol/jdnote/stores/userstore"
-	"github.com/donnol/jdnote/utils/errors"
-	"github.com/donnol/jdnote/utils/route"
 	"github.com/donnol/tools/apitest"
+	"github.com/donnol/tools/errors"
+	"github.com/donnol/tools/route"
 )
 
 var appObj *initializers.App

@@ -110,7 +110,7 @@ spec:
     spec:
       containers:
       - image: jdnote-server
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent # 本地没有镜像时再从网络获取
         name: jdnote-server
         resources: {}
         terminationMessagePath: /dev/termination-log
