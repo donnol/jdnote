@@ -280,7 +280,7 @@ func (app *App) RunMetrics() {
 	go func() {
 		ticker := time.NewTicker(d)
 		for t := range ticker.C {
-			// fmt.Printf("time: %v\n", t)
+			fmt.Printf("time: %v\n", t)
 
 			// 获取所有指标描述
 			descs := metrics.All()
@@ -301,13 +301,13 @@ func (app *App) RunMetrics() {
 				// 处理每个样本.
 				switch value.Kind() {
 				case metrics.KindUint64:
-					// fmt.Printf("KindUint64 %s: %d\n", name, value.Uint64())
+					fmt.Printf("KindUint64 %s: %d\n", name, value.Uint64())
 				case metrics.KindFloat64:
-					// fmt.Printf("KindFloat64 %s: %f\n", name, value.Float64())
+					fmt.Printf("KindFloat64 %s: %f\n", name, value.Float64())
 				case metrics.KindFloat64Histogram:
 					// The histogram may be quite large, so let's just pull out
 					// a crude estimate for the median for the sake of this example. (在此示例中，中位数的粗略估算。)
-					// fmt.Printf("KindFloat64Histogram %s: %f\n", name, medianBucket(value.Float64Histogram()))
+					fmt.Printf("KindFloat64Histogram %s: %f\n", name, medianBucket(value.Float64Histogram()))
 				case metrics.KindBad:
 					// This should never happen because all metrics are supported
 					// by construction.
@@ -318,7 +318,7 @@ func (app *App) RunMetrics() {
 					// The safest thing to do here is to simply log it somewhere
 					// as something to look into, but ignore it for now.
 					// In the worst case, you might temporarily miss out on a new metric.
-					// fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
+					fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
 				}
 			}
 		}
