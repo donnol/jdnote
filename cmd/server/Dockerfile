@@ -1,5 +1,5 @@
 # 构建
-FROM golang:1.16-alpine AS builder
+FROM golang:1.18-alpine AS builder
 
 RUN go env -w GOPROXY=https://goproxy.io,https://goproxy.cn,direct
 
@@ -7,6 +7,11 @@ ARG PROJECT_PATH=Projects/jdnote
 
 RUN mkdir -p /$PROJECT_PATH
 WORKDIR /$PROJECT_PATH
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 COPY . .
 WORKDIR /$PROJECT_PATH/cmd/server
 

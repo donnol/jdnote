@@ -215,8 +215,8 @@ func (app *App) RegisterRouterWithInject(v interface{}) {
 	app.MustInject(v)
 
 	app.router.Register(v, route.RegisterOption{
-		InfluxAPIWriter: app.influxAPIWriter,
-		ReqTimeout:      app.opt.timeout,
+		// InfluxAPIWriter: app.influxAPIWriter,
+		ReqTimeout: app.opt.timeout,
 	})
 }
 
