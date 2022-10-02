@@ -115,11 +115,11 @@ func New(setters ...OptionSetter) *App {
 	})
 
 	// influxdb
-	// app.influxdb = influx.Open(influx.Option{
-		// Host:  app.config.InfluxDB.Host,
-		// Token: app.config.InfluxDB.Token,
-	// }, nil)
-	// app.influxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
+	app.influxdb = influx.Open(influx.Option{
+		Host:  app.config.InfluxDB.Host,
+		Token: app.config.InfluxDB.Token,
+	}, nil)
+	app.influxAPIWriter = app.influxdb.WriteAPI(app.config.InfluxAPIWriter.OrgName, app.config.InfluxAPIWriter.BucketName)
 
 	// ctx
 	// cusCtx := context.New(ctx, app.db)
@@ -214,7 +214,10 @@ func (app *App) MustInject(v interface{}) {
 func (app *App) RegisterRouterWithInject(v interface{}) {
 	app.MustInject(v)
 
-	app.router.Register(v)
+	app.router.Register(v, route.RegisterOption{
+		InfluxAPIWriter: app.influxAPIWriter,
+		ReqTimeout:      app.opt.timeout,
+	})
 }
 
 func (app *App) StaticFS(relativePath string, fs http.FileSystem) {
