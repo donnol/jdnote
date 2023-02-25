@@ -86,7 +86,7 @@ require (
 	github.com/yuin/goldmark v1.2.1 // indirect
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.0.0-20201112185108-eeaa07dd7696 // indirect
